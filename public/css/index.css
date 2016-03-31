@@ -1,7 +1,31 @@
-.row {
-    margin-top: 80px;
+li{
+    list-style-type: none;
 }
 .panel-body {
     height: 500px;
     width: 100%;
+}
+.user-content {
+    height: 500px;
+    margin-top: -15px;
+    margin-left: -55px;
+    margin-right: -14px;
+    overflow-x: hidden;
+}
+.user-content ul li {
+    display: block;
+    border-bottom: 1px solid #ccc;
+}
+.user-content ul li a {
+    display: block;
+    text-decoration: none;
+}
+.user-content ul li img {
+    width: 45px;
+    height: 45px;
+    margin: 5px 5px 5px 20px;
+}
+.user-content ul li a span {
+    color: #343434;
+    font-size: 13px;
 }

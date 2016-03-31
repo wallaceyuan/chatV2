@@ -1,0 +1,11 @@
+<div class="jumbotron">
+    <h1>{{tip}}</h1>
+    <h4>{{msg.user}}:{{msg.content}}</h4>
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="inputName" class="sr-only">Name</label>
+            <input type="text" class="form-control" id="inputName" placeholder="Enter Name" ng-model="name">
+        </div>
+        <button type="submit" class="btn btn-default" ng-click="subName()">Confirm Name</button>
+    </form>
+</div>

@@ -4,12 +4,15 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
+var signedCookieParser = cookieParser('yuanchat');
+var fs = require('fs');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
-var port = process.env.PORT | 3000;
+var port = process.env.PORT | 30;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,9 +27,21 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+var clients = {};
+app.use(session({
+    secret: 'yuanchat',//secret 用来防止篡改 cookie
+    resave: false,
+    saveUninitialized: true
+}));
+
+var username;
+
+app.use(function(req,res,next){
+    username = res.locals.user = req.session.user;
+    next();
+});
 app.use('/', routes);
 app.use('/users', users);
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -61,11 +76,12 @@ app.use(function(err, req, res, next) {
 //先创建一个HTTP服务器
 var server = app.listen(port);
 var io = require('socket.io').listen(server);
-var clients = {};
+
+
+
 io.on('connection',function(socket){
     var username;
-    socket.send({user:'系统',content:'请输入用户名'});
-
+    //socket.send({user:'系统',content:'请输入用户名'});
     //监听 客户端的消息
     socket.on('message',function(msg){
         var result = msg.match(/^@(.+)\s(.+)$/);
@@ -81,18 +97,18 @@ io.on('connection',function(socket){
             if(username){
                 //把客户端发过来的消息广播给所有的客户端
                 for(var s in clients){
-                    clients[s].send({user:username,content:msg});
+                    clients[s].send({type:2,user:username,content:msg});
                 }
             }else{
-                username = msg;
-                //属性名是用户名，值为对应的socket对象
+                username = msg.name;
                 clients[username] = socket;
-                socket.send({user:'系统',content:'你的用户名已经修改为'+username});
+                for(var s in clients){
+                    clients[s].send({type:1,user:username});
+                }
             }
         }
     })
 });
-
 
 
 module.exports = app;

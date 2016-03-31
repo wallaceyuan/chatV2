@@ -1,0 +1,47 @@
+<div class="jumbotron" ng-show="status">
+    <h4>{{msg.user}}:{{msg.content}}</h4>
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="inputName" class="sr-only">Name</label>
+            <input type="text" class="form-control" id="inputName" placeholder="Enter Name" ng-model="line.name">
+        </div>
+        <button type="submit" class="btn btn-default" ng-click="subName()">Confirm Name</button>
+    </form>
+</div>
+
+<div class="col-sm-3">
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-user">&nbsp;</span><span>在线成员</span>
+        </div>
+        <div class="panel-body">
+            <div class="msg-list-body user-content">
+                <ul ng-repeat="onl in onlines">
+                    <li><a href="#"><img src="/images/1.jpg" class="img-thumbnail"><span>{{onl.name}}</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9">
+    <div class="panel panel-success">
+        <div class="panel panel-heading">欢迎来到聊天室</div>
+        <div class="panel-body">
+            <ul class="list-group" id="messageUl" ng-repeat="mes in messages">
+                <li class="list-group-item">
+                    <span class="user" ng-click="replay(mes.user)">{{mes.user}}</span>:{{mes.content}}
+                </li>
+            </ul>
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="col-xs-10">
+                    <input type="text" class="form-control" id="txtMsg" ng-model="message" ng-keypress="enter($event)">
+                </div>
+                <div class="col-xs-2">
+                    <button class="btn btn-default" type="button" id="sendBtn" ng-click="createMessage()">发言</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

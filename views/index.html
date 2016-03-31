@@ -5,115 +5,33 @@
     <title>Title</title>
     <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.css">
     <link rel="stylesheet" href="/css/index.css">
-    <style>
-        .user{
-            color:green;
-        }
-    </style>
 </head>
 <body>
-<div class="container" ng-controller="chatCtrl">
-    <div class="row">
-        <div class="col-sm-3">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <span class="glyphicon glyphicon-user">&nbsp;</span><span>在线成员</span>
-                </div>
-                <div class="panel-body">
-                    <div class="msg-list-body user-content">
-                        <ul>
-                            <li style="display:none;"><a href="#"><img src="/images/1.jpg" class="img-thumbnail"><span></span></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-9">
-            <div class="panel panel-success">
-                <div class="panel panel-heading">欢迎来到聊天室</div>
-                <div class="panel-body">
-                    <ul class="list-group" id="messageUl" ng-repeat="mes in messages">
-                        <li class="list-group-item">
-                            <span class="user" ng-click="replay(mes.user)">{{mes.user}}</span>:{{mes.content}}
-                        </li>
-                    </ul>
-                </div>
-                <div class="panel-footer">
-                    <div class="row">
-                        <div class="col-xs-10">
-                            <input type="text" class="form-control" id="txtMsg" ng-model="message" ng-keypress="enter($event)">
-                        </div>
-                        <div class="col-xs-2">
-                            <button class="btn btn-default" type="button" id="sendBtn" ng-click="createMessage()">发言</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <p class="navbar-text">聊天室</p>
+            <a class="navbar-brand" href="#/room">chat</a>
         </div>
     </div>
+</nav>
+<div class="container">
+    <!-- 在index.html中，使用ng-view指令放一个占位符，Angular可以根据URL地址的不同载入对应的视图和控制器； -->
+    <div class="row" ng-view></div>
 </div>
 </body>
-<script src="/lib/jquery/dist/jquery.js"></script>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/lib/jquery/dist/jquery.js"></script>
 <script src="/lib/angular/angular.js"></script>
-<script>
-    angular.module('chatModule',[]);
-    angular.module('chatModule').factory('socket',function($rootScope) {
-        var socket = io.connect('/');
-        return {
-            on: function (eventName, callback) {
-                socket.on(eventName, function () {
-                    var args = arguments;
-                    $rootScope.$apply(function () {
-                        callback.apply(socket, args);
-                    });
-                });
-            },
-            emit: function (eventName, data, callback) {
-                console.log('emit',eventName,data);
-                socket.emit(eventName, data, function () {
-                    var args = arguments;
-                    $rootScope.$apply(function () {
-                        if (callback) {
-                            callback.apply(socket, args);
-                        }
-                    });
-                })
-            },
-            send:function(data){
-                socket.send(data);
-            }
-        };
-    });
-    angular.module('chatModule').controller('chatCtrl',function($scope,socket){
-        $scope.messages = [];
-        $scope.message = '';
-        $scope.createMessage = function(){
-            if($scope.message){
-                socket.send($scope.message);
-                $scope.message = '';
-            }
-        }
-        $scope.replay = function(user){
-            $scope.message = '@'+user;
-        }
-        $scope.enter = function(keyEvent){
-            var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
-            if(char == 13){
-                $scope.createMessage();
-            }
-        }
-        socket.on('connect', function (data) {
-            $scope.messages.push({
-                user: '系统',
-                content: '连接成功'
-            });
-        });
-        //监听服务器发过来的消息
-        socket.on('message',function(msg){
-            console.log(msg);
-            $scope.messages.push(msg);
-        });
-    });
-</script>
+<script src="/lib/angular-route.js"></script>
+<script src="/lib/firebase.js"></script>
+<script src="/lib/angularfire.js"></script>
+
+
+
+
+<script src="js/chatCtrl.js"></script>
+<script src="js/indexCtrl.js"></script>
+<script src="js/roomCtrl.js"></script>
+
 </html>
