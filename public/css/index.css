@@ -29,3 +29,9 @@ li{
     color: #343434;
     font-size: 13px;
 }
+.me{
+    text-align: right;background: #b8db29;
+}
+.other{
+    text-align: left;background: #EEE;
+}

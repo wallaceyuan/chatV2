@@ -26,7 +26,6 @@ angular.module('chatModule').factory('socket',function($rootScope) {
             })
         },
         send:function(data){
-            console.log(data);
             socket.send(data);
         }
     };

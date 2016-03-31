@@ -11,5 +11,13 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "angular": "~1.5.3",
+    "angular-route": "~1.5.3",
+    "angularfire": "~1.2.0",
+    "bootstrap": "~3.3.6",
+    "firebase": "~2.4.2",
+    "jquery": "~2.2.2"
+  }
 }

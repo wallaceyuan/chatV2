@@ -27,14 +27,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-var clients = {};
 app.use(session({
     secret: 'yuanchat',//secret 用来防止篡改 cookie
     resave: false,
     saveUninitialized: true
 }));
 
-var username;
 
 app.use(function(req,res,next){
     username = res.locals.user = req.session.user;
@@ -76,14 +74,15 @@ app.use(function(err, req, res, next) {
 //先创建一个HTTP服务器
 var server = app.listen(port);
 var io = require('socket.io').listen(server);
-
-
+var messages = [];
+var clients = [];
 
 io.on('connection',function(socket){
     var username;
     //socket.send({user:'系统',content:'请输入用户名'});
     //监听 客户端的消息
     socket.on('message',function(msg){
+        console.log(clients);
         var result = msg.match(/^@(.+)\s(.+)$/);
         if(result){
             var toUser = result[1];
@@ -100,14 +99,21 @@ io.on('connection',function(socket){
                     clients[s].send({type:2,user:username,content:msg});
                 }
             }else{
-                username = msg.name;
+                username = msg;
                 clients[username] = socket;
                 for(var s in clients){
-                    clients[s].send({type:1,user:username});
+                    clients[s].send({type:1,user:username,content:msg});
                 }
             }
         }
     })
+    socket.on('disconnect', function () {
+        //给别人增加一条消息
+        console.log('disconnect',username);
+        for(var s in clients){
+            clients[s].send({type:3,user:username});
+        }
+    });
 });
 
 

@@ -3,7 +3,7 @@
     <form class="form-inline">
         <div class="form-group">
             <label for="inputName" class="sr-only">Name</label>
-            <input type="text" class="form-control" id="inputName" placeholder="Enter Name" ng-model="line.name">
+            <input type="text" class="form-control" id="inputName" placeholder="Enter Name" ng-model="line">
         </div>
         <button type="submit" class="btn btn-default" ng-click="subName()">Confirm Name</button>
     </form>
@@ -17,7 +17,7 @@
         <div class="panel-body">
             <div class="msg-list-body user-content">
                 <ul ng-repeat="onl in onlines">
-                    <li><a href="#"><img src="/images/1.jpg" class="img-thumbnail"><span>{{onl.name}}</span></a></li>
+                    <li><img src="/images/1.jpg" class="img-thumbnail"><span>{{onl.name}}</span></li>
                 </ul>
             </div>
         </div>
@@ -28,7 +28,7 @@
         <div class="panel panel-heading">欢迎来到聊天室</div>
         <div class="panel-body">
             <ul class="list-group" id="messageUl" ng-repeat="mes in messages">
-                <li class="list-group-item">
+                <li class="list-group-item  {{mes.flag}}">
                     <span class="user" ng-click="replay(mes.user)">{{mes.user}}</span>:{{mes.content}}
                 </li>
             </ul>
