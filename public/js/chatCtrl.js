@@ -1,8 +1,5 @@
-/**
- * Created by yuan on 2016/3/31.
- */
+angular.module('chatModule',['ngRoute']);
 
-angular.module('chatModule',['ngRoute','firebase']);
 angular.module('chatModule').factory('socket',function($rootScope) {
     var socket = io.connect('/');
     return {
@@ -30,15 +27,8 @@ angular.module('chatModule').factory('socket',function($rootScope) {
         }
     };
 });
-angular.module('chatModule').factory('chatService', function ($http) {
-    return {
-        login:function(data){
-            return $http.post('/login',data);
-        }
-    }
-});
 
-//config进行路由配置
+
 angular.module('chatModule').config(function($routeProvider){
     //进行路由的配置
     $routeProvider.when('/room',{

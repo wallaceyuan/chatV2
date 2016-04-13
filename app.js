@@ -12,8 +12,6 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
-var port = process.env.PORT | 30;
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'html');
@@ -72,49 +70,5 @@ app.use(function(err, req, res, next) {
 });
 
 //先创建一个HTTP服务器
-var server = app.listen(port);
-var io = require('socket.io').listen(server);
-var messages = [];
-var clients = [];
-
-io.on('connection',function(socket){
-    var username;
-    //socket.send({user:'系统',content:'请输入用户名'});
-    //监听 客户端的消息
-    socket.on('message',function(msg){
-        console.log(clients);
-        var result = msg.match(/^@(.+)\s(.+)$/);
-        if(result){
-            var toUser = result[1];
-            var content = result[2];
-            if(clients[toUser]){//通过用户名把对应的socket取出来
-                clients[toUser].send({user:username,content:'[私聊]'+content});
-            }else{
-                socket.send({user:'系统',content:'你想私聊的人不在线'});
-            }
-        }else{
-            if(username){
-                //把客户端发过来的消息广播给所有的客户端
-                for(var s in clients){
-                    clients[s].send({type:2,user:username,content:msg});
-                }
-            }else{
-                username = msg;
-                clients[username] = socket;
-                for(var s in clients){
-                    clients[s].send({type:1,user:username,content:msg});
-                }
-            }
-        }
-    })
-    socket.on('disconnect', function () {
-        //给别人增加一条消息
-        console.log('disconnect',username);
-        for(var s in clients){
-            clients[s].send({type:3,user:username});
-        }
-    });
-});
-
 
 module.exports = app;

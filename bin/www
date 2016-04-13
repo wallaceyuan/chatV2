@@ -24,10 +24,59 @@ var server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces.
  */
+var io = require('socket.io')(server);
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+var messages = [];
+var clients = [];var users = [];
+io.sockets.on('connection',function(socket){
+    var username;
+    //监听 客户端的消息
+    socket.on('message',function(msg){
+        //console.log(clients);
+        var result = msg.match(/^@(.+)\s(.+)$/);
+        if(result){
+            var toUser = result[1];
+            var content = result[2];
+            if(clients[toUser]){//通过用户名把对应的socket取出来
+                clients[toUser].send({user:username,content:'[私聊]'+content});
+            }else{
+                socket.send({user:'系统',content:'你想私聊的人不在线'});
+            }
+        }else{
+            if(username){
+                io.sockets.send({type:'msg',user:username,content:msg});
+            }else{
+                username = msg;
+                clients[username] = socket;
+            }
+        }
+    })
+    socket.on('disconnect', function () {
+        io.sockets.send({type:'enter',all:users});
+    });
+    socket.on('createMessage',function(data){
+        messages.push(data.message);
+        io.sockets.emit('message.add',{user:data.user,content:data.message});
+    });
+    socket.on('getAllMessages',function(){
+        socket.emit('allMessages',{messages:messages,users:users});
+    });
+    socket.on('join',function(me){
+        users.push({name:me});
+        io.sockets.emit('joinChat',{users:users});
+    });
+    socket.on('leave',function(me){
+        if(me)
+            users = users.filter(function(user){
+                if(user)
+                    return me._id != user._id;
+            });
+    });
+});
 
 /**
  * Normalize a port into a number, string, or false.
