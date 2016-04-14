@@ -54,7 +54,7 @@ io.sockets.on('connection',function(socket){
           return username != user.name;
       });
       if(username)
-      socket.broadcast.emit('people.del', {user:username,content:'离开了聊天',people:users});
+      socket.broadcast.emit('people.del', {user:username,content:'下线了',people:users});
     });
 
     socket.on('createMessage',function(data){

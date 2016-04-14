@@ -1,6 +1,7 @@
 angular.module('chatModule').controller('roomCtrl',function($scope,socket){
     $scope.status = true;
-    $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [];
+    $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [];
+    $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
     $scope.createMessage = function(){
         if($scope.message){
             socket.emit('createMessage',{user:$scope.line,message:$scope.message});
@@ -47,8 +48,8 @@ angular.module('chatModule').controller('roomCtrl',function($scope,socket){
     });
 
     socket.on('people.del',function(msg){
-        msg.flag = 'other';
-        $scope.messages.push(msg);
+        $scope.ws = '';$scope.wss = '';
+        $scope.world = msg;
         $scope.onlines = msg.people;
     });
 
@@ -58,6 +59,8 @@ angular.module('chatModule').controller('roomCtrl',function($scope,socket){
             user.icon = true;
         else
             user.icon = false;
+        $scope.ws = '';$scope.wss = '';
+        $scope.world = {user:user.name,content:'上线了'};
         $scope.onlines.push(user);
     });
 

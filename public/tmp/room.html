@@ -71,21 +71,22 @@
     </div>
 </div>
 
-<ul class="messenger messenger-fixed messenger-on-bottom messenger-on-right messenger-theme-flat">
-    <li class="messenger-message-slot messenger-shown messenger-first messenger-last">
-        <div class="messenger-message message alert info message-info alert-info messenger-will-hide-after">
-            <button type="button" class="messenger-close" data-dismiss="alert">×</button>
-            <div class="messenger-message-inner">
-                sss下线了。
+<div class="world">
+    <ul class="messenger messenger-fixed messenger-on-bottom messenger-on-right messenger-theme-flat {{ws}}">
+        <li class="messenger-message-slot messenger-shown messenger-first messenger-last">
+            <div class="messenger-message message alert info message-info alert-info messenger-will-hide-after {{wss}}">
+                <button type="button" class="messenger-close" data-dismiss="alert">×</button>
+                <div class="messenger-message-inner">{{world.user}}{{world.content}}</div>
+                <div class="messenger-spinner">
+                <span class="messenger-spinner-side messenger-spinner-side-left">
+                    <span class="messenger-spinner-fill"></span>
+			    </span>
+                <span class="messenger-spinner-side messenger-spinner-side-right">
+                    <span class="messenger-spinner-fill"></span>
+                </span>
+                </div>
             </div>
-            <div class="messenger-spinner">
-			<span class="messenger-spinner-side messenger-spinner-side-left">
-			<span class="messenger-spinner-fill"></span>
-			</span>
-			<span class="messenger-spinner-side messenger-spinner-side-right">
-			<span class="messenger-spinner-fill"></span>
-			</span>
-            </div>
-        </div>
-    </li>
-</ul>
+        </li>
+    </ul>
+</div>
+
