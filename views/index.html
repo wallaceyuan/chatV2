@@ -2,12 +2,13 @@
 <html lang="en" ng-app="chatModule">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>聊天室</title>
     <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.css">
     <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/messager.css">
 </head>
 <body>
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
             <p class="navbar-text">聊天室</p>
@@ -15,8 +16,7 @@
         </div>
     </div>
 </nav>
-<div class="container">
-    <!-- 在index.html中，使用ng-view指令放一个占位符，Angular可以根据URL地址的不同载入对应的视图和控制器； -->
+<div class="container chat">
     <div class="row" ng-view></div>
 </div>
 </body>
@@ -24,12 +24,8 @@
 <script src="/lib/jquery/dist/jquery.js"></script>
 <script src="/lib/angular/angular.js"></script>
 <script src="/lib/angular-route/angular-route.js"></script>
-<script src="/lib/firebase/firebase.js"></script>
-<script src="/lib/angularfire/dist/angularfire.js"></script>
 
 
 <script src="js/chatCtrl.js"></script>
-<script src="js/indexCtrl.js"></script>
 <script src="js/roomCtrl.js"></script>
-
 </html>

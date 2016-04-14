@@ -36,7 +36,6 @@ io.sockets.on('connection',function(socket){
     var username;
     //监听 客户端的消息
     socket.on('message',function(msg){
-        //console.log(clients);
         var result = msg.match(/^@(.+)\s(.+)$/);
         if(result){
             var toUser = result[1];
@@ -46,35 +45,31 @@ io.sockets.on('connection',function(socket){
             }else{
                 socket.send({user:'系统',content:'你想私聊的人不在线'});
             }
-        }else{
-            if(username){
-                io.sockets.send({type:'msg',user:username,content:msg});
-            }else{
-                username = msg;
-                clients[username] = socket;
-            }
         }
     })
+
     socket.on('disconnect', function () {
-        io.sockets.send({type:'enter',all:users});
+      users = users.filter(function(user){
+        if(user)
+          return username != user.name;
+      });
+      if(username)
+      socket.broadcast.emit('people.del', {user:username,content:'离开了聊天',people:users});
     });
+
     socket.on('createMessage',function(data){
         messages.push(data.message);
         io.sockets.emit('message.add',{user:data.user,content:data.message});
     });
+
     socket.on('getAllMessages',function(){
         socket.emit('allMessages',{messages:messages,users:users});
     });
+
     socket.on('join',function(me){
-        users.push({name:me});
-        io.sockets.emit('joinChat',{users:users});
-    });
-    socket.on('leave',function(me){
-        if(me)
-            users = users.filter(function(user){
-                if(user)
-                    return me._id != user._id;
-            });
+        username = me;
+        users.push({name:me,icon:false});
+        io.sockets.emit('joinChat',{name:me,icon:false});
     });
 });
 

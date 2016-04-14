@@ -12,7 +12,6 @@ angular.module('chatModule').factory('socket',function($rootScope) {
             });
         },
         emit: function (eventName, data, callback) {
-            console.log('emit',eventName,data);
             socket.emit(eventName, data, function () {
                 var args = arguments;
                 $rootScope.$apply(function () {
