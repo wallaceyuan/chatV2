@@ -20,13 +20,9 @@ angular.module('chatModule').factory('socket',function($rootScope) {
                     }
                 });
             })
-        },
-        send:function(data){
-            socket.send(data);
         }
     };
 });
-
 
 angular.module('chatModule').config(function($routeProvider){
     //进行路由的配置

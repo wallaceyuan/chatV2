@@ -1,4 +1,4 @@
-angular.module('chatModule').controller('roomCtrl',function($scope,socket){
+angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,socket){
     $scope.status = true;
     $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [];
     $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
@@ -45,12 +45,23 @@ angular.module('chatModule').controller('roomCtrl',function($scope,socket){
             msg.flag = 'other message-receive';
         }
         $scope.messages.push(msg);
+        var timer = $timeout(function() {
+            $('.content').mCustomScrollbar("scrollTo","bottom",{
+                scrollInertia:500
+            });
+            $timeout.cancel(timer);
+        }, 0);
     });
 
     socket.on('people.del',function(msg){
         $scope.ws = '';$scope.wss = '';
         $scope.world = msg;
         $scope.onlines = msg.people;
+
+        var timer = $timeout(function() {
+            $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
+            $timeout.cancel(timer);
+        }, 3000);
     });
 
     socket.on('joinChat',function(msg){
@@ -62,6 +73,13 @@ angular.module('chatModule').controller('roomCtrl',function($scope,socket){
         $scope.ws = '';$scope.wss = '';
         $scope.world = {user:user.name,content:'上线了'};
         $scope.onlines.push(user);
+
+        $timeout.cancel($scope.promise);
+
+        var timer = $timeout(function() {
+            $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
+            $timeout.cancel(timer);
+        }, 3000);
     });
 
 });

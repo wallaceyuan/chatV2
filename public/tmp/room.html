@@ -18,7 +18,7 @@
             <span class="glyphicon glyphicon-user">&nbsp;</span><span>在线成员</span>
         </div>
         <div class="panel-body">
-            <div class="msg-list-body user-content">
+            <div class="msg-list-body user-content  mCustomScrollbar">
                 <ul ng-repeat="onl in onlines">
                     <li>
                         <img src="/images/1.jpg" class="img-thumbnail">
@@ -43,7 +43,7 @@
             <span>聊天室</span>　
             <span id="spanuser" style="float:right;" ng-show="!status">欢迎你！{{line}}</span>
         </div>
-        <div class="panel-body">
+        <div class="panel-body content mCustomScrollbar">
             <div id="messageUl" ng-repeat="mes in messages" >
                 <div class="{{mes.flag}}">
                     <div class="message-info">
@@ -90,3 +90,8 @@
     </ul>
 </div>
 
+<script type="text/javascript">
+    $(".content").mCustomScrollbar();
+    $(".user-content").mCustomScrollbar();
+
+</script>
