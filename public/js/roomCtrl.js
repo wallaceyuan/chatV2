@@ -2,6 +2,18 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
     $scope.status = true;
     $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [];
     $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
+
+    $scope.$on('add',function(event,num){
+        alert(111);
+    });
+
+    $scope.subName = function(){
+        $scope.status = false;
+        if($scope.line){
+            socket.emit('join',$scope.line);
+        }
+
+    }
     $scope.createMessage = function(){
         if($scope.message){
             socket.emit('createMessage',{user:$scope.line,message:$scope.message});
@@ -9,12 +21,7 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
         }
     }
 
-    $scope.subName = function(){
-        $scope.status = false;
-        if($scope.line){
-            socket.emit('join',$scope.line);
-        }
-    }
+
 
     $scope.replay = function(user){
         $scope.message = '@'+user;

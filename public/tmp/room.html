@@ -19,11 +19,16 @@
         </div>
         <div class="panel-body">
             <div class="msg-list-body user-content  mCustomScrollbar">
-                <ul ng-repeat="onl in onlines">
-                    <li>
+                <ul>
+                    <li ng-repeat="onl in onlines" ng-click="$broadcast('add',num)" ng-init="show = onl.icon">
                         <img src="/images/1.jpg" class="img-thumbnail">
                         <span>{{onl.name}}</span>
-                        <span class="glyphicon glyphicon-star" aria-hidden="true" ng-show="onl.icon"></span>
+                        <em class="glyphicon glyphicon-star" aria-hidden="true" ng-show="onl.icon"></em>
+                        <div ng-if="show&&!onl.icon">
+                            <div class="cover">
+                                <button type="button" class="btn btn-default">私聊</button>
+                            </div>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -71,6 +76,14 @@
     </div>
 </div>
 
+<div class="room" ng-controller="twoCtrl">
+
+    <input type="text" ng-model="two">
+    {{two}}
+
+</div>
+
+
 <div class="world">
     <ul class="messenger messenger-fixed messenger-on-bottom messenger-on-right messenger-theme-flat {{ws}}">
         <li class="messenger-message-slot messenger-shown messenger-first messenger-last">
@@ -93,5 +106,4 @@
 <script type="text/javascript">
     $(".content").mCustomScrollbar();
     $(".user-content").mCustomScrollbar();
-
 </script>
