@@ -1,32 +1,32 @@
 angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,socket){
-    $scope.status = true;
+    $scope.status = true;$scope.dialog = false;
+    $scope.ptop;
     $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [];
     $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
+    $scope.chat = function(name){
+        $scope.ptop = name;
+    }
 
-    $scope.$on('add',function(event,num){
-        alert(111);
-    });
-
+    /*提交姓名*/
     $scope.subName = function(){
         $scope.status = false;
         if($scope.line){
             socket.emit('join',$scope.line);
         }
-
     }
+
     $scope.createMessage = function(){
         if($scope.message){
-            socket.emit('createMessage',{user:$scope.line,message:$scope.message});
+            socket.emit('createMessage',{user:$scope.line,message:$scope.message,time:getTime()});
             $scope.message = '';
         }
     }
-
-
 
     $scope.replay = function(user){
         $scope.message = '@'+user;
     }
 
+    /*回车事件*/
     $scope.enter = function(keyEvent){
         var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
         if(char == 13){
@@ -34,10 +34,12 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
         }
     }
 
+    /*连接事件*/
     socket.on('connect', function(){
         $scope.tip = 'Hello,Friend!';
     });
 
+    /*获取在线列表*/
     socket.emit('getAllMessages');
 
     socket.on('allMessages',function(data){
@@ -46,6 +48,7 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
     });
 
     socket.on('message.add',function(msg){
+        console.log(msg);
         if(msg.user == $scope.line){
             msg.flag = 'me message-reply';
         }else{
@@ -63,7 +66,10 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
     socket.on('people.del',function(msg){
         $scope.ws = '';$scope.wss = '';
         $scope.world = msg;
-        $scope.onlines = msg.people;
+        $scope.onlines = $scope.onlines.filter(function(user){
+            if(user)
+                return user.name != msg.name;
+        });
 
         var timer = $timeout(function() {
             $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
@@ -90,3 +96,13 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
     });
 
 });
+
+
+function getTime(){
+    var t = new Date();
+    var year = t.getFullYear();
+    var month = t.getMonth(), dayDate = t.getDate(), monthBox = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"],
+        dayDate = dayDate < 10 ? "0" + dayDate : dayDate, today = year + "-" + monthBox[month] + "-" + dayDate;
+    var hour = t.getHours(),min = t.getMinutes();
+    return hour+':'+min
+}

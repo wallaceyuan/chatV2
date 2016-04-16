@@ -31,9 +31,11 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 var messages = [];
-var clients = [];var users = [];
-io.sockets.on('connection',function(socket){
+var clients = [];var users = [];//{name:me,icon:false}
+
+io.on('connection',function(socket){
     var username;
+
     //监听 客户端的消息
     socket.on('message',function(msg){
         var result = msg.match(/^@(.+)\s(.+)$/);
@@ -48,29 +50,51 @@ io.sockets.on('connection',function(socket){
         }
     })
 
+    socket.on('joinRoom', function (data) {
+        socket.join(data.room);
+        if(clients[data.ptop]){//通过用户名把对应的socket取出来
+            clients[data.ptop].emit('initInto',{room:data.room,ptop:data.ptop,host:data.host});
+        }else{
+            //socket.send({user:'系统',content:'你想私聊的人不在线'});
+        }
+    });
+    socket.on('initInto',function(room){
+        socket.join(room);
+    });
+
+    socket.on('rMessage',function(data){
+        io.sockets.in(data.room).emit('privte Message',{user:data.line,roomM:data.roomM});
+    });
+
+    /*用户下线*/
     socket.on('disconnect', function () {
       users = users.filter(function(user){
         if(user)
           return username != user.name;
       });
       if(username)
-      socket.broadcast.emit('people.del', {user:username,content:'下线了',people:users});
+      socket.broadcast.emit('people.del', {user:username,content:'下线了',name:username});
     });
+
 
     socket.on('createMessage',function(data){
-        messages.push(data.message);
-        io.sockets.emit('message.add',{user:data.user,content:data.message});
+        //messages.push(data.message);
+        io.emit('message.add',data);
     });
 
+    /*获得在线列表*/
     socket.on('getAllMessages',function(){
-        socket.emit('allMessages',{messages:messages,users:users});
+        socket.emit('allMessages',{users:users});
     });
 
+    /*用户加入*/
     socket.on('join',function(me){
         username = me;
-        users.push({name:me,icon:false});
-        io.sockets.emit('joinChat',{name:me,icon:false});
+        clients[username] = socket;
+        users.push({name:me,icon:false,id: socket.id});
+        io.emit('joinChat',{name:me,icon:false});
     });
+
 });
 
 /**
