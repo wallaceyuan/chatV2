@@ -8,15 +8,27 @@ angular.module('chatModule').controller('twoCtrl',function($scope,$timeout,socke
             $scope.roomM = '';
         }
     }
+    $scope.romenter = function(keyEvent){
+        var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
+        if(char == 13){
+            $scope.roomMessage();
+        }
+    }
 
     socket.on('privte Message',function(data){
         console.log(data);
-        if(data.user == $scope.line){
+        if(data.ptop == $scope.line){
             data.flag = 'me room-reply';
         }else{
             data.flag = 'other room-receive';
         }
         $scope.romsg.push(data);
+        var timer = $timeout(function() {
+            $('.room').mCustomScrollbar("scrollTo","bottom",{
+                scrollInertia:500
+            });
+            $timeout.cancel(timer);
+        }, 0);
     });
 
     $scope.$on('start',function(event,line,ptop){

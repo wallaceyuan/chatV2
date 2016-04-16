@@ -1,11 +1,8 @@
 angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,socket){
     $scope.status = true;$scope.dialog = false;
     $scope.ptop;
-    $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [];
+    $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [],$scope.times= [];
     $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
-    $scope.chat = function(name){
-        $scope.ptop = name;
-    }
 
     /*提交姓名*/
     $scope.subName = function(){
@@ -48,7 +45,11 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
     });
 
     socket.on('message.add',function(msg){
-        console.log(msg);
+        if($.inArray(msg.time, $scope.times)>-1){
+            msg.time = false;
+        }else{
+            $scope.times.push(msg.time);
+        }
         if(msg.user == $scope.line){
             msg.flag = 'me message-reply';
         }else{
@@ -57,7 +58,7 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
         $scope.messages.push(msg);
         var timer = $timeout(function() {
             $('.content').mCustomScrollbar("scrollTo","bottom",{
-                scrollInertia:500
+                scrollInertia:100
             });
             $timeout.cancel(timer);
         }, 0);
@@ -103,6 +104,6 @@ function getTime(){
     var year = t.getFullYear();
     var month = t.getMonth(), dayDate = t.getDate(), monthBox = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"],
         dayDate = dayDate < 10 ? "0" + dayDate : dayDate, today = year + "-" + monthBox[month] + "-" + dayDate;
-    var hour = t.getHours(),min = t.getMinutes();
+    var hour = t.getHours(),min = t.getMinutes(),sec=t.getSeconds();
     return hour+':'+min
 }

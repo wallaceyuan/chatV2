@@ -48,12 +48,13 @@
         <div class="panel-body content mCustomScrollbar">
             <div id="messageUl" ng-repeat="mes in messages" >
                 <div class="{{mes.flag}}">
+                    <div class="time" ng-show="mes.time"><i></i> {{mes.time}}</div>
                     <div class="message-info">
                         <span class="user-info">
                             <img src="/images/1.jpg" class="user-avatar img-thumbnail" title="{{mes.user}}">
                         </span>
                         <div class="name">
-                            {{mes.user}}<span><i></i> {{mes.time}}</span>
+                            {{mes.user}}
                         </div>
                         <div class="message-content-box">
                             <div class="arrow"></div>
@@ -115,10 +116,10 @@
             <div class="panel-footer">
                 <div class="row">
                     <div class="col-xs-10">
-                        <input type="text" class="form-control" id="ptpMsg" ng-model="roomM" placeholder="请输入聊天内容">
+                        <input type="text" class="form-control" id="ptpMsg"  ng-keypress="romenter($event)"   ng-model="roomM" placeholder="请输入聊天内容">
                     </div>
                     <div class="col-xs-2">
-                        <button class="btn btn-primary" type="button" id="ptpBtn" ng-click="roomMessage()">(s)</button>
+                        <button class="btn btn-primary" type="button" id="ptpBtn"  ng-click="roomMessage()">(s)</button>
                     </div>
                 </div>
             </div>
