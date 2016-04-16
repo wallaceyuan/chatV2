@@ -4,6 +4,10 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
     $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [],$scope.times= [];
     $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
 
+
+    $scope.chat = function(name){
+        $scope.ptop = name;
+    }
     /*提交姓名*/
     $scope.subName = function(){
         $scope.status = false;

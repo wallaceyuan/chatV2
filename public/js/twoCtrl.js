@@ -32,21 +32,30 @@ angular.module('chatModule').controller('twoCtrl',function($scope,$timeout,socke
     });
 
     $scope.$on('start',function(event,line,ptop){
-        $scope.host = line,$scope.ptop = ptop;
-        $scope.show = true;
+        if($scope.show){
+            alert('一次只能撩一个哦');
+            return
+        }
         $scope.room = randomString(5);
         socket.emit('joinRoom',{room:$scope.room,ptop:ptop,host:line});
     });
 
+    socket.on('online',function(){
+        alert('对方在线中...请稍后');
+    });
+    socket.on('gotochat',function(data){
+        $scope.show = true;
+        $scope.host = data.host,$scope.ptop = data.ptop;
+    });
+
     socket.on('initInto',function(data){
-        if($scope.show){
-            alert('对方占线中...请稍后');
-            return
-        }
+        console.log(data);
         socket.emit('initInto',data.room);
         $scope.show = true;$scope.room = data.room;
         $scope.host = data.host,$scope.ptop = data.ptop;
     });
+
+
 });
 
 function randomString(len) {

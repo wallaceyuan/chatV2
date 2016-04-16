@@ -32,7 +32,7 @@ server.on('listening', onListening);
 
 var messages = [];
 var clients = [];var users = [];//{name:me,icon:false}
-
+var ptp = [];
 io.on('connection',function(socket){
     var username;
 
@@ -51,12 +51,20 @@ io.on('connection',function(socket){
     })
 
     socket.on('joinRoom', function (data) {
-        socket.join(data.room);
-        if(clients[data.ptop]){//通过用户名把对应的socket取出来
-            clients[data.ptop].emit('initInto',{room:data.room,ptop:data.ptop,host:data.host});
+        if(ptp.indexOf(data.ptop)>-1){
+            socket.emit('online');
+            return
         }else{
-            //socket.send({user:'系统',content:'你想私聊的人不在线'});
+            if(clients[data.ptop]){//通过用户名把对应的socket取出来
+                ptp.push(data.ptop,data.host);
+                clients[data.ptop].emit('initInto',data);
+                socket.emit('gotochat',data);
+                socket.join(data.room);
+            }else{
+                //socket.send({user:'系统',content:'你想私聊的人不在线'});
+            }
         }
+
     });
     socket.on('initInto',function(room){
         socket.join(room);
