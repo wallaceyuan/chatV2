@@ -3,7 +3,7 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
     $scope.ptop;
     $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [],$scope.times= [];
     $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
-
+    $scope.onlinesum = 0;
 
     $scope.chat = function(name){
         $scope.ptop = name;
@@ -46,6 +46,7 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
     socket.on('allMessages',function(data){
         //$scope.messages = data.messages;
         $scope.onlines = data.users;
+        $scope.onlinesum = data.onlinesum;
     });
 
     socket.on('message.add',function(msg){
@@ -70,7 +71,7 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
 
     socket.on('people.del',function(msg){
         $scope.ws = '';$scope.wss = '';
-        $scope.world = msg;
+        $scope.world = msg;$scope.onlinesum = msg.onlinesum;
         $scope.onlines = $scope.onlines.filter(function(user){
             if(user)
                 return user.name != msg.name;
@@ -91,6 +92,7 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
         $scope.ws = '';$scope.wss = '';
         $scope.world = {user:user.name,content:'上线了'};
         $scope.onlines.push(user);
+        $scope.onlinesum = msg.onlinesum;
 
         $timeout.cancel($scope.promise);
 

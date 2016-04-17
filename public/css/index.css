@@ -92,8 +92,13 @@ body{background:url('/images/back.jpg')  no-repeat center center fixed;backgroun
 .room{
     color: #fff;
 }
-
-
+.ptpChat .btn{
+    padding: 6px;
+}
+#ptpUl span{
+    float:right;
+    color: #fff;
+}
 .room-receive{
     background: #247B2E;
 }

@@ -4,20 +4,14 @@ angular.module('chatModule').controller('twoCtrl',function($scope,$timeout,socke
     $scope.room = '';$scope.romsg = [];
     $scope.roomMessage = function(){
         if($scope.roomM){
-            socket.emit('rMessage',{room:$scope.room,user:$scope.line,roomM:$scope.roomM});
+            socket.emit('rMessage',{room:$scope.room,sender:$scope.line,roomM:$scope.roomM,time:getTime()});
             $scope.roomM = '';
-        }
-    }
-    $scope.romenter = function(keyEvent){
-        var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
-        if(char == 13){
-            $scope.roomMessage();
         }
     }
 
     socket.on('privte Message',function(data){
         console.log(data);
-        if(data.ptop == $scope.line){
+        if(data.sender == $scope.line){
             data.flag = 'me room-reply';
         }else{
             data.flag = 'other room-receive';
@@ -30,6 +24,13 @@ angular.module('chatModule').controller('twoCtrl',function($scope,$timeout,socke
             $timeout.cancel(timer);
         }, 0);
     });
+
+    $scope.romenter = function(keyEvent){
+        var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
+        if(char == 13){
+            $scope.roomMessage();
+        }
+    }
 
     $scope.$on('start',function(event,line,ptop){
         if($scope.show){
@@ -49,7 +50,6 @@ angular.module('chatModule').controller('twoCtrl',function($scope,$timeout,socke
     });
 
     socket.on('initInto',function(data){
-        console.log(data);
         socket.emit('initInto',data.room);
         $scope.show = true;$scope.room = data.room;
         $scope.host = data.host,$scope.ptop = data.ptop;

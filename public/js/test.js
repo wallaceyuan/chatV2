@@ -1,8 +1,10 @@
+var users = [];
 
-var c;
-var t = new Date();
-var year = t.getFullYear();
-var month = t.getMonth(), dayDate = t.getDate(), monthBox = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"],
-    dayDate = dayDate < 10 ? "0" + dayDate : dayDate, today = year + "-" + monthBox[month] + "-" + dayDate;
-var hour = t.getHours(),min = t.getMinutes();
-console.log(hour+':'+min);
+users[1212] = 1212+'vvv';
+users[2222] = 2222+'vvv';
+users[333] = 333;
+
+delete users[1212];
+
+console.log(users);
+
