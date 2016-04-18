@@ -73,9 +73,6 @@ app.use(function(err, req, res, next) {
 
 module.exports = app;
 
-/*
-Error: Cannot find module 'e:\yuan\21px\yuanchat\bin\task\client.js'
-*/
 
 
 

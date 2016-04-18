@@ -5,67 +5,31 @@
 var app = require('../app');
 var debug = require('debug')('yuanchat:server');
 var http = require('http');
-var cluster = require('cluster');
-/*var redis   = require('redis').createClient;
-var adapter = require('socket.io-redis');
-var pub     = redis(6379, 'localhost');
-var sub     = redis(6379, 'localhost', {return_buffers: true});*/
+var sticky = require('sticky-session');
+
 var messages = [];//全部消息（暂时无用）
 var clients = [];//在线socket
 var users = [];//在线users
 var ptp = [];//正在私聊的
 var onlinesum = 0;
 
-/**
- * Get port from environment and store in Express.
- */
 var port = normalizePort(process.env.PORT || '4000');
 app.set('port', port);
 
 
-/**
- * Create HTTP server.
- */
-
-//var server = http.createServer(app);
-
-//var io = require('socket.io')(server);
 var server = http.createServer(app);
 var io = require('socket.io')(server);
 var redis = require('socket.io-redis');
 io.adapter(redis({ host: 'localhost', port: 6379 }));
 
-if (cluster.isMaster) {
 
-    console.log('[master] ' + "start master...");
-
-    var numberOfCPUs = require('os').cpus().length;
-
-    for (var i = 0; i < numberOfCPUs; i++) {
-        cluster.fork();
-    }
-    cluster.on('fork', function(worker) {
-
-        console.log('Travailleur %s créer', worker.id);
+if (!sticky.listen(server, 4000)) {
+    // Master code
+    server.once('listening', function() {
+        console.log('server started on 4000 port');
     });
-    cluster.on('listening', function(worker, addr) {
-
-        console.log('Travailleur %s écoute sur %s:%d', worker.id, addr.address, addr.port);
-    });
-    cluster.on('disconnect', function(worker) {
-
-        console.log('Travailleur %s déconnecter', worker.id);
-    });
-    cluster.on('exit', function(worker, code, signal) {
-
-        console.log('Travailleur %s mort (%s)', worker.id, signal || code);
-        if (!worker.suicide) {
-            console.log('Nouveau travailleur %s créer', worker.id);
-            cluster.fork();
-        }
-    });
-}else if (cluster.isWorker) {
-
+} else {
+    // Worker code
     http.globalAgent.maxSockets = Infinity;
 
     io.on('connection',function(socket){
@@ -150,20 +114,12 @@ if (cluster.isMaster) {
         });
 
     });
-
-    server.listen(port);
+    //server.listen(port);
 
     server.on('error', onError);
 
     server.on('listening', onListening);
-
 }
-
-
-
-/**
- * Normalize a port into a number, string, or false.
- */
 
 function normalizePort(val) {
     var port = parseInt(val, 10);
@@ -181,9 +137,6 @@ function normalizePort(val) {
     return false;
 }
 
-/**
- * Event listener for HTTP server "error" event.
- */
 
 function onError(error) {
     if (error.syscall !== 'listen') {
@@ -209,9 +162,6 @@ function onError(error) {
     }
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
 
 function onListening() {
     var addr = server.address();
