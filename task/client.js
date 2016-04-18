@@ -1,6 +1,6 @@
 //client.js
 var io = require('socket.io-client');
-var socket = io.connect('http://localhost:1000', {reconnect: true});
+var socket = io.connect('http://localhost:4000', {reconnect: true});
 var debug = require('debug')('crawl:main');
 
 // Add a connect listener

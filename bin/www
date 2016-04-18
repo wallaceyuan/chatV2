@@ -7,28 +7,175 @@
 var app = require('../app');
 var debug = require('debug')('yuanchat:server');
 var http = require('http');
+var cluster = require('cluster');
 
 /**
  * Get port from environment and store in Express.
  */
-
-var port = normalizePort(process.env.PORT || '1000');
+var port = normalizePort(process.env.PORT || '4000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+//var server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
-var io = require('socket.io')(server);
+//var io = require('socket.io')(server);
+var _portSocket  = 8080, _portRedis   = 6379, _HostRedis   = 'localhost';
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+if (cluster.isMaster) {
+    var server = http.createServer(app);
+        io = require('socket.io')(server);
+        redis = require('socket.io-redis');
+    io.adapter(redis({ host: '', port: _portRedis }));
+
+    console.log('[master] ' + "start master...");
+
+    var numberOfCPUs = require('os').cpus().length;
+
+    for (var i = 0; i < numberOfCPUs; i++) {
+        cluster.fork();
+    }
+    cluster.on('fork', function(worker) {
+        console.log('Travailleur %s créer', worker.id);
+    });
+    cluster.on('listening', function(worker, addr) {
+        console.log('Travailleur %s écoute sur %s:%d', worker.id, addr.address, addr.port);
+    });
+    cluster.on('disconnect', function(worker) {
+        console.log('Travailleur %s déconnecter', worker.id);
+    });
+    cluster.on('exit', function(worker, code, signal) {
+        console.log('Travailleur %s mort (%s)', worker.id, signal || code);
+        if (!worker.suicide) {
+            console.log('Nouveau travailleur %s créer', worker.id);
+            cluster.fork();
+        }
+    });
+}
+
+if (cluster.isWorker) {
+
+    var server = http.createServer(app);
+
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening);
+
+    io = require('socket.io')(server);
+        redis = require('socket.io-redis');
+
+    io.adapter(redis({ host: _HostRedis, port: _portRedis }));
+    io.on('connection',function(socket){
+        var username;
+        onlinesum++;
+        //监听 客户端的消息
+
+        socket.on('CH01', function (from, msg) {
+
+            io.emit('message.add',{user:'系统',message:'我是另外一个node发来的消息',time:''});
+
+            console.log('MSG', from, ' saying ', msg);
+        });
+
+        socket.on('message',function(msg){
+            var result = msg.match(/^@(.+)\s(.+)$/);
+            if(result){
+                var toUser = result[1];
+                var content = result[2];
+                if(clients[toUser]){//通过用户名把对应的socket取出来
+                    clients[toUser].send({user:username,content:'[私聊]'+content});
+                }else{
+                    socket.send({user:'系统',content:'你想私聊的人不在线'});
+                }
+            }
+        })
+
+        socket.on('joinRoom', function (data) {
+            if(ptp.indexOf(data.ptop)>-1){
+                socket.emit('online');
+                return
+            }else{
+                if(clients[data.ptop]){//通过用户名把对应的socket取出来
+                    ptp.push(data.ptop,data.host);
+                    clients[data.ptop].emit('initInto',data);
+                    socket.emit('gotochat',data);
+                    socket.join(data.room);
+                }else{
+                    io.emit('message.add',{user:'系统',message:'你想私聊的人不在线',time:''});
+                    //socket.emit('message.add',{user:'系统',message:'你想私聊的人不在线',time:''});
+                }
+            }
+
+        });
+
+        socket.on('initInto',function(room){
+            socket.join(room);
+        });
+
+        socket.on('rMessage',function(data){
+            io.sockets.in(data.room).emit('privte Message',data);
+        });
+
+        /*用户下线*/
+        socket.on('disconnect', function () {
+            onlinesum--;
+            users = users.filter(function(user){
+                if(user)
+                    return username != user.name;
+            });
+            if(username)
+                delete clients[username];
+            socket.broadcast.emit('people.del', {name:username,content:'下线了',onlinesum:onlinesum});
+        });
+
+        socket.on('createMessage',function(data){
+            //messages.push(data.message);
+            io.emit('message.add',data);
+        });
+
+        /*获得在线列表*/
+        socket.on('getAllMessages',function(){
+            socket.emit('allMessages',{users:users,onlinesum:onlinesum});
+        });
+
+        /*用户加入*/
+        socket.on('join',function(me){
+            username = me;
+            clients[username] = socket;
+            users.push({name:me,icon:false,id: socket.id});
+            io.emit('joinChat',{name:me,icon:false,onlinesum:onlinesum});
+        });
+
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var messages = [];//全部消息（暂时无用）
 var clients = [];//在线socket
@@ -37,108 +184,27 @@ var ptp = [];//正在私聊的
 
 var onlinesum = 0;
 
+//var io = require('socket.io')(server);
 
-io.on('connection',function(socket){
-    var username;
-    onlinesum++;
-    //监听 客户端的消息
-
-    socket.on('CH01', function (from, msg) {
-
-        io.emit('message.add',{user:'系统',message:'我是另外一个node发来的消息',time:''});
-
-        console.log('MSG', from, ' saying ', msg);
-    });
-
-    socket.on('message',function(msg){
-        var result = msg.match(/^@(.+)\s(.+)$/);
-        if(result){
-            var toUser = result[1];
-            var content = result[2];
-            if(clients[toUser]){//通过用户名把对应的socket取出来
-                clients[toUser].send({user:username,content:'[私聊]'+content});
-            }else{
-                socket.send({user:'系统',content:'你想私聊的人不在线'});
-            }
-        }
-    })
-
-    socket.on('joinRoom', function (data) {
-        if(ptp.indexOf(data.ptop)>-1){
-            socket.emit('online');
-            return
-        }else{
-            if(clients[data.ptop]){//通过用户名把对应的socket取出来
-                ptp.push(data.ptop,data.host);
-                clients[data.ptop].emit('initInto',data);
-                socket.emit('gotochat',data);
-                socket.join(data.room);
-            }else{
-                io.emit('message.add',{user:'系统',message:'你想私聊的人不在线',time:''});
-                //socket.emit('message.add',{user:'系统',message:'你想私聊的人不在线',time:''});
-            }
-        }
-
-    });
-
-    socket.on('initInto',function(room){
-        socket.join(room);
-    });
-
-    socket.on('rMessage',function(data){
-        io.sockets.in(data.room).emit('privte Message',data);
-    });
-
-    /*用户下线*/
-    socket.on('disconnect', function () {
-        onlinesum--;
-        users = users.filter(function(user){
-            if(user)
-              return username != user.name;
-            });
-            if(username)
-            delete clients[username];
-            socket.broadcast.emit('people.del', {name:username,content:'下线了',onlinesum:onlinesum});
-    });
-
-    socket.on('createMessage',function(data){
-        //messages.push(data.message);
-        io.emit('message.add',data);
-    });
-
-    /*获得在线列表*/
-    socket.on('getAllMessages',function(){
-        socket.emit('allMessages',{users:users,onlinesum:onlinesum});
-    });
-
-    /*用户加入*/
-    socket.on('join',function(me){
-        username = me;
-        clients[username] = socket;
-        users.push({name:me,icon:false,id: socket.id});
-        io.emit('joinChat',{name:me,icon:false,onlinesum:onlinesum});
-    });
-
-});
 
 /**
  * Normalize a port into a number, string, or false.
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+    var port = parseInt(val, 10);
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+    if (port >= 0) {
+        // port number
+        return port;
+    }
 
-  return false;
+    return false;
 }
 
 /**
@@ -146,27 +212,27 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+    var bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
 }
 
 /**
@@ -174,21 +240,21 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+    var addr = server.address();
+    var bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    debug('Listening on ' + bind);
 }
 
-var spawn = require('child_process').spawn;
+/*var spawn = require('child_process').spawn;
 var cronJob = require('cron').CronJob;
-var job = new cronJob('*/30 * * * * *',function(){
+var job = new cronJob('*!/5 * * * * *',function(){
     //创建一个子进程
-    var child = spawn(process.execPath,['../task/client.js']);
+    var child = spawn(process.execPath,['../task/client2.js']);
     //把子进程的标准输出的数据传递到主进程 的标准输出
     child.stdout.pipe(process.stdout);
     //把子进程的错误输出的数据传递到主进程的错误输出
     child.stderr.pipe(process.stderr);
 });
-job.start();
+job.start();*/
