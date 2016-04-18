@@ -72,3 +72,11 @@ app.use(function(err, req, res, next) {
 //先创建一个HTTP服务器
 
 module.exports = app;
+
+/*
+Error: Cannot find module 'e:\yuan\21px\yuanchat\bin\task\client.js'
+*/
+
+
+
+

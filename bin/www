@@ -37,10 +37,19 @@ var ptp = [];//正在私聊的
 
 var onlinesum = 0;
 
+
 io.on('connection',function(socket){
     var username;
     onlinesum++;
     //监听 客户端的消息
+
+    socket.on('CH01', function (from, msg) {
+
+        io.emit('message.add',{user:'系统',message:'我是另外一个node发来的消息',time:''});
+
+        console.log('MSG', from, ' saying ', msg);
+    });
+
     socket.on('message',function(msg){
         var result = msg.match(/^@(.+)\s(.+)$/);
         if(result){
@@ -65,12 +74,13 @@ io.on('connection',function(socket){
                 socket.emit('gotochat',data);
                 socket.join(data.room);
             }else{
-                io.emit('message.add',data);
-                socket.emit('message.add',{user:'系统',message:'你想私聊的人不在线',time:''});
+                io.emit('message.add',{user:'系统',message:'你想私聊的人不在线',time:''});
+                //socket.emit('message.add',{user:'系统',message:'你想私聊的人不在线',time:''});
             }
         }
 
     });
+
     socket.on('initInto',function(room){
         socket.join(room);
     });
@@ -170,3 +180,15 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+var spawn = require('child_process').spawn;
+var cronJob = require('cron').CronJob;
+var job = new cronJob('*/5 * * * * *',function(){
+    //创建一个子进程
+    var child = spawn(process.execPath,['../task/client.js']);
+    //把子进程的标准输出的数据传递到主进程 的标准输出
+    child.stdout.pipe(process.stdout);
+    //把子进程的错误输出的数据传递到主进程的错误输出
+    child.stderr.pipe(process.stderr);
+});
+job.start();
