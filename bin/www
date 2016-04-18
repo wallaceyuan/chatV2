@@ -1,29 +1,27 @@
 #!/usr/bin/env node
-
 /**
  * Module dependencies.
  */
-
 var app = require('../app');
 var debug = require('debug')('yuanchat:server');
 var http = require('http');
 var cluster = require('cluster');
-var redis   = require('redis').createClient;
+/*var redis   = require('redis').createClient;
 var adapter = require('socket.io-redis');
 var pub     = redis(6379, 'localhost');
-var sub     = redis(6379, 'localhost', {return_buffers: true});
+var sub     = redis(6379, 'localhost', {return_buffers: true});*/
 var messages = [];//全部消息（暂时无用）
 var clients = [];//在线socket
 var users = [];//在线users
 var ptp = [];//正在私聊的
 var onlinesum = 0;
 
-
 /**
  * Get port from environment and store in Express.
  */
 var port = normalizePort(process.env.PORT || '4000');
 app.set('port', port);
+
 
 /**
  * Create HTTP server.
@@ -32,14 +30,12 @@ app.set('port', port);
 //var server = http.createServer(app);
 
 //var io = require('socket.io')(server);
+var server = http.createServer(app);
+var io = require('socket.io')(server);
+var redis = require('socket.io-redis');
+io.adapter(redis({ host: 'localhost', port: 6379 }));
 
 if (cluster.isMaster) {
-
-    var server = http.createServer(app);
-
-    var io = require('socket.io')(server);
-
-    io.adapter(adapter({ pubClient: pub}));
 
     console.log('[master] ' + "start master...");
 
@@ -49,34 +45,28 @@ if (cluster.isMaster) {
         cluster.fork();
     }
     cluster.on('fork', function(worker) {
+
         console.log('Travailleur %s créer', worker.id);
     });
     cluster.on('listening', function(worker, addr) {
+
         console.log('Travailleur %s écoute sur %s:%d', worker.id, addr.address, addr.port);
     });
     cluster.on('disconnect', function(worker) {
+
         console.log('Travailleur %s déconnecter', worker.id);
     });
     cluster.on('exit', function(worker, code, signal) {
+
         console.log('Travailleur %s mort (%s)', worker.id, signal || code);
         if (!worker.suicide) {
             console.log('Nouveau travailleur %s créer', worker.id);
             cluster.fork();
         }
     });
-}
+}else if (cluster.isWorker) {
 
-if (cluster.isWorker) {
-
-    var server = http.createServer(app);
-
-    server.listen(port);
-    server.on('error', onError);
-    server.on('listening', onListening);
-
-    io = require('socket.io')(server);
-
-    io.adapter(adapter({subClient: sub }));
+    http.globalAgent.maxSockets = Infinity;
 
     io.on('connection',function(socket){
         var username;
@@ -160,10 +150,15 @@ if (cluster.isWorker) {
         });
 
     });
+
+    server.listen(port);
+
+    server.on('error', onError);
+
+    server.on('listening', onListening);
+
 }
 
-
-//var io = require('socket.io')(server);
 
 
 /**
