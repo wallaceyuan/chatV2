@@ -5,7 +5,7 @@
 var app = require('../app');
 var debug = require('debug')('yuanchat:server');
 var http = require('http');
-var sticky = require('sticky-session');
+var redis = require('socket.io-redis');
 
 var messages = [];//全部消息（暂时无用）
 var clients = [];//在线socket
@@ -13,28 +13,16 @@ var users = [];//在线users
 var ptp = [];//正在私聊的
 var onlinesum = 0;
 
-var port = normalizePort(process.env.PORT || '2000');
+var port = normalizePort(process.env.PORT || '4000');
 app.set('port', port);
 
 
 var server = http.createServer(app);
 var io = require('socket.io')(server);
-var redis = require('socket.io-redis');
 //io.adapter(redis({ host: 'localhost', port: 6379 }));
 
-if (!sticky.listen(server, port)) {
-    // Master code
-    server.once('listening', function() {
-        console.log('server started on 4000 port');
-    });
 
-    server.on('error', onError);
-} else {
-
-    // Worker code
-    http.globalAgent.maxSockets = Infinity;
-
-    io.on('connection',function(socket){
+io.on('connection',function(socket){
         var username;
         onlinesum++;
         //监听 客户端的消息
@@ -115,9 +103,11 @@ if (!sticky.listen(server, port)) {
         });
 
     });
-    //server.listen(port);
 
-}
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
 
 function normalizePort(val) {
     var port = parseInt(val, 10);

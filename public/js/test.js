@@ -4,7 +4,11 @@ users[1212] = 1212+'vvv';
 users[2222] = 2222+'vvv';
 users[333] = 333;
 
-delete users[1212];
-
-console.log(users);
+//delete users[1212];
+if(users[1212]){
+    console.log(1212);
+}else if(users[2222]){
+    console.log(1212);
+}
+//console.log(users);
 
