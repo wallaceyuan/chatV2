@@ -15,7 +15,7 @@ function compute() {
     var time = getTime();
     console.log('start computing'+time);
     socket.emit('redisCome',{time:time},function(){
-        wait(1000);
+        wait(5000);
         console.log('working for 1s, nexttick');
         process.nextTick(compute);
     });
