@@ -11,7 +11,7 @@ socket.on('connect', function(socket) {
 });
 
 
-var job = new cronJob('*/60 * * * * *',function(){
+var job = new cronJob('*/5 * * * * *',function(){
     socket.emit('CH01', 'me', 'test msg');
     socket.on('disconnect', function(){});
 /* //创建一个子进程

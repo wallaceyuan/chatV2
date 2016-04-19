@@ -39,11 +39,10 @@ if (!sticky.listen(server, 4000)) {
         onlinesum++;
         //监听 客户端的消息
 
-        socket.on('CH01', function (from, msg) {
-
-            io.emit('message.add',{user:'系统',message:'我是另外一个node发来的消息',time:''});
-
-            console.log('MSG', from, ' saying ', msg);
+        socket.on('redisCome',function (data,callback) {
+            console.log(data);
+            io.emit('message.add',{user:'系统',message:'我是另外一个node发来的消息'+data.time,time:''});
+            callback();
         });
 
         socket.on('message',function(msg){
