@@ -7,6 +7,9 @@ var debug = require('debug')('yuanchat:server');
 var http = require('http');
 var redis = require('socket.io-redis');
 
+
+
+
 var messages = [];//全部消息（暂时无用）
 var clients = [];//在线socket
 var users = [];//在线users
@@ -19,7 +22,7 @@ app.set('port', port);
 
 var server = http.createServer(app);
 var io = require('socket.io')(server);
-//io.adapter(redis({ host: 'localhost', port: 6379 }));
+io.adapter(redis({ host: 'localhost', port: 6379 }));
 
 io.on('connection',function(socket){
     var username;

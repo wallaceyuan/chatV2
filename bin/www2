@@ -19,7 +19,7 @@ app.set('port', port);
 
 var server = http.createServer(app);
 var io = require('socket.io')(server);
-//io.adapter(redis({ host: 'localhost', port: 6379 }));
+io.adapter(redis({ host: 'localhost', port: 6379 }));
 
 
 io.on('connection',function(socket){
