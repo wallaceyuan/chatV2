@@ -1,5 +1,5 @@
 var io = require('socket.io-client');
-var socket = io.connect('http://localhost:80', {reconnect: true});
+var socket = io.connect('http://localhost:1000', {reconnect: true});
 var debug = require('debug')('socket-client:main');
 
 var wait = function (mils) {
