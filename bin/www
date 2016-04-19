@@ -13,7 +13,7 @@ var users = [];//在线users
 var ptp = [];//正在私聊的
 var onlinesum = 0;
 
-var port = normalizePort(process.env.PORT || '4000');
+var port = normalizePort(process.env.PORT || '1000');
 app.set('port', port);
 
 
@@ -22,7 +22,7 @@ var io = require('socket.io')(server);
 var redis = require('socket.io-redis');
 //io.adapter(redis({ host: 'localhost', port: 6379 }));
 
-if (!sticky.listen(server, 4000)) {
+if (!sticky.listen(server, port)) {
     // Master code
     server.once('listening', function() {
         console.log('server started on 4000 port');
