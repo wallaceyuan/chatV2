@@ -7,19 +7,21 @@ exports.socketHallFuc = function(nsp) {
     var users = [];//在线users
     var ptp = [];//正在私聊的
     var onlinesum = 0;
+    var room = [];
+
 
     nsp.on('connection',function(socket){
         onlinesum++;
         var username;
         var roomName = 124;
         //监听 客户端的消息
-        socket.on('userConnet',function(){
-            console.log('userConnet');
+        socket.on('userConnet',function(room){
+            roomName = room;
+            console.log('userConnet',room);
         });
 
         /*订阅*/
         socket.on('subscribe', function(data) {
-            roomName = data.room;
             socket.join(data.room);
         });
 
@@ -100,15 +102,19 @@ exports.socketHallFuc = function(nsp) {
 
         /*获得在线列表*/
         socket.on('getAllMessages',function(){
+            users = users.filter(function(user){
+                if(user)
+                    return roomName == user.room;
+            });
             socket.emit('allMessages',{users:users,onlinesum:onlinesum});
         });
 
         /*用户加入*/
         socket.on('join',function(me){
-            username = me;
+            username = me.user;
             clients[username] = socket;
-            users.push({name:me,icon:false,id: socket.id});
-            nsp.in(roomName).emit('joinChat',{name:me,icon:false,onlinesum:onlinesum});
+            users.push({name:me.user,icon:false,id: socket.id,room:me.room});
+            nsp.in(roomName).emit('joinChat',{name:me.user,icon:false,onlinesum:onlinesum});
         });
     });
 }

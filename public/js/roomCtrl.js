@@ -8,15 +8,15 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     $scope.chat = function(name){
         $scope.ptop = name;
     }
+    var room = $rootScope.param.room;
+    $scope.roomName = room;
 
     /*1 测试连接事件*/
     socket.on('connect', function(){
-        socket.emit('userConnet');
+        socket.emit('userConnet',$scope.roomName);
     });
 
-    var room = $rootScope.param.room;
 
-    $scope.roomName = room;
 
     console.log('房间',$scope.roomName);
 
@@ -49,7 +49,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     $scope.subName = function(){
         $scope.status = false;
         if($scope.line){
-            socket.emit('join',$scope.line);
+            socket.emit('join',{user:$scope.line,room:$scope.roomName});
         }
     }
 
