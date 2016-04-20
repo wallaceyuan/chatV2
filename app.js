@@ -4,7 +4,12 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var debug = require('debug')('yuanchat:server');
+var http = require('http');
 var fs = require('fs');
+var port = normalizePort(process.env.PORT || '1000');
+var socket = require('./middleware/socket');
+
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -63,11 +68,8 @@ app.use(function(err, req, res, next) {
 
 //先创建一个HTTP服务器
 
-var debug = require('debug')('yuanchat:server');
-var http = require('http');
-var socket = require('./middleware/socket');
 
-var port = normalizePort(process.env.PORT || '1000');
+
 app.set('port', port);
 
 

@@ -15,8 +15,11 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     });
 
     var room = $rootScope.param.room;
+
     $scope.roomName = room;
+
     console.log('房间',$scope.roomName);
+
     /*2.进入房间*/
     socket.emit('subscribe',{"room" : $scope.roomName});//进入chat房间
     /*3.获取在线列表*/
@@ -41,7 +44,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
             $timeout.cancel(timer);
         }, 3000);
     });
-
 
     /*提交姓名*/
     $scope.subName = function(){
@@ -109,8 +111,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
             $timeout.cancel(timer);
         }, 3000);
     });
-
-
 
 });
 

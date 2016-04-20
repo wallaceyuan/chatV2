@@ -1,29 +1,57 @@
+
+
 var io = require('socket.io-client');
-var socket = io.connect('http://localhost:1000', {reconnect: true});
 var debug = require('debug')('socket-client:main');
 
-var wait = function (mils) {
-    var now = new Date;
-    while (new Date - now <= mils);
-};
+/*hall*/
+var socket = io.connect('http://localhost:1000/hall', {reconnect: true});
 socket.on('connect', function(socket) {
     console.log('Connected!');
     process.nextTick(compute);
 });
+socket.emit('subscribe',{"room" : 'aa'});//进入chat房间
+
+function waithall(mils){
+    var now = new Date;
+    while (new Date - now <= mils);
+}
 
 function compute() {
     var time = getTime();
-    console.log('start computing'+time);
-    socket.emit('redisCome',{time:time},function(){
-        wait(5000);
+    console.log('start hall  computing'+time);
+    socket.emit('redisCome',{time:time,msg:'start hall computing'},function(){
+        waithall(5000);
         console.log('working for 1s, nexttick');
         process.nextTick(compute);
+    });
+}
+
+var socketimg = io.connect('http://localhost:1000/img', {reconnect: true});
+socketimg.on('connect', function(socketimg) {
+    console.log('Connected!');
+    process.nextTick(computeimg);
+});
+socketimg.emit('subscribe',{"room" : 'aa'});//进入chat房间
+
+
+function waitimg(mils){
+    var now = new Date;
+    while (new Date - now <= mils);
+}
+function computeimg() {
+    var time = getTime();
+    console.log('start img computing'+time);
+    socketimg.emit('redisCome',{time:time,msg:'start img computing'},function(){
+        waitimg(5000);
+        console.log('working for 1s, nexttick');
+        process.nextTick(computeimg);
     });
 }
 
 socket.on('disconnect', function(){
 
 });
+
 function getTime(){
     var t = new Date();
     var year = t.getFullYear();

@@ -31,7 +31,7 @@ exports.socketHallFuc = function(nsp) {
         });
 
         socket.on('redisCome',function (data,callback) {
-            nsp.in(roomName).emit('message.add',{user:'系统',message:'我是另外一个node发来的消息'+data.time,time:''});
+            nsp.in(roomName).emit('message.add',{user:'系统',message:data.msg+data.time,time:''});
             callback();
         });
 
