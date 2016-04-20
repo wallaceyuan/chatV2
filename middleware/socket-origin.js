@@ -1,37 +1,36 @@
-#!/usr/bin/env node
 /**
- * Module dependencies.
+ * Created by yuan on 2016/4/20.
  */
-var app = require('../app');
-var debug = require('debug')('yuanchat:server');
-var http = require('http');
-var redis = require('socket.io-redis');
 
-var messages = [];//全部消息（暂时无用）
-var clients = [];//在线socket
-var users = [];//在线users
-var ptp = [];//正在私聊的
-var onlinesum = 0;
+exports.socketio = function(server) {
+    var redis = require('socket.io-redis');
+    var messages = [];//全部消息（暂时无用）
+    var clients = [];//在线socket
+    var users = [];//在线users
+    var ptp = [];//正在私聊的
+    var onlinesum = 0;
+    var io = require('socket.io')(server);
 
-var port = normalizePort(process.env.PORT || '4000');
-app.set('port', port);
+    io.adapter(redis({ host: 'localhost', port: 6379 }));
 
+    var nsp = io.of('/hall');
 
-var server = http.createServer(app);
-var io = require('socket.io')(server);
-io.adapter(redis({ host: 'localhost', port: 6379 }));
+    nsp.on('connection',function(socket){
 
-
-io.of('hall').on('connection',function(socket){
         var username;
         onlinesum++;
         //监听 客户端的消息
 
+        socket.join('chat');//进入chat房间
+
         socket.on('redisCome',function (data,callback) {
-            console.log(data);
-            io.emit('message.add',{user:'系统',message:'我是另外一个node发来的消息'+data.time,time:''});
+            nsp.emit('message.add',{user:'系统',message:'我是另外一个node发来的消息'+data.time,time:''});
             callback();
         });
+
+        socket.on('userConnet',function(){
+            console.log('userConnet');
+        })
 
         socket.on('message',function(msg){
             var result = msg.match(/^@(.+)\s(.+)$/);
@@ -69,7 +68,7 @@ io.of('hall').on('connection',function(socket){
         });
 
         socket.on('rMessage',function(data){
-            io.sockets.in(data.room).emit('privte Message',data);
+            nsp.sockets.in(data.room).emit('privte Message',data);
         });
 
         /*用户下线*/
@@ -86,7 +85,7 @@ io.of('hall').on('connection',function(socket){
 
         socket.on('createMessage',function(data){
             //messages.push(data.message);
-            io.emit('message.add',data);
+            nsp.emit('message.add',data);
         });
 
         /*获得在线列表*/
@@ -99,63 +98,8 @@ io.of('hall').on('connection',function(socket){
             username = me;
             clients[username] = socket;
             users.push({name:me,icon:false,id: socket.id});
-            io.emit('joinChat',{name:me,icon:false,onlinesum:onlinesum});
+            nsp.emit('joinChat',{name:me,icon:false,onlinesum:onlinesum});
         });
 
     });
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
-
-function normalizePort(val) {
-    var port = parseInt(val, 10);
-
-    if (isNaN(port)) {
-        // named pipe
-        return val;
-    }
-
-    if (port >= 0) {
-        // port number
-        return port;
-    }
-
-    return false;
 }
-
-
-function onError(error) {
-    if (error.syscall !== 'listen') {
-        throw error;
-    }
-
-    var bind = typeof port === 'string'
-        ? 'Pipe ' + port
-        : 'Port ' + port;
-
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-        case 'EACCES':
-            console.error(bind + ' requires elevated privileges');
-            process.exit(1);
-            break;
-        case 'EADDRINUSE':
-            console.error(bind + ' is already in use');
-            process.exit(1);
-            break;
-        default:
-            throw error;
-    }
-}
-
-
-function onListening() {
-    var addr = server.address();
-    var bind = typeof addr === 'string'
-        ? 'pipe ' + addr
-        : 'port ' + addr.port;
-    debug('Listening on ' + bind);
-}
-

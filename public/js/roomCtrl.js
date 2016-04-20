@@ -4,10 +4,44 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
     $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [],$scope.times= [];
     $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
     $scope.onlinesum = 0;
-
+    $scope.roomName = 123;
     $scope.chat = function(name){
         $scope.ptop = name;
     }
+
+
+    /*1 测试连接事件*/
+    socket.on('connect', function(){
+        socket.emit('userConnet');
+    });
+
+    /*2.进入房间*/
+    socket.emit('subscribe',{"room" : $scope.roomName});//进入chat房间
+
+    /*3.获取在线列表*/
+    socket.emit('getAllMessages');
+
+    /*4.用户加入世界通知*/
+    socket.on('joinChat',function(msg){
+        var user = msg;
+        if(user.name == $scope.line)
+            user.icon = true;
+        else
+            user.icon = false;
+        $scope.ws = '';$scope.wss = '';
+        $scope.world = {user:user.name,content:'上线了'};
+        $scope.onlines.push(user);
+        $scope.onlinesum = msg.onlinesum;
+
+        $timeout.cancel($scope.promise);
+
+        var timer = $timeout(function() {
+            $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
+            $timeout.cancel(timer);
+        }, 3000);
+    });
+
+
     /*提交姓名*/
     $scope.subName = function(){
         $scope.status = false;
@@ -35,16 +69,7 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
         }
     }
 
-    /*连接事件*/
-    socket.on('connect', function(){
-        $scope.tip = 'Hello,Friend!';
-    });
-
-    /*获取在线列表*/
-    socket.emit('getAllMessages');
-
     socket.on('allMessages',function(data){
-        //$scope.messages = data.messages;
         $scope.onlines = data.users;
         $scope.onlinesum = data.onlinesum;
     });
@@ -70,11 +95,12 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
     });
 
     socket.on('people.del',function(msg){
+        console.log('离开了',msg);
         $scope.ws = '';$scope.wss = '';
         $scope.world = msg;$scope.onlinesum = msg.onlinesum;
         $scope.onlines = $scope.onlines.filter(function(user){
             if(user)
-                return user.name != msg.name;
+                return user.user != msg.user;
         });
 
         var timer = $timeout(function() {
@@ -83,24 +109,7 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
         }, 3000);
     });
 
-    socket.on('joinChat',function(msg){
-        var user = msg;
-        if(user.name == $scope.line)
-            user.icon = true;
-        else
-            user.icon = false;
-        $scope.ws = '';$scope.wss = '';
-        $scope.world = {user:user.name,content:'上线了'};
-        $scope.onlines.push(user);
-        $scope.onlinesum = msg.onlinesum;
 
-        $timeout.cancel($scope.promise);
-
-        var timer = $timeout(function() {
-            $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
-            $timeout.cancel(timer);
-        }, 3000);
-    });
 
 });
 

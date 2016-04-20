@@ -1,7 +1,7 @@
 angular.module('chatModule',['ngRoute']);
 
 angular.module('chatModule').factory('socket',function($rootScope) {
-    var socket = io.connect('/');
+    var socket = io.connect('/hall');
     return {
         on: function (eventName, callback) {
             socket.on(eventName, function () {
@@ -26,10 +26,10 @@ angular.module('chatModule').factory('socket',function($rootScope) {
 
 angular.module('chatModule').config(function($routeProvider){
     //进行路由的配置
-    $routeProvider.when('/room',{
-        templateUrl:'tmp/room.html',//模板
+    $routeProvider.when('/',{
+        templateUrl:'../../tmp/room.html',//模板
         controller:'roomCtrl'//控制器 是用来提供数据
     }).otherwise({
-        redirectTo:'/room'
+        redirectTo:'/'
     });
 });

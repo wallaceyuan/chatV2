@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.css">
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/css/messager.css">
-    <link rel="stylesheet" href="/lib/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
 </head>
 <body>
 <nav class="navbar navbar-inverse">
@@ -17,21 +16,16 @@
         </div>
     </div>
 </nav>
-<div class="container chat">
-    <div class="row" ng-view></div>
+<h1 style="color: #fff0f0;text-align: center;width: 100%;">Index Home</h1>
+<div class="btn-group-lg" role="group" aria-label="Large button group" style="text-align: center;margin-top: 100px;">
+    <button type="button" class="btn btn-default"><a href="/chats/a/aa">Left</a></button>
+    <button type="button" class="btn btn-default"><a href="/chats/b/bb">Middle</a></button>
+    <button type="button" class="btn btn-default"><a href="/chats/c/cc">Right</a></button>
 </div>
 </body>
-<script src="socket.io/socket.io.js"></script>
+
 <script src="/lib/jquery/dist/jquery.js"></script>
-<script src="/lib/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"></script>
-<script src="/lib/angular/angular.js"></script>
-<script src="/lib/angular-route/angular-route.js"></script>
 <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 
 
-<script src="js/chatCtrl.js"></script>
-<script src="js/roomCtrl.js"></script>
-<script src="js/twoCtrl.js"></script>
-<script src="js/directives/dialog.js"></script>
 </html>
