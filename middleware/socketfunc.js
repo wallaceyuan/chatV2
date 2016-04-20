@@ -5,15 +5,12 @@
 exports.socketHallFuc = function(nsp) {
     var clients = [];//在线socket
     var users = [];//在线users
-    var ptp = [];//正在私聊的
     var onlinesum = 0;
-    var room = [];
-
 
     nsp.on('connection',function(socket){
         onlinesum++;
         var username;
-        var roomName = 124;
+        var roomName;
         //监听 客户端的消息
         socket.on('userConnet',function(room){
             roomName = room;
@@ -35,47 +32,6 @@ exports.socketHallFuc = function(nsp) {
             callback();
         });
 
-        ///////
-        socket.on('message',function(msg){
-            var result = msg.match(/^@(.+)\s(.+)$/);
-            if(result){
-                var toUser = result[1];
-                var content = result[2];
-                if(clients[toUser]){//通过用户名把对应的socket取出来
-                    clients[toUser].send({user:username,content:'[私聊]'+content});
-                }else{
-                    socket.send({user:'系统',content:'你想私聊的人不在线'});
-                }
-            }
-        })
-
-        socket.on('joinRoom', function (data) {
-            if(ptp.indexOf(data.ptop)>-1){
-                socket.emit('online');
-                return
-            }else{
-                if(clients[data.ptop]){//通过用户名把对应的socket取出来
-                    ptp.push(data.ptop,data.host);
-                    clients[data.ptop].emit('initInto',data);
-                    socket.emit('gotochat',data);
-                    socket.join(data.room);
-                }else{
-                    io.emit('message.add',{user:'系统',message:'你想私聊的人不在线',time:''});
-                    //socket.emit('message.add',{user:'系统',message:'你想私聊的人不在线',time:''});
-                }
-            }
-
-        });
-
-        socket.on('initInto',function(room){
-            socket.join(room);
-        });
-
-        socket.on('rMessage',function(data){
-            nsp.sockets.in(data.room).emit('privte Message',data);
-        });
-        /////
-
         /*用户下线*/
         socket.on('disconnect', function () {
             onlinesum--;
@@ -96,7 +52,6 @@ exports.socketHallFuc = function(nsp) {
         });
 
         socket.on('createMessage',function(data){
-            //messages.push(data.message);
             nsp.in(roomName).emit('message.add',data);
         });
 
