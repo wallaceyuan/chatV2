@@ -9,9 +9,7 @@ exports.socketHallFuc = function(nsp) {
     var onlinesum = 0;
 
     nsp.on('connection',function(socket){
-
         onlinesum++;
-
         var username;
         var roomName = 124;
         //监听 客户端的消息
