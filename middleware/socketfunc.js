@@ -4,16 +4,14 @@
 
 exports.socketHallFuc = function(nsp) {
     var clients = [];//在线socket
-
     var users = [];//在线users
-
     var ptp = [];//正在私聊的
-
     var onlinesum = 0;
 
-    onlinesum++;
-
     nsp.on('connection',function(socket){
+
+        onlinesum++;
+
         var username;
         var roomName = 124;
         //监听 客户端的消息
@@ -23,7 +21,6 @@ exports.socketHallFuc = function(nsp) {
 
         /*订阅*/
         socket.on('subscribe', function(data) {
-            console.log(data);
             roomName = data.room;
             socket.join(data.room);
         });
@@ -105,7 +102,6 @@ exports.socketHallFuc = function(nsp) {
 
         /*获得在线列表*/
         socket.on('getAllMessages',function(){
-            console.log(users);
             socket.emit('allMessages',{users:users,onlinesum:onlinesum});
         });
 

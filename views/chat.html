@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="/lib/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
 </head>
 <body>
+
+
 <nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -20,6 +22,9 @@
 <div class="container chat">
     <div class="row" ng-view></div>
 </div>
+
+<input type="hidden" ng-init="param={namespace:'<%=namespance %>',room:'<%=room %>'}">
+
 </body>
 <script src="../../socket.io/socket.io.js"></script>
 <script src="../../lib/jquery/dist/jquery.js"></script>

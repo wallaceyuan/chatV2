@@ -1,11 +1,10 @@
 
-angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,socket){
+angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$timeout,socket){
     $scope.status = true;$scope.dialog = false;
     $scope.ptop;
     $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [],$scope.times= [];
     $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
     $scope.onlinesum = 0;
-    $scope.roomName = 123;
     $scope.chat = function(name){
         $scope.ptop = name;
     }
@@ -15,6 +14,9 @@ angular.module('chatModule').controller('roomCtrl',function($scope,$timeout,sock
         socket.emit('userConnet');
     });
 
+    var room = $rootScope.param.room;
+    $scope.roomName = room;
+    console.log('房间',$scope.roomName);
     /*2.进入房间*/
     socket.emit('subscribe',{"room" : $scope.roomName});//进入chat房间
     /*3.获取在线列表*/

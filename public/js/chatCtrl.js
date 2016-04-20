@@ -1,7 +1,9 @@
 angular.module('chatModule',['ngRoute']);
 
 angular.module('chatModule').factory('socket',function($rootScope) {
-    var socket = io.connect('/comment');
+    var namespace = $rootScope.param.namespace;
+    console.log('进入空间',namespace);
+    var socket = io.connect('/'+namespace);
     return {
         on: function (eventName, callback) {
             socket.on(eventName, function () {

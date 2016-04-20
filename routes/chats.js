@@ -4,17 +4,17 @@ var router = express.Router();
 /*router.get('/',function(req, res, next) {
     res.render('chat');
 });*/
-router.get('/a/:room',function(req, res, next) {
+router.get('/hall/:room',function(req, res, next) {
     var room = req.params.room;
-    res.render('chat',{namespance:'a',room:room});
+    res.render('chat',{namespance:'hall',room:room});
 });
-router.get('/b/:room',function(req, res, next) {
+router.get('/comment/:room',function(req, res, next) {
     var room = req.params.room;
-    res.render('chat',{namespance:'a',room:room});
+    res.render('chat',{namespance:'comment',room:room});
 });
-router.get('/c/:room',function(req, res, next) {
+router.get('/img/:room',function(req, res, next) {
     var room = req.params.room;
-    res.render('chat',{namespance:'a',room:room});
+    res.render('chat',{namespance:'img',room:room});
 });
 
 module.exports = router;
