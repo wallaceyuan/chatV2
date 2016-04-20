@@ -1,7 +1,7 @@
 angular.module('chatModule',['ngRoute']);
 
 angular.module('chatModule').factory('socket',function($rootScope) {
-    var socket = io.connect('/hall');
+    var socket = io.connect('/comment');
     return {
         on: function (eventName, callback) {
             socket.on(eventName, function () {

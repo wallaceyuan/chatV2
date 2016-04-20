@@ -7,14 +7,14 @@ var debug = require('debug')('yuanchat:server');
 var http = require('http');
 var socket = require('../middleware/socket');
 
-
 var port = normalizePort(process.env.PORT || '1000');
 app.set('port', port);
+
+
 var server = http.createServer(app);
 
 
 socket.socketio(server);
-
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
