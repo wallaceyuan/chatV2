@@ -78,7 +78,7 @@ exports.socketHallFuc = function(nsp,client) {
             var place = NSP+':'+roomName;
             data.place = place;
             client.lpush('message',JSON.stringify(data),redis.print);
-            nsp.in(roomName).emit('message.add',data);
+            //nsp.in(roomName).emit('message.add',data);
         });
 
         /*获得在线列表*/

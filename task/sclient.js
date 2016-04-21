@@ -1,6 +1,9 @@
 var io = require('socket.io-client');
 var debug = require('debug')('socket-client:main');
 
+var redis = require('redis');
+var client  = redis.createClient(6379, '127.0.0.1');
+
 /*hall*/
 var socket = io.connect('http://localhost:1000/hall', {reconnect: true});
 socket.on('connect', function(socket) {
@@ -18,34 +21,15 @@ function waithall(mils){
 function compute() {
     var time = getTime();
     console.log('start hall computing'+time);
-    socket.emit('redisCome',{"user": "yy","message": 67676,'time':"14:23","place": "hall:aa"},function(){
-        waithall(5000);
-        console.log('working for 5s, nexttick');
-        process.nextTick(compute);
+    client.rpop('message',function(err,result){
+        var result = JSON.parse(result);
+        socket.emit('redisCome',result,function(){
+            waithall(1000);
+            console.log('working for 5s, nexttick');
+            process.nextTick(compute);
+        });
     });
 }
-
-/*var socketimg = io.connect('http://localhost:1000/img', {reconnect: true});
-socketimg.on('connect', function(socketimg) {
-    console.log('Connected!');
-    process.nextTick(computeimg);
-});
-socketimg.emit('subscribe',{"room" : 'aa'});//进入chat房间
-
-
-function waitimg(mils){
-    var now = new Date;
-    while (new Date - now <= mils);
-}
-function computeimg() {
-    var time = getTime();
-    console.log('start img computing'+time);
-    socketimg.emit('redisCome',{time:time,msg:'start img computing'},function(){
-        waitimg(5000);
-        console.log('working for 1s, nexttick');
-        process.nextTick(computeimg);
-    });
-}*/
 
 socket.on('disconnect', function(){
 
