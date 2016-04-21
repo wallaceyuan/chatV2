@@ -1,7 +1,7 @@
 var io = require('socket.io-client');
 var debug = require('debug')('socket-client:main');
 
-var redis   = require("redis").createClient.(6379, "knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn");
+var redis   = require("redis").createClient(6379, "knews-redis2.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn");
 
 
 var hall = io.connect('http://localhost:1000/hall', {reconnect: true});
