@@ -16,8 +16,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         socket.emit('userConnet',$scope.roomName);
     });
 
-
-
     console.log('房间',$scope.roomName);
 
     /*2.进入房间*/
@@ -78,6 +76,8 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     });
 
     socket.on('message.add',function(msg){
+        console.log(msg);
+
         if($.inArray(msg.time, $scope.times)>-1){
             msg.time = false;
         }else{

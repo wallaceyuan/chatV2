@@ -1,5 +1,3 @@
-
-
 var io = require('socket.io-client');
 var debug = require('debug')('socket-client:main');
 
@@ -9,6 +7,7 @@ socket.on('connect', function(socket) {
     console.log('Connected!');
     process.nextTick(compute);
 });
+socket.emit('userConnet','aa');
 socket.emit('subscribe',{"room" : 'aa'});//进入chat房间
 
 function waithall(mils){
@@ -18,15 +17,15 @@ function waithall(mils){
 
 function compute() {
     var time = getTime();
-    console.log('start hall  computing'+time);
-    socket.emit('redisCome',{time:time,msg:'start hall computing'},function(){
+    console.log('start hall computing'+time);
+    socket.emit('redisCome',{"user": "yy","message": 67676,'time':"14:23","place": "hall:aa"},function(){
         waithall(5000);
-        console.log('working for 1s, nexttick');
+        console.log('working for 5s, nexttick');
         process.nextTick(compute);
     });
 }
 
-var socketimg = io.connect('http://localhost:1000/img', {reconnect: true});
+/*var socketimg = io.connect('http://localhost:1000/img', {reconnect: true});
 socketimg.on('connect', function(socketimg) {
     console.log('Connected!');
     process.nextTick(computeimg);
@@ -46,7 +45,7 @@ function computeimg() {
         console.log('working for 1s, nexttick');
         process.nextTick(computeimg);
     });
-}
+}*/
 
 socket.on('disconnect', function(){
 
@@ -60,4 +59,3 @@ function getTime(){
     var hour = t.getHours(),min = t.getMinutes(),sec=t.getSeconds();
     return hour+':'+min+':'+sec
 }
-

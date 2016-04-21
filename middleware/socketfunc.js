@@ -1,34 +1,60 @@
 /**
  * Created by yuan on 2016/4/20.
  */
+var redis = require('redis');
 
-exports.socketHallFuc = function(nsp) {
+exports.socketHallFuc = function(nsp,client) {
     var clients = [];//在线socket
     var users = [];//在线users
     var onlinesum = 0;
 
     nsp.on('connection',function(socket){
+
+        console.log(nsp.name,'connection');
+
+        var NSP = nsp.name.replace(/\//g, ""),roomName,username,roomID;
+
         onlinesum++;
-        var username;
-        var roomName;
+
         //监听 客户端的消息
         socket.on('userConnet',function(room){
-            roomName = room;
             console.log('userConnet',room);
+            roomID = room;
+            if(roomID == "" || roomID == null){
+
+            }else{
+                roomName = room;
+            }
         });
 
-        /*订阅*/
+        /*订阅房间*/
         socket.on('subscribe', function(data) {
-            socket.join(data.room);
+            roomID = data.room;
+            if(roomID == "" || roomID == null){
+                console.log("empty Room");
+            }else{
+                socket.join(data.room);
+                console.log(socket.id,'subscribe',roomID);
+            }
         });
 
-        /*取消订阅*/
+        /*取消订阅房间*/
         socket.on('unsubscribe', function(data) {
-            socket.leave(data.room);
+            console.log('加入房间',data.room);
+            roomID = data.room;
+            if(roomID == "" || roomID == null){
+                console.log("empty Room");
+            }else{
+                socket.leave(data.room);
+                //nsp.to(roomID).emit("receive", {message:"Someone Send Message \"" + obj.message + "\" In " + roomID});
+            }
         });
 
+        /*接收redis发来的消息*/
         socket.on('redisCome',function (data,callback) {
-            nsp.in(roomName).emit('message.add',{user:'系统',message:data.msg+data.time,time:''});
+            console.log('redisCome',data);
+            console.log(nsp.name,roomName);
+            nsp.in(roomName).emit('message.add',data);
             callback();
         });
 
@@ -47,11 +73,11 @@ exports.socketHallFuc = function(nsp) {
             nsp.emit('people.del', {user:username,content:'下线了',onlinesum:onlinesum});
         });
 
-        socket.on('leaveRoom',function(){
-            socket.leave(roomName);
-        });
-
+        /*用户发送消息*/
         socket.on('createMessage',function(data){
+            var place = NSP+':'+roomName;
+            data.place = place;
+            client.lpush('message',JSON.stringify(data),redis.print);
             nsp.in(roomName).emit('message.add',data);
         });
 
