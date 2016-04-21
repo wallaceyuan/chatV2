@@ -1,12 +1,13 @@
 var io = require('socket.io-client');
 var debug = require('debug')('socket-client:main');
 
-var client   = require("redis").createClient(6379, "knews-redis2.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn");
+var redis = require('redis');
+var client  = redis.createClient(6379, 'knews-redis2-001.nrm01e.0001.cnn1.cache.amazonaws.com.cn');
 
 
-var hall = io.connect('http://localhost:1000/hall', {reconnect: true});
-var img = io.connect('http://localhost:1000/img', {reconnect: true});
-var comment = io.connect('http://localhost:1000/comment', {reconnect: true});
+var hall = io.connect('http://54.222.215.248/hall', {reconnect: true});
+var img = io.connect('http://54.222.215.248/img', {reconnect: true});
+var comment = io.connect('http://54.222.215.248/comment', {reconnect: true});
 
 
 //io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
