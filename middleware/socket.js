@@ -3,8 +3,8 @@
  */
 
 var redisio = require('socket.io-redis');
-//var client   = require("redis").createClient(6379, "knews-redis2.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn");
-var client   = require("redis").createClient();
+var client   = require("redis").createClient(6379, "knews-redis2.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn");
+//var client   = require("redis").createClient();
 
 var socketF = require('./socketfunc');
 
