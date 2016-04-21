@@ -14,10 +14,54 @@ var img = io.connect('http://localhost:1000/img', {reconnect: true});
 
 var nsprBox = [];
 
-for(var i = 0;i<500;i++){
+function redisCount(){
+    client.llen('message', function(error, count){
+        if(error){
+            console.log(error);
+        }else{
+            if(count){
+                popLogs(count, function(logs){
+                    console.log('final: '+ logs);
+                });
+            }else{
+                console.log('空的 暂停取数据1s');
+            }
+        }
+    });
+}
+
+
+function popLogs(count, callback){
+    var logs = [];
+    for (var i=1; i<=10; i++) {
+        client.lpop('message', function(err, value){
+            console.log(value);
+            logs.push({'log':value});
+        });
+    };
+    callback(logs);
+}
+
+redisCount();
+
+/*client.llen('buffer', function(error, count){
+    popLogs(count, function(logs){
+        console.log('final: '+ logs);
+    });
+});*/
+/*client.LRANGE('y111y', function(err) {
+    if(err){
+        console.log(err);
+    }else{
+        console.log('成功');
+    }
+});*/
+
+
+/*for(var i = 0;i<500;i++){
     var data = {user:'yy',message:67676,time:getTime,place:'comment:aa'};
     client.lpush('message',JSON.stringify(data),redis.print);
-}
+}*/
 
 /*
 client.rpop('message',function(err,result){
@@ -42,7 +86,6 @@ client.rpop('message',function(err,result){
         }
     });
 */
-
 
 /*console.log(client.llen('yy'));
 client.exists('testlist');*/
