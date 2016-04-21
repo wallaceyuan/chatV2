@@ -1,13 +1,16 @@
 var io = require('socket.io-client');
 var debug = require('debug')('socket-client:main');
 
-var redis = require('redis');
-var client  = redis.createClient(6379, '127.0.0.1');
+var redis   = require("redis").createClient.(6379, "knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn");
 
 
 var hall = io.connect('http://localhost:1000/hall', {reconnect: true});
 var img = io.connect('http://localhost:1000/img', {reconnect: true});
 var comment = io.connect('http://localhost:1000/comment', {reconnect: true});
+
+
+//io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
+
 
 var namBox = {hall:hall,img:img,comment:comment};
 var nsprBox = [];
