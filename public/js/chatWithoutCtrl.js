@@ -1,15 +1,10 @@
 angular.module('chatModule',['ngRoute']);
 
-angular.module('chatModule').factory('socket',function($rootScope,$location) {
-    if ($location.search().namespace) {
-        $scope.namespace = $location.search().namespace;
-    }
+angular.module('chatModule').factory('socket',function($rootScope) {
     var namespace = $rootScope.param.namespace;
-
     console.log('进入空间',namespace);
-
-    //var socket = io.connect('http://54.222.215.248/'+namespace);
-    var socket = io.connect('/'+namespace);
+    var socket = io.connect('http://54.222.215.248/'+namespace);
+    //var socket = io.connect('/'+namespace);
 
     return {
         on: function (eventName, callback) {
@@ -36,7 +31,7 @@ angular.module('chatModule').factory('socket',function($rootScope,$location) {
 angular.module('chatModule').config(function($routeProvider){
     //进行路由的配置
     $routeProvider.when('/',{
-        templateUrl:'../../tmp/room.html',//模板
+        templateUrl:'../public/tmp/roomWithout.html',//模板
         controller:'roomCtrl'//控制器 是用来提供数据
     }).otherwise({
         redirectTo:'/'

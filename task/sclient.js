@@ -2,17 +2,24 @@ var io = require('socket.io-client');
 var debug = require('debug')('socket-client:main');
 
 var redis = require('redis');
-var client  = redis.createClient(6379, 'knews-redis2-001.nrm01e.0001.cnn1.cache.amazonaws.com.cn');
+//var client  = redis.createClient(6379, 'knews-redis2-001.nrm01e.0001.cnn1.cache.amazonaws.com.cn');
+var client  = redis.createClient();
 
-
+/*dev*/
+/*
+var origin = io.connect('http://54.222.215.248/', {reconnect: true});
 var hall = io.connect('http://54.222.215.248/hall', {reconnect: true});
 var img = io.connect('http://54.222.215.248/img', {reconnect: true});
 var comment = io.connect('http://54.222.215.248/comment', {reconnect: true});
+*/
 
+/*localhost*/
+var origin = io.connect('http://127.0.0.1:3000/', {reconnect: true});
+var hall = io.connect('http://127.0.0.1:3000/hall', {reconnect: true});
+var img = io.connect('http://127.0.0.1:3000/img', {reconnect: true});
+var comment = io.connect('http://127.0.0.1:3000/comment', {reconnect: true});
 
 //io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
-
-
 var namBox = {hall:hall,img:img,comment:comment};
 var nsprBox = [];
 
@@ -34,8 +41,7 @@ function compute() {
                     console.log('final: '+ logs);
                 });
             }else{
-                console.log('空的 暂停取数据1s');
-                waithall(1000);
+                waithall(100);
                 console.log('working for 1s 空的 暂停取数据, nexttick');
                 process.nextTick(compute);
             }
@@ -46,7 +52,7 @@ function compute() {
 function popLogs(){
     client.lpop('message',function(err,result){
         var result = JSON.parse(result);
-        var place = result.place.split(':');
+/*        var place = result.place.split(':');
         var nsp = place[0],room = place[1];
         var time = getTime();
         console.log('start'+nsp +room +time);
@@ -58,11 +64,10 @@ function popLogs(){
             namBox[nsp].emit('subscribe',{"room" : room});//进入namespace下的房间
         }else{
 
-        }
+        }*/
 
-        namBox[nsp].emit('redisCome',result,function(){
-            waithall(0);
-            console.log('working for 5s, nexttick');
+        origin.emit('redisCome',result,function(){
+            console.log('redisSend, nexttick');
             process.nextTick(compute);
         });
     });

@@ -10,7 +10,6 @@ var fs = require('fs');
 var port = normalizePort(process.argv[2] || '3000');
 var socket = require('./middleware/socket');
 
-
 var routes = require('./routes/index');
 var chats = require('./routes/chats');
 

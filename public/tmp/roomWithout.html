@@ -1,0 +1,135 @@
+
+
+<div class="mask" ng-show="status">
+    <div class="jumbotron">
+        <h4>请设置昵称</h4>
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="inputName" class="sr-only">Name</label>
+                <input type="text" class="form-control" id="inputName" placeholder="Enter Name" ng-model="line">
+            </div>
+            <button type="submit" class="btn btn-primary" ng-click="subName()">应用昵称</button>
+        </form>
+    </div>
+</div>
+
+<div class="col-sm-3 ">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-user">&nbsp;</span><span>在线成员</span><i>{{onlinesum}}</i>
+        </div>
+        <div class="panel-body">
+            <div class="msg-list-body user-content  mCustomScrollbar">
+                <ul>
+                    <li ng-repeat="onl in onlines" ng-init="show = onl.icon">
+                        <img src="../public/images/1.jpg" class="img-thumbnail">
+                        <span>{{onl.name}}</span>
+                        <em class="glyphicon glyphicon-star" aria-hidden="true" ng-show="onl.icon"></em>
+                        <i ng-if="!onl.icon" data-toggle="modal" data-target="#myModal" ng-click="chat(onl.name)"><img src="../public/images/chat.png"></i>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-music"></span></button><button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-heart"></span></button><button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-envelope"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-sm-9 ">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-comment">&nbsp;</span>
+            <span>聊天室</span>　
+            <span id="spanuser" style="float:right;" ng-show="!status">欢迎你！{{line}}</span>
+        </div>
+        <div class="panel-body content mCustomScrollbar">
+            <div id="messageUl" ng-repeat="mes in messages" >
+                <div class="{{mes.flag}}">
+                    <div class="time" ng-show="mes.time"><i></i> {{mes.time}}</div>
+                    <div class="message-info">
+                        <span class="user-info">
+                            <img src="../public/images/1.jpg" class="user-avatar img-thumbnail" title="{{mes.user}}">
+                        </span>
+                        <div class="name">
+                            {{mes.user}}
+                        </div>
+                        <div class="message-content-box">
+                            <div class="arrow"></div>
+                            <div class="message-content">{{mes.message}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="col-xs-10">
+                    <input type="text" class="form-control" id="txtMsg" ng-model="message" ng-keypress="enter($event)" placeholder="请输入聊天内容">
+                </div>
+                <div class="col-xs-2">
+                    <button class="btn btn-primary" type="button" id="sendBtn" ng-click="createMessage()">发送(S)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="world">
+    <ul class="messenger messenger-fixed messenger-on-bottom messenger-on-right messenger-theme-flat {{ws}}">
+        <li class="messenger-message-slot messenger-shown messenger-first messenger-last">
+            <div class="messenger-message message alert info message-info alert-info messenger-will-hide-after {{wss}}">
+                <button type="button" class="messenger-close" data-dismiss="alert">×</button>
+                <div class="messenger-message-inner">{{world.user}}{{world.content}}</div>
+                <div class="messenger-spinner">
+                <span class="messenger-spinner-side messenger-spinner-side-left">
+                    <span class="messenger-spinner-fill"></span>
+			    </span>
+                <span class="messenger-spinner-side messenger-spinner-side-right">
+                    <span class="messenger-spinner-fill"></span>
+                </span>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<show-dialog></show-dialog>
+
+<div ng-controller="twoCtrl">
+    <div class="ptpChat col-sm-3" ng-show="show">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-comment">&nbsp;</span>
+                <span>私聊</span>　
+                <span id="ptp" style="float:right;" ng-show="!status">{{host}} X {{ptop}}</span>
+            </div>
+            <div class="panel-body room mCustomScrollbar">
+                <div id="ptpUl" ng-repeat="mes in romsg" >
+                    <div class="{{mes.flag}}">
+                        <div class="message-content">{{mes.roomM}}<span>{{mes.time}}</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="row">
+                    <div class="col-xs-10">
+                        <input type="text" class="form-control" id="ptpMsg"  ng-keypress="romenter($event)"   ng-model="roomM" placeholder="请输入聊天内容">
+                    </div>
+                    <div class="col-xs-2">
+                        <button class="btn btn-primary" type="button" id="ptpBtn"  ng-click="roomMessage()">(s)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(".content").mCustomScrollbar();
+    $('.room').mCustomScrollbar();
+    $(".user-content").mCustomScrollbar();
+    $( ".ptpChat" ).draggable();
+</script>

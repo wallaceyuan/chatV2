@@ -1,6 +1,6 @@
 
 angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$timeout,socket){
-    $scope.status = true;$scope.dialog = false;
+    $scope.status = false;$scope.dialog = false;
     $scope.ptop;
     $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [],$scope.times= [];
     $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
@@ -13,15 +13,18 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
 
     /*1 测试连接事件*/
     socket.on('connect', function(){
-        socket.emit('userConnet',$scope.roomName);
+        //socket.emit('userConnet',$scope.roomName);
     });
 
     console.log('房间',$scope.roomName);
 
     /*2.进入房间*/
-    socket.emit('subscribe',{"room" : $scope.roomName});//进入chat房间
+    //socket.emit('subscribe',{"room" : $scope.roomName});//进入chat房间
+
+    //socket.emit('subscribe',{"room" : 'aa'});//进入chat房间
+
     /*3.获取在线列表*/
-    socket.emit('getAllMessages');
+    //socket.emit('getAllMessages');
 
     /*4.用户加入世界通知*/
     socket.on('joinChat',function(msg){
@@ -44,16 +47,21 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     });
 
     /*提交姓名*/
-    $scope.subName = function(){
+/*    $scope.subName = function(){
         $scope.status = false;
         if($scope.line){
             socket.emit('join',{user:$scope.line,room:$scope.roomName});
         }
-    }
+    }*/
+
+    socket.emit('join',{user:'test',room:'aa'});
+
 
     $scope.createMessage = function(){
         if($scope.message){
-            socket.emit('createMessage',{user:$scope.line,message:$scope.message,time:getTime()});
+            console.log($scope.message);
+           // socket.emit('createMessage',{user:$scope.line,message:$scope.message,time:getTime()});
+            socket.emit('createMessage',{user:'test',message:$scope.message,time:getTime()});
             $scope.message = '';
         }
     }
@@ -110,6 +118,11 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
             $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
             $timeout.cancel(timer);
         }, 3000);
+    });
+
+
+    socket.on('disconnect',function(){
+        console.log('断了');
     });
 
 });
