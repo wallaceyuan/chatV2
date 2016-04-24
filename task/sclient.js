@@ -14,13 +14,13 @@ var comment = io.connect('http://54.222.215.248/comment', {reconnect: true});
 */
 
 /*localhost*/
-var origin = io.connect('http://127.0.0.1:3000/', {reconnect: true});
+//var origin = io.connect('http://127.0.0.1:3000/', {reconnect: true});
 var hall = io.connect('http://127.0.0.1:3000/hall', {reconnect: true});
 var img = io.connect('http://127.0.0.1:3000/img', {reconnect: true});
 var comment = io.connect('http://127.0.0.1:3000/comment', {reconnect: true});
 
 //io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
-var namBox = {root:origin,hall:hall,img:img,comment:comment};
+var namBox = {/*root:origin,*/hall:hall,img:img,comment:comment};
 var nsprBox = [];
 
 
@@ -44,7 +44,7 @@ function compute() {
                 });
             }else{
                 waithall(100);
-                console.log('working for 1s 空的 暂停取数据, nexttick');
+                console.log('working for 1s 空的 暂停取数据, nexttick',time);
                 process.nextTick(compute);
             }
         }
@@ -52,7 +52,7 @@ function compute() {
 }
 
 function popLogs(){
-    client.lpop('message',function(err,result){
+    client.rpop('message',function(err,result){
         var result = JSON.parse(result);
         var place = result.place.split(':');
         var nsp = place[0],room = place[1];

@@ -8,19 +8,21 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     $scope.chat = function(name){
         $scope.ptop = name;
     }
-
-    if ($location.search().namespace) {
-        $rootScope.namespace = $location.search().namespace;
-    }
-    if ($location.search().room) {
-        var room = $location.search().room;
-    }else{
-        var room = $rootScope.param.room;
+    $scope.createMessage = function(){
+        if($scope.message){
+            socket.emit('createMessage',{user:$scope.user,message:$scope.message,time:getTime()});
+            $scope.message = '';
+        }
     }
 
-    console.log($rootScope.namespace,room);
+    /*回车事件*/
+    $scope.enter = function(keyEvent){
+        var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
+        if(char == 13){
+            $scope.createMessage();
+        }
+    }
 
-    $scope.roomName = room;
     $scope.line = $scope.user = randomString(5);
 
     /*1 测试连接事件*/
@@ -28,9 +30,23 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
 
         socket.emit('user');
 
-        socket.emit('userInit',{room:$scope.roomName,user:$scope.user});
+        if ($location.search().namespace) {
+            $rootScope.namespace = $location.search().namespace;
+        }
+        if ($location.search().room) {
+            var room = $location.search().room;
+        }else{
+            var room = $rootScope.param.room;
+        }
+        if ($location.search().code) {
+            var code = $location.search().code;
+        }else{
+            var code = 111;
+        }
+        $scope.roomName = room;
 
-        socket.emit('getAllMessages');
+        socket.emit('userInit',{room:$scope.roomName,user:$scope.user,code:code});
+
     });
 
     socket.on('allMessages',function(data){
@@ -42,10 +58,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     socket.on('joinChat',function(msg){
        // console.log('joinChat');
         var user = msg;
-        if(user.name == $scope.line)
-            user.icon = true;
-        else
-            user.icon = false;
         $scope.ws = '';$scope.wss = '';
         $scope.world = {user:user.name,content:'上线了'};
         $scope.onlines.push(user);
@@ -61,17 +73,8 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
 
     });
 
-    $scope.createMessage = function(){
-        if($scope.message){
-            console.log($scope.message);
-           // socket.emit('createMessage',{user:$scope.line,message:$scope.message,time:getTime()});
-            socket.emit('createMessage',{user:$scope.user,message:$scope.message,time:getTime()});
-            $scope.message = '';
-        }
-    }
-
     socket.on('message.add',function(msg){
-        console.log(msg);
+        //console.log(msg);
         if($.inArray(msg.time, $scope.times)>-1){
             msg.time = false;
         }else{
@@ -92,12 +95,12 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     });
 
     socket.on('people.del',function(msg){
-        console.log('离开了',msg);
+        //console.log('离开了',msg);
         $scope.ws = '';$scope.wss = '';
         $scope.world = msg;$scope.onlinesum = msg.onlinesum;
         $scope.onlines = $scope.onlines.filter(function(user){
             if(user)
-                return user.name != msg.user;
+                return user.id != msg.id;
         });
 
         var timer = $timeout(function() {
@@ -107,15 +110,10 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     });
 
     socket.on('disconnect',function(){
-        console.log('断了');
+        alert('disconnext');
     });
-    /*回车事件*/
-    $scope.enter = function(keyEvent){
-        var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
-        if(char == 13){
-            $scope.createMessage();
-        }
-    }
+
+
 });
 
 

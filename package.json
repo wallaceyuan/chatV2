@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "async": "^2.0.0-rc.3",
     "body-parser": "~1.13.2",
     "cluster": "^0.7.7",
     "connect-mongo": "^1.1.0",
@@ -16,9 +17,11 @@
     "express": "~4.13.1",
     "express-session": "^1.13.0",
     "morgan": "~1.6.1",
+    "mysql": "^2.10.2",
     "net": "^1.0.2",
     "os": "^0.1.1",
     "redis": "^2.5.3",
+    "request": "^2.72.0",
     "serve-favicon": "~2.3.0",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
