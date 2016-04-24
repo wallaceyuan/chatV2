@@ -1,5 +1,5 @@
 
-angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$timeout,socket){
+angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$timeout,socket,$location){
     $scope.status = false;$scope.dialog = false;
     $scope.ptop;
     $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [],$scope.times= [];
@@ -8,26 +8,39 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     $scope.chat = function(name){
         $scope.ptop = name;
     }
-    var room = $rootScope.param.room;
+
+    if ($location.search().namespace) {
+        $rootScope.namespace = $location.search().namespace;
+    }
+    if ($location.search().room) {
+        var room = $location.search().room;
+    }else{
+        var room = $rootScope.param.room;
+    }
+
+    console.log($rootScope.namespace,room);
+
     $scope.roomName = room;
+    $scope.line = $scope.user = randomString(5);
 
     /*1 测试连接事件*/
     socket.on('connect', function(){
-        //socket.emit('userConnet',$scope.roomName);
+
+        socket.emit('user');
+
+        socket.emit('userInit',{room:$scope.roomName,user:$scope.user});
+
+        socket.emit('getAllMessages');
     });
 
-    console.log('房间',$scope.roomName);
-
-    /*2.进入房间*/
-    //socket.emit('subscribe',{"room" : $scope.roomName});//进入chat房间
-
-    //socket.emit('subscribe',{"room" : 'aa'});//进入chat房间
-
-    /*3.获取在线列表*/
-    //socket.emit('getAllMessages');
+    socket.on('allMessages',function(data){
+        $scope.onlines = data.users;
+        $scope.onlinesum = data.onlinesum;
+    });
 
     /*4.用户加入世界通知*/
     socket.on('joinChat',function(msg){
+       // console.log('joinChat');
         var user = msg;
         if(user.name == $scope.line)
             user.icon = true;
@@ -44,48 +57,21 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
             $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
             $timeout.cancel(timer);
         }, 3000);
+
+
     });
-
-    /*提交姓名*/
-/*    $scope.subName = function(){
-        $scope.status = false;
-        if($scope.line){
-            socket.emit('join',{user:$scope.line,room:$scope.roomName});
-        }
-    }*/
-
-    socket.emit('join',{user:'test',room:'aa'});
-
 
     $scope.createMessage = function(){
         if($scope.message){
             console.log($scope.message);
            // socket.emit('createMessage',{user:$scope.line,message:$scope.message,time:getTime()});
-            socket.emit('createMessage',{user:'test',message:$scope.message,time:getTime()});
+            socket.emit('createMessage',{user:$scope.user,message:$scope.message,time:getTime()});
             $scope.message = '';
         }
     }
 
-    $scope.replay = function(user){
-        $scope.message = '@'+user;
-    }
-
-    /*回车事件*/
-    $scope.enter = function(keyEvent){
-        var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
-        if(char == 13){
-            $scope.createMessage();
-        }
-    }
-
-    socket.on('allMessages',function(data){
-        $scope.onlines = data.users;
-        $scope.onlinesum = data.onlinesum;
-    });
-
     socket.on('message.add',function(msg){
         console.log(msg);
-
         if($.inArray(msg.time, $scope.times)>-1){
             msg.time = false;
         }else{
@@ -120,11 +106,16 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }, 3000);
     });
 
-
     socket.on('disconnect',function(){
         console.log('断了');
     });
-
+    /*回车事件*/
+    $scope.enter = function(keyEvent){
+        var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
+        if(char == 13){
+            $scope.createMessage();
+        }
+    }
 });
 
 
@@ -135,4 +126,14 @@ function getTime(){
         dayDate = dayDate < 10 ? "0" + dayDate : dayDate, today = year + "-" + monthBox[month] + "-" + dayDate;
     var hour = t.getHours(),min = t.getMinutes(),sec=t.getSeconds();
     return hour+':'+min
+}
+function randomString(len) {
+    len = len || 32;
+    var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+    var maxPos = $chars.length;
+    var pwd = '';
+    for (var i = 0; i < len; i++) {
+        pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+    }
+    return pwd;
 }

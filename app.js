@@ -71,6 +71,8 @@ var server = http.createServer(app);
 socket.socketio(server);
 
 server.listen(port);
+
+
 server.on('error', onError);
 server.on('listening', onListening);
 

@@ -14,6 +14,8 @@ exports.socketio = function(server) {
 
     var io = require('socket.io')(server);
 
+    var rootSpaceName = '/';
+
     var hallSpaceName = '/hall';
 
     var commentSpaceName = '/comment';
@@ -22,7 +24,9 @@ exports.socketio = function(server) {
 
     //io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
 
-    socketF.socketHallFuc(io,client);
+    var root = io.of(rootSpaceName);
+
+    socketF.socketHallFuc(root,client);
 
     var hnsp = io.of(hallSpaceName);
 

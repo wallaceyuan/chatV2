@@ -24,8 +24,8 @@
                     <li ng-repeat="onl in onlines" ng-init="show = onl.icon">
                         <img src="/images/1.jpg" class="img-thumbnail">
                         <span>{{onl.name}}</span>
-                        <em class="glyphicon glyphicon-star" aria-hidden="true" ng-show="onl.icon"></em>
-                        <i ng-if="!onl.icon" data-toggle="modal" data-target="#myModal" ng-click="chat(onl.name)"><img src="/images/chat.png"></i>
+                        <em class="glyphicon glyphicon-star" aria-hidden="true" ng-show="line==onl.name"></em>
+                        <i ng-if="line!=onl.name" data-toggle="modal" data-target="#myModal" ng-click="chat(onl.name)"><img src="/images/chat.png"></i>
                     </li>
                 </ul>
             </div>

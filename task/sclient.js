@@ -20,18 +20,20 @@ var img = io.connect('http://127.0.0.1:3000/img', {reconnect: true});
 var comment = io.connect('http://127.0.0.1:3000/comment', {reconnect: true});
 
 //io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
-var namBox = {hall:hall,img:img,comment:comment};
+var namBox = {root:origin,hall:hall,img:img,comment:comment};
 var nsprBox = [];
 
 
 hall.on('connect', function() {
-    console.log('Connected!');
-    process.nextTick(compute);
+
 });
+
+console.log('Connected!');
+
+process.nextTick(compute);
 
 function compute() {
     var time = getTime();
-    console.log('start hall computing'+time);
     client.llen('message', function(error, count){
         if(error){
             console.log(error);
@@ -52,24 +54,26 @@ function compute() {
 function popLogs(){
     client.lpop('message',function(err,result){
         var result = JSON.parse(result);
-/*        var place = result.place.split(':');
+        var place = result.place.split(':');
         var nsp = place[0],room = place[1];
         var time = getTime();
         console.log('start'+nsp +room +time);
-
-        if(nsprBox.indexOf(result.place) == -1){
-            nsprBox.push(result.place);
-            console.log('加入房间',room);
-            namBox[nsp].emit('userConnet',room);
-            namBox[nsp].emit('subscribe',{"room" : room});//进入namespace下的房间
+        if(room == ''){
+            namBox[nsp].emit('redisCome',result,function(){
+                console.log('redisSend, nexttick');
+                process.nextTick(compute);
+            });
         }else{
-
-        }*/
-
-        origin.emit('redisCome',result,function(){
-            console.log('redisSend, nexttick');
-            process.nextTick(compute);
-        });
+            if(nsprBox.indexOf(result.place == -1)){
+                nsprBox.push(result.place);
+                console.log('加入房间',room);
+                namBox[nsp].emit('subscribe',{"room" : room});//进入namespace下的房间
+            }
+            namBox[nsp].emit('redisCome',result,function(){
+                console.log('redisSend, nexttick');
+                process.nextTick(compute);
+            });
+        }
     });
 }
 
