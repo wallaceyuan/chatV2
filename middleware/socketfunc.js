@@ -25,7 +25,7 @@ exports.socketHallFuc = function(nsp,client) {
                             client.HMSET(data.code, data);
                         }else{
                             console.log('用户不合法');
-                            setTimeout(function(){
+                        hh    setTimeout(function(){
                                 socket.disconnect();
                             },2000);
                             return;
