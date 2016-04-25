@@ -1,5 +1,5 @@
 var request = require('request');//拉取网页内容
-var iconv = require('iconv-lite');//把GBK转成UTF8
+//var iconv = require('iconv-lite');//把GBK转成UTF8
 var mysql = require('mysql');
 var pool = mysql.createPool({
     host:'120.27.5.9',
@@ -16,7 +16,6 @@ exports.findById = function(item,callback){
         callback(err,rows);
     });
 }
-
 
 exports.sso = function(url,callback){
     request({url:url,encoding:null},function(err,res,body){

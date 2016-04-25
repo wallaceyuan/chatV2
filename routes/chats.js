@@ -18,13 +18,22 @@ router.get('/img/:room',function(req, res, next) {
     res.render('chat',{namespance:'img',room:room});
 });
 
-router.get('/user/:code',function(req,res,next){
-    var code = req.params.code;
-
-    User.findById({code:code},function(err,user){
-        res.send(user);
+router.route('/user/get').post(function(req,res){
+    console.log('post-code',req.body.code);
+    User.findById({code:req.body.code},function(err,user){
+        if(user.length == 0){
+            res.send({
+                "code": 400,
+                "msg": "fail"
+            });
+        }else{
+            res.send({
+                "code": 0,
+                "msg": "success",
+                "data": JSON.stringify(user[0])
+            });
+        }
     });
-
-})
+});
 
 module.exports = router;

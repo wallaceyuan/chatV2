@@ -1,60 +1,65 @@
-/**
- * Created by yuan on 2016/4/20.
- */
+
 var redis = require('redis');
-var User = require('../model/user');
+var user = require('../task/user');
 var request = require('request');
+var async = require('async');
+var debug = require('debug')('socketfunc:save');
+
+
+var clients = [];//在线socket
+var users = [];//在线users
+var onlinesum = 0;
 
 exports.socketHallFuc = function(nsp,client) {
-    var clients = [];//在线socket
-    var users = [];//在线users
-    var onlinesum = 0,userName,roomName = '';
-    var NSP = '';
     nsp.on('connection',function(socket){
-
-        //监听 客户端的消息
-        socket.on('userInit',function(data){
-            client.hgetall(data.code, function (err, obj) {
-                if(obj){
-                    console.log('you',obj);
-                }else{
-                    request({url:'http://127.0.0.1:3000/chats/user/'+data.code},function(err,res,body){
-                        console.log('wu',JSON.parse(body)[0]);
-                        var data = JSON.parse(body)[0];
-                        if(data){
-                            client.HMSET(data.code, data);
-                        }else{
-                            console.log('用户不合法');
-                        hh    setTimeout(function(){
-                                socket.disconnect();
-                            },2000);
-                            return;
-                        }
+        var black = false,userName,roomName = '',NSP = '';
+        socket.on('userInit',function(data){//监听 客户端的消息
+            async.waterfall([
+                function(done){//得到code和用户信息
+                    user.getCode({code:data.code,client:client},function(err,res){
+                        done(err,res);
                     });
-                }
-                onlinesum++;
-                roomName = data.room,userName = data.user,clients[socket.id] = socket;
-                var userData = {name:userName,id: socket.id,room:roomName};
-                users.push(userData);
-                if(roomName!=''){
-                    socket.join(roomName);
-                    socket.broadcast.in(roomName).emit('joinChat',userData);
+                },
+                function(arg,done){//对用户进行验证
+                    var uid = JSON.parse(arg.data).uid;
+                    user.userValidate({uid:uid,client:client},function(err,res){
+                        arg.free = '0';
+                        done(err,arg);
+                    });
+                },
+            ],function(err,res){
+                if(err){
+                    console.log(err);
+                    black = true,roomName = data.room
+                    if(roomName!=''){
+                        socket.join(roomName);
+                    }
                 }else{
-                    socket.broadcast.emit('joinChat',userData);
+                    black = false;
+                    console.log('所有的任务完成了'/*,res*/);
+                    var uif = JSON.parse(res.data);
+                    onlinesum++;
+                    roomName = data.room,userName = data.user,clients[socket.id] = socket;
+                    var userData = {name:userName,id: socket.id,room:roomName,posterURL:uif.posterURL,tel:uif.tel,uid:uif.uid,nickName:uif.nickName};
+                    userData.onlinesum = onlinesum;
+                    users.push(userData);
+                    if(roomName!=''){
+                        socket.join(roomName);
+                        socket.broadcast.in(roomName).emit('joinChat',userData);
+                    }else{
+                        socket.broadcast.emit('joinChat',userData);
+                    }
                 }
-
+                NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
+                //debug('所有的任务完成了',res);
                 users = users.filter(function(user){
                     if(user)
                         return roomName == user.room;
                 });
                 socket.emit('allMessages',{users:users,onlinesum:onlinesum});
-
-                NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
-                console.log('nsp',nsp.name,'room',roomName,'connection','userData',userData);
+                //console.log('nsp',nsp.name,'room',roomName,'connection','userData',userData);
 
             });
-
-
         });
 
         /*订阅房间*/
@@ -64,7 +69,7 @@ exports.socketHallFuc = function(nsp,client) {
                 //console.log("empty Room");
             }else{
                 socket.join(data.room);
-               // console.log(socket.id,'subscribe',roomID);
+                // console.log(socket.id,'subscribe',roomID);
             }
         });
         /*取消订阅房间*/
@@ -80,8 +85,8 @@ exports.socketHallFuc = function(nsp,client) {
         /*接收redis发来的消息*/
         socket.on('redisCome',function (data,callback) {
             console.log('redisCome',data);
-            if(roomName!=''){
-                nsp.in(roomName).emit('message.add',data);
+            if(data.room!=''){
+                nsp.in(data.room).emit('message.add',data);
             }else{
                 nsp.emit('message.add',data);
             }
@@ -95,7 +100,7 @@ exports.socketHallFuc = function(nsp,client) {
                 if(user)
                     return socket.id != user.id;
             });
-            console.log('disconnect',socket.id,users);
+            console.log('disconnect',socket.id,users,onlinesum);
             if(socket.id)
                 delete clients[socket.id];
 
@@ -110,10 +115,29 @@ exports.socketHallFuc = function(nsp,client) {
 
         /*用户发送消息*/
         socket.on('createMessage',function(data){
-            data.place =  NSP+':'+roomName;
-            client.lpush('message',JSON.stringify(data),redis.print);
+            if(black){
+                return
+            }else{
+                data.place =  NSP+':'+roomName;
+                client.lpush('message',JSON.stringify(data),redis.print);
+            }
         });
 
     });
 }
+
+
+
+function getUser(uid,callback){
+    var userOpt = {
+        uri: 'http://ums.kankanews.com/t/getUserInfo.do',
+        method: 'POST',
+        body :uid,
+        headers: {'Content-Type': 'text/xml'}
+    }
+    request(userOpt,function(err,res,body){
+        callback(null,body);
+    });
+}
+
 

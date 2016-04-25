@@ -58,22 +58,11 @@ function popLogs(){
         var nsp = place[0],room = place[1];
         var time = getTime();
         console.log('start'+nsp +room +time);
-        if(room == ''){
-            namBox[nsp].emit('redisCome',result,function(){
-                console.log('redisSend, nexttick');
-                process.nextTick(compute);
-            });
-        }else{
-            if(nsprBox.indexOf(result.place == -1)){
-                nsprBox.push(result.place);
-                console.log('加入房间',room);
-                namBox[nsp].emit('subscribe',{"room" : room});//进入namespace下的房间
-            }
-            namBox[nsp].emit('redisCome',result,function(){
-                console.log('redisSend, nexttick');
-                process.nextTick(compute);
-            });
-        }
+        result.room = room;
+        namBox[nsp].emit('redisCome',result,function(){
+            console.log('redisSend, nexttick');
+            process.nextTick(compute);
+        });
     });
 }
 
@@ -82,6 +71,10 @@ function waithall(mils){
     var now = new Date;
     while (new Date - now <= mils);
 }
+
+
+
+
 
 
 hall.on('disconnect', function(){
