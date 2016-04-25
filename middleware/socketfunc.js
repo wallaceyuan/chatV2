@@ -14,6 +14,7 @@ exports.socketHallFuc = function(nsp,client) {
     nsp.on('connection',function(socket){
         var black = false,userName,roomName = '',NSP = '';
         socket.on('userInit',function(data){//监听 客户端的消息
+            onlinesum++;
             async.waterfall([
                 function(done){//得到code和用户信息
                     user.getCode({code:data.code,client:client},function(err,res){
@@ -34,11 +35,16 @@ exports.socketHallFuc = function(nsp,client) {
                     if(roomName!=''){
                         socket.join(roomName);
                     }
+                    //debug('所有的任务完成了',res);
+                    users = users.filter(function(user){
+                        if(user)
+                            return roomName == user.room;
+                    });
+                    socket.emit('allMessages',{users:users,onlinesum:onlinesum});
                 }else{
                     black = false;
                     console.log('所有的任务完成了'/*,res*/);
                     var uif = JSON.parse(res.data);
-                    onlinesum++;
                     roomName = data.room,userName = data.user,clients[socket.id] = socket;
                     var userData = {name:userName,id: socket.id,room:roomName,posterURL:uif.posterURL,tel:uif.tel,uid:uif.uid,nickName:uif.nickName};
                     userData.onlinesum = onlinesum;
@@ -49,14 +55,16 @@ exports.socketHallFuc = function(nsp,client) {
                     }else{
                         socket.broadcast.emit('joinChat',userData);
                     }
+                    //debug('所有的任务完成了',res);
+                    users = users.filter(function(user){
+                        if(user)
+                            return roomName == user.room;
+                    });
+                    socket.emit('allMessages',{users:users,onlinesum:onlinesum});
                 }
+
                 NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
-                //debug('所有的任务完成了',res);
-                users = users.filter(function(user){
-                    if(user)
-                        return roomName == user.room;
-                });
-                socket.emit('allMessages',{users:users,onlinesum:onlinesum});
+
                 //console.log('nsp',nsp.name,'room',roomName,'connection','userData',userData);
 
             });
@@ -118,7 +126,21 @@ exports.socketHallFuc = function(nsp,client) {
             if(black){
                 return
             }else{
+                console.log(data);
+/*                data.cid = roomName;
+                data.uid = userData.uid;
+
+                cid：房间id（关联chatroomid）
+                uid：看看用户id
+                openid：微信openid
+                checked：是否审核 0：未审核 1：审核
+                voliate：是否违规 0：无违规 1：违规
+                createTime：生成时间戳
+                type：类型
+                perform：弹幕表现形式（json 颜色等）
+                message：文本*/
                 data.place =  NSP+':'+roomName;
+                //data.posterURL = userData.posterURL;
                 client.lpush('message',JSON.stringify(data),redis.print);
             }
         });

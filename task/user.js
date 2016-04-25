@@ -69,15 +69,15 @@ exports.userValidate = function(data,callback){
                         callback({code:110,msg:'黑名单用户'},null);
                     }else{
                         callback(null,'0');
-/*                        var uid ='68',tel ='18521355675',nickName ='ss',posterURL ='http://q.qlogo.cn/qqapp/1103880827/A0C6E87820CBA8AFC1ECF3308337E0D0/100',createTime = new Date(),free = 1;
-                        console.log('无此人',new Date());
-                        pool.query('replace into kk_danmaku_violators(uid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?)',[uid,tel,nickName,posterURL,createTime,free],function(err,result){
-                            if(err){
-                                console.log(err);
-                            }else{
-                                console.log(result);
-                            }
-                        });*/
+                        /*                        var uid ='68',tel ='18521355675',nickName ='ss',posterURL ='http://q.qlogo.cn/qqapp/1103880827/A0C6E87820CBA8AFC1ECF3308337E0D0/100',createTime = new Date(),free = 1;
+                         console.log('无此人',new Date());
+                         pool.query('replace into kk_danmaku_violators(uid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?)',[uid,tel,nickName,posterURL,createTime,free],function(err,result){
+                         if(err){
+                         console.log(err);
+                         }else{
+                         console.log(result);
+                         }
+                         });*/
                     }
                 }
             });

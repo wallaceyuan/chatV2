@@ -52,6 +52,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     });
 
     socket.on('allMessages',function(data){
+        console.log(data.users);
         $scope.onlines = data.users;
         $scope.onlinesum = data.onlinesum;
     });

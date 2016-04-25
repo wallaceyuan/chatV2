@@ -33,7 +33,7 @@ request(userOpt,function(err,res,body){
 });
 */
 
-var data = {uid:'68'}
+/*var data = {uid:'68'}
 
 client.hgetall('kkUserBlack'+data.uid, function (err, obj) {
     if(obj){
@@ -67,4 +67,6 @@ client.hgetall('kkUserBlack'+data.uid, function (err, obj) {
             }
         });
     }
-});
+});*/
+
+console.log(Date.parse(new Date())/1000);
