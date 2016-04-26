@@ -16,11 +16,11 @@ exports.socketio = function(server) {
 
     //var rootSpaceName = '/';
 
-    var hallSpaceName = '/hall';
+    var liveSpaceName = '/live';
 
-    var commentSpaceName = '/comment';
+    var vodSpaceName = '/vod';
 
-    var imgSpaceName = '/img';
+    var chatroomSpaceName = '/chatroom';
 
     //io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
 
@@ -28,15 +28,15 @@ exports.socketio = function(server) {
 
     //socketF.socketHallFuc(root,client);
 
-    var hnsp = io.of(hallSpaceName);
+    var lnsp = io.of(liveSpaceName);
 
-    socketF.socketHallFuc(hnsp,client);
+    socketF.socketHallFuc(lnsp,client);
 
-    var cnsp = io.of(commentSpaceName);
+    var vnsp = io.of(vodSpaceName);
+
+    socketF.socketHallFuc(vnsp,client);
+
+    var cnsp = io.of(chatroomSpaceName);
 
     socketF.socketHallFuc(cnsp,client);
-
-    var insp = io.of(imgSpaceName);
-
-    socketF.socketHallFuc(insp,client);
 }

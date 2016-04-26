@@ -1,9 +1,11 @@
 var io = require('socket.io-client');
-var debug = require('debug')('socket-client:main');
-
+var async = require('async');
 var redis = require('redis');
+
 //var client  = redis.createClient(6379, 'knews-redis2-001.nrm01e.0001.cnn1.cache.amazonaws.com.cn');
 var client  = redis.createClient();
+var user = require('../task/user');
+var debug = require('debug')('socket-client:main');
 
 /*dev*/
 /*
@@ -15,20 +17,12 @@ var comment = io.connect('http://54.222.215.248/comment', {reconnect: true});
 
 /*localhost*/
 //var origin = io.connect('http://127.0.0.1:3000/', {reconnect: true});
-var hall = io.connect('http://127.0.0.1:3000/hall', {reconnect: true});
-var img = io.connect('http://127.0.0.1:3000/img', {reconnect: true});
-var comment = io.connect('http://127.0.0.1:3000/comment', {reconnect: true});
+var live = io.connect('http://127.0.0.1:3000/live', {reconnect: true});
+var cod = io.connect('http://127.0.0.1:3000/cod', {reconnect: true});
+var chatroom = io.connect('http://127.0.0.1:3000/chatroom', {reconnect: true});
 
 //io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
-var namBox = {/*root:origin,*/hall:hall,img:img,comment:comment};
-var nsprBox = [];
-
-
-hall.on('connect', function() {
-
-});
-
-console.log('Connected!');
+var namBox = {/*root:origin,*/live:live,cod:cod,chatroom:chatroom};
 
 process.nextTick(compute);
 
@@ -45,7 +39,7 @@ function compute() {
             }else{
                 waithall(100);
                 console.log('working for 1s 空的 暂停取数据, nexttick',time);
-                process.nextTick(compute);
+                //process.nextTick(compute);
             }
         }
     });
@@ -59,13 +53,40 @@ function popLogs(){
         var time = getTime();
         console.log('start'+nsp +room +time);
         result.room = room;
-        namBox[nsp].emit('redisCome',result,function(){
-            console.log('redisSend, nexttick');
-            process.nextTick(compute);
+
+        async.waterfall([
+            function(done){
+                user.roomValidateSql(nsp,room,function(err,res){
+                    console.log('完成房间验证');
+                    done(err,res);
+                });
+            },
+            function(res,done){
+                user.userValidateSql({code:result.code,uid:result.uid,client:client},function(err,res){
+                    console.log('完成用户验证',res);
+                    done(err,res);
+                });
+            },
+            function(res,done){
+                user.messageValidate({result:result,client:client},function(err,res){
+                    console.log('完成关键词验证',res);
+                    done(err,res);
+                });
+            },
+        ],function(err,res){
+            if(err){
+                console.log(err);
+                //process.nextTick(compute);
+            }else{
+                console.log('全部完成',res);
+                namBox[nsp].emit('redisCome',result,function(){
+                    console.log('redisSend, nexttick');
+                    //process.nextTick(compute);
+                });
+            }
         });
     });
 }
-
 
 function waithall(mils){
     var now = new Date;
@@ -74,10 +95,7 @@ function waithall(mils){
 
 
 
-
-
-
-hall.on('disconnect', function(){
+/*hall.on('disconnect', function(){
     console.log('hall disconnect!');
 });
 
@@ -87,7 +105,7 @@ img.on('disconnect', function() {
 
 comment.on('disconnect', function() {
     console.log('comment disconnect!');
-});
+});*/
 
 function getTime(){
     var t = new Date();

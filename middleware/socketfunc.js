@@ -1,4 +1,3 @@
-
 var redis = require('redis');
 var user = require('../task/user');
 var request = require('request');
@@ -12,20 +11,20 @@ var onlinesum = 0;
 
 exports.socketHallFuc = function(nsp,client) {
     nsp.on('connection',function(socket){
-        var black = false,userName,roomName = '',NSP = '';
+        var black = false,userName,roomName = '',NSP = '',userData;
         socket.on('userInit',function(data){//监听 客户端的消息
             onlinesum++;
             async.waterfall([
-                function(done){//得到code和用户信息
-                    user.getCode({code:data.code,client:client},function(err,res){
+                function(done){//用code查询是否被禁言(redis)
+                    user.userViolatorRedis({code:data.code,client:client},function(err,res){
                         done(err,res);
                     });
                 },
-                function(arg,done){//对用户进行验证
-                    var uid = JSON.parse(arg.data).uid;
-                    user.userValidate({uid:uid,client:client},function(err,res){
-                        arg.free = '0';
-                        done(err,arg);
+                function(arg,done){//用code检测时候是allow用户（redis/sso）
+                    //var uid = JSON.parse(arg.data).uid;
+                    user.userAllowedRedis({code:data.code,client:client},function(err,res){
+                        //arg.free = '0';
+                        done(err,res);
                     });
                 },
             ],function(err,res){
@@ -41,14 +40,19 @@ exports.socketHallFuc = function(nsp,client) {
                             return roomName == user.room;
                     });
                     socket.emit('allMessages',{users:users,onlinesum:onlinesum});
+
                 }else{
                     black = false;
                     console.log('所有的任务完成了'/*,res*/);
                     var uif = JSON.parse(res.data);
+
                     roomName = data.room,userName = data.user,clients[socket.id] = socket;
-                    var userData = {name:userName,id: socket.id,room:roomName,posterURL:uif.posterURL,tel:uif.tel,uid:uif.uid,nickName:uif.nickName};
-                    userData.onlinesum = onlinesum;
+
+                    userData = {code:data.code,name:userName,id: socket.id,room:roomName,posterURL:uif.posterURL,
+                        tel:uif.tel,uid:uif.uid,nickName:uif.nickName,onlinesum:onlinesum};
+
                     users.push(userData);
+
                     if(roomName!=''){
                         socket.join(roomName);
                         socket.broadcast.in(roomName).emit('joinChat',userData);
@@ -80,6 +84,7 @@ exports.socketHallFuc = function(nsp,client) {
                 // console.log(socket.id,'subscribe',roomID);
             }
         });
+
         /*取消订阅房间*/
         socket.on('unsubscribe', function(data) {
             roomName = data.room;
@@ -92,7 +97,7 @@ exports.socketHallFuc = function(nsp,client) {
 
         /*接收redis发来的消息*/
         socket.on('redisCome',function (data,callback) {
-            console.log('redisCome',data);
+            console.log('redisCome'/*,data*/);
             if(data.room!=''){
                 nsp.in(data.room).emit('message.add',data);
             }else{
@@ -108,7 +113,9 @@ exports.socketHallFuc = function(nsp,client) {
                 if(user)
                     return socket.id != user.id;
             });
-            console.log('disconnect',socket.id,users,onlinesum);
+
+            //console.log('disconnect',socket.id,users,onlinesum);
+
             if(socket.id)
                 delete clients[socket.id];
 
@@ -126,21 +133,16 @@ exports.socketHallFuc = function(nsp,client) {
             if(black){
                 return
             }else{
-                console.log(data);
-/*                data.cid = roomName;
-                data.uid = userData.uid;
+                var data2 = {
+                    code:userData.code, cid: roomName, uid: userData.uid,posterURL:userData.posterURL,
+                    nickName:userData.nickName,posterURL:userData.posterURL,tel:userData.tel,
+                    openid: '',checked:0,voliate:0,createTime:Date.parse(new Date())/1000,
+                    type:'',perform:'',place:NSP+':'+roomName
+                };
+                for(var item in data2){
+                    data[item]=data2[item];
+                }
 
-                cid：房间id（关联chatroomid）
-                uid：看看用户id
-                openid：微信openid
-                checked：是否审核 0：未审核 1：审核
-                voliate：是否违规 0：无违规 1：违规
-                createTime：生成时间戳
-                type：类型
-                perform：弹幕表现形式（json 颜色等）
-                message：文本*/
-                data.place =  NSP+':'+roomName;
-                //data.posterURL = userData.posterURL;
                 client.lpush('message',JSON.stringify(data),redis.print);
             }
         });
@@ -161,5 +163,3 @@ function getUser(uid,callback){
         callback(null,body);
     });
 }
-
-

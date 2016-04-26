@@ -44,7 +44,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
             var code = 'sVq+gmy87l79jQ1fBHb8mgiSKNekY0IQQ+7GgrLBXVv6aTTspZAmqg1WfpCwWrnYIA4IdVwARStSVN+OxWCE/j0grhjgZHvka+no1lMEOtJMHjlKaBi8o//8nNm81WeJq5r7Dvaf6ntUwue204X0lXFNo3lxDP38qF8qown4XdjHO7iXLRmhxIy/Sp8qnFao8QbrBheR4opVJ3s85Z+PgXYdf+OdBFTd/lnpRkJShFF9iwETh1KWdhT46hfuB1rT7OwtgNrIhO3tA33DqKiGXaxt7E12SRYmb0SHjRfeP6cZfy0SVt7hiJqcHivMtWLuH/h0IGql3pwe98k31tzIsEnU/KMFDB6TsPv37jyWT6/vid9IrauF2j5Mnp3a07H5wyVBc/P0ESryT82UYMaZ1LoufD/ZRgYkYbVVjFPTuMWzbFJWcwVc5W8OKEXEN9es/aOs58J7VzzwxcLtWCSMeYsiTZPEmVN807cUwyRHA80aKz9OPe+mGK4ibD8GXa3McQBTIAkskTdpAh6SFVwzQObFe2Cx21sH1g5Z28zvFc9r/jue5UT8rX8tQ28VlkWqIEA8RY9qeLZgtGjV7QsYk9LS3fcrm6WL0dj9GjwNUFWns46Es5gKsyccc5qpplHSSJCwTo5prOk6s5mN676pm27mFzoAKZb0jOjfDJDRzzs=';
         }
 
-
         $scope.roomName = room;
 
         socket.emit('userInit',{room:$scope.roomName,user:$scope.user,code:code});

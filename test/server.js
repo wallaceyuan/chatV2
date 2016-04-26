@@ -12,6 +12,69 @@ var pool = mysql.createPool({
 });
 var client = require("redis").createClient();
 
+
+/*
+var codeOpt = {
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    url: 'http://kankanews.cn-north-1.eb.amazonaws.com.cn/KKShielder',
+    method: 'POST',
+    body:"words=1111"
+};
+request(codeOpt,function(err,res,body){
+    var body = JSON.parse(body);
+    console.log(body.size,body);
+});
+
+*/
+
+
+var code = 'BK8eDVWVCjPRLZmdtLhIq7gMBxo4cHLJ/2JevlLADdJdanuiQWHCDL5NZ7Gx4P8ixxS6PJDW0jzcgpW20TXUbobEw0BRKW3DdgqMdaWLtEmgvENx1GkJtMM3+HkoPpo86D3li4mSb6wZ1+Srf+FxYzxpFGT29ugFnuobU2ZZK9KbM0IISxVY6/GSTNpRt9OMug2S8hy79VEW0aCUqgbMmmAAqXYEl7Q/2I47jjKDm6H1jtRxITom67Ifrf0mmB4zvrzERgUlE7Ql6Jp1QoTvoMj658rrY9UCjzfA9a4zpBo0+PFcAwzKVW7j4Xj7kae8zUp2xxri1hEj9Vrmd1bWmJxtbN1co8NZacNOxW4z7KpZxypgVQK1voLOwHqurv0VSwlN3iE3S1d/0HrJ8mnDI0A25/qy6ZG7sq3wJaiu4vrtwYA/vqrmSlA9FiDvO14gp1pJPKkxTQcWRUbLQZrcBbI/erfBgPBSZugt+8E1AKV+ivTBQ2gZ+cHLi36Q8BykrPy2bR75EpxGgNe9h4GErfBu+zb/V4BP8i7dYXyI3BGFz0BWo+pfG2idV5CHRzDCRPOVto4YSyMw5HuqWsWXXiIqmX/wt1zp2/wqYWXmoZ+36CyA0k1TjqgJqWPzasnhfTnoi4JQibU37ne3cXNWTEHu4Ucg8jGfnxl2vbZfh6Y=';
+client.multi().HMSET('kkUserBlack'+code, {free:1}).expire('kkUserBlack'+code,3600).exec(function (err, replies) {
+    console.log("kkUserBlack set");
+});
+
+
+
+
+//var time = Date.parse(new Date())/1000;
+/*pool.query('replace into kk_danmaku_chatrooms(open,createTime,type,infoid,title,intro) values(?,?,?,?,?,?)',[1,time,3,1,'vod1','vod1'],function(err,result){
+    if(err){
+        console.log(err);
+    }else{
+        console.log(result);
+    }
+});*/
+
+
+//select student.name,score.score from student,score where student.id = score.stuid
+
+/*
+pool.query('select * from kk_danmaku_chatrooms,kk_danmaku_namespace where kk_danmaku_namespace.id = kk_danmaku_chatrooms.type and type = ? and infoid = ?',[2,2],function(err,rows){
+*/
+
+/*var nsp = 'live';
+var sid  = 'infoid';
+if(nsp == 'wechat'){
+    sid = 'id';
+}
+
+pool.query('select * from kk_danmaku_chatrooms as t1,kk_danmaku_namespace as t2 where t2.id = t1.type and namespace = ? and '+sid+' = ? and open = ? ',[nsp,2,1],function(err,rows){
+    if(err){
+        console.log(err);
+    }else{
+        if(rows.length>0){
+            console.log(rows);
+        }else{
+            console.log('wu');
+        }
+    }
+});*/
+
+
+
+
+
+
 /*
 var userOpt = {
     uri: 'http://ums.kankanews.com/t/getUserInfo.do',
@@ -69,4 +132,31 @@ client.hgetall('kkUserBlack'+data.uid, function (err, obj) {
     }
 });*/
 
-console.log(Date.parse(new Date())/1000);
+/*console.log(Date.parse(new Date())/1000);
+
+var data = { user: 'KzxGa', message: 'sss', time: '11:5' };*/
+
+/*
+var data2 = { cid: 'aa', uid: '12', openid: '',checked:0,voliate:0,createTime:Date.parse(new Date())/1000,type:'',perform:'',place:'' };
+
+for(var item in data2){
+    data[item]=data2[item];
+}
+console.log(data);*/
+
+
+
+
+/*
+var userOpt = {
+    uri: 'http://127.0.0.1/chat/message/valide',
+    method: 'POST',
+    body :'6767',
+    headers: {'Content-Type': 'text/xml'}
+}
+
+request(userOpt,function(err,res,body){
+
+});
+*/
+
