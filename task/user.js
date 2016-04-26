@@ -25,7 +25,7 @@ exports.userViolatorRedis = function(data,callback){
     });
 }
 
-exports.userAllowedRedis = function(data,callback){
+exports.userAllowedRedis  = function(data,callback){
     var client = data.client;
     client.hgetall(data.code, function (err, obj) {
         if(obj){
@@ -54,7 +54,7 @@ exports.userAllowedRedis = function(data,callback){
     });
 }
 
-exports.roomValidateSql = function(nsp,infoid,callback){
+exports.roomValidateSql   = function(nsp,infoid,callback){
     var sid  = 'infoid';
     if(nsp == 'wechat')
         sid = 'id';
@@ -72,7 +72,7 @@ exports.roomValidateSql = function(nsp,infoid,callback){
     });
 }
 
-exports.userValidateSql = function(data,callback){
+exports.userValidateSql   = function(data,callback){
     var client = data.client;
     client.hgetall('kkUserBlack'+data.code, function (err, obj) {
         if(obj){
@@ -98,7 +98,7 @@ exports.userValidateSql = function(data,callback){
     });
 }
 
-exports.messageValidate = function(data,callback){
+exports.messageValidate   = function(data,callback){
 
     var client = data.client,res = data.result,code = res.code;
 
@@ -125,6 +125,14 @@ exports.messageValidate = function(data,callback){
             callback({code:444,msg:'存在敏感词'},null);
         }else{
             callback(null,0);
+        }
+    });
+}
+
+exports.messageToKu       = function(data,callback){
+    pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,voliate,createTime,type,perform,message) values(?,?,?,?,?,?,?,?,?)',[data.cid,data.uid,'',1,data.voliate,data.createTime,'','',data.message],function(err,result){
+        if(err){
+            console.log(err);
         }
     });
 }

@@ -39,7 +39,7 @@ function compute() {
             }else{
                 waithall(100);
                 console.log('working for 1s 空的 暂停取数据, nexttick',time);
-                //process.nextTick(compute);
+                process.nextTick(compute);
             }
         }
     });
@@ -76,12 +76,16 @@ function popLogs(){
         ],function(err,res){
             if(err){
                 console.log(err);
-                //process.nextTick(compute);
+                result.voliate = 1;
+                user.messageToKu(result);
+                process.nextTick(compute);
             }else{
                 console.log('全部完成',res);
                 namBox[nsp].emit('redisCome',result,function(){
                     console.log('redisSend, nexttick');
-                    //process.nextTick(compute);
+                    result.voliate = 0;
+                    user.messageToKu(result);
+                    process.nextTick(compute);
                 });
             }
         });
