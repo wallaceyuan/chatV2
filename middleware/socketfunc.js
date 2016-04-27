@@ -11,21 +11,32 @@ var onlinesum = 0;
 
 exports.socketHallFuc = function(nsp,client) {
     nsp.on('connection',function(socket){
-        var black = false,userName,roomName = '',NSP = '',userData;
+        var black = false,roomName = '',NSP = '',userData,userName;
         socket.on('userInit',function(data){//监听 客户端的消息
             onlinesum++;
             async.waterfall([
                 function(done){//用code查询是否被禁言(redis)
-                    user.userViolatorRedis({code:data.code,client:client},function(err,res){
+                    console.log('svolidate');
+                    user.userViolatorRedis({token:data.token,client:client},function(err,res){
+                        console.log('evolidate');
                         done(err,res);
                     });
                 },
                 function(arg,done){//用code检测时候是allow用户（redis/sso）
-                    //var uid = JSON.parse(arg.data).uid;
-                    user.userAllowedRedis({code:data.code,client:client},function(err,res){
-                        //arg.free = '0';
+                    console.log('sallow');
+                    user.userAllowedRedis({token:data.token,client:client},function(err,res){
+                        console.log('eallow');
                         done(err,res);
                     });
+/*                    var res = {
+                        data:{
+                            nickName : 'yy',
+                            posterURL : '',
+                            uid : 11,
+                            tel : 13122122222
+                        }
+                    }
+                    done(null,res);*/
                 },
             ],function(err,res){
                 if(err){
@@ -34,22 +45,30 @@ exports.socketHallFuc = function(nsp,client) {
                     if(roomName!=''){
                         socket.join(roomName);
                     }
-                    //debug('所有的任务完成了',res);
                     users = users.filter(function(user){
                         if(user)
                             return roomName == user.room;
                     });
-                    socket.emit('allMessages',{users:users,onlinesum:onlinesum});
+
+                    socket.emit('userStatus',{status:err,users:users,onlinesum:onlinesum});
 
                 }else{
                     black = false;
-                    console.log('所有的任务完成了'/*,res*/);
+
                     var uif = JSON.parse(res.data);
+                    //var uif = res.data;
 
-                    roomName = data.room,userName = data.user,clients[socket.id] = socket;
+                    roomName = data.room, userName = uif.nickName,clients[socket.id] = socket;
 
-                    userData = {code:data.code,name:userName,id: socket.id,room:roomName,posterURL:uif.posterURL,
-                        tel:uif.tel,uid:uif.uid,nickName:uif.nickName,onlinesum:onlinesum};
+                    if(data.openid){
+                        var openid = data.openid;
+                        var token = '';
+                    }else{
+                        var openid = '';
+                        var token = data.token;
+                    }
+                    userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
+                        tel:uif.tel,uid:uif.uid,nickName:userName,onlinesum:onlinesum};
 
                     users.push(userData);
 
@@ -59,18 +78,21 @@ exports.socketHallFuc = function(nsp,client) {
                     }else{
                         socket.broadcast.emit('joinChat',userData);
                     }
-                    //debug('所有的任务完成了',res);
+
                     users = users.filter(function(user){
                         if(user)
                             return roomName == user.room;
                     });
-                    socket.emit('allMessages',{users:users,onlinesum:onlinesum});
+
+                    socket.emit('userStatus',{status:{code:0,msg:'用户验证成功'},userData:userData,users:users,onlinesum:onlinesum});
                 }
 
                 NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
 
-                //console.log('nsp',nsp.name,'room',roomName,'connection','userData',userData);
+                console.log('所有的任务完成了'/*,res*/);
 
+                //debug('所有的任务完成了',res);
+                //console.log('nsp',nsp.name,'room',roomName,'connection','userData',userData);
             });
         });
 
@@ -134,15 +156,17 @@ exports.socketHallFuc = function(nsp,client) {
                 return
             }else{
                 var data2 = {
-                    code:userData.code, cid: roomName, uid: userData.uid,posterURL:userData.posterURL,
+                    openid:userData.openid, token:userData.token, cid: roomName, uid: userData.uid,
                     nickName:userData.nickName,posterURL:userData.posterURL,tel:userData.tel,
                     openid: '',checked:0,voliate:0,createTime:Date.parse(new Date())/1000,
-                    type:'',perform:'',place:NSP+':'+roomName
+                    place:NSP+':'+roomName
                 };
                 for(var item in data2){
                     data[item]=data2[item];
                 }
-
+                if(data.perform){
+                    data.perform = JSON.stringify(data.perform);
+                }
                 client.lpush('message',JSON.stringify(data),redis.print);
             }
         });
@@ -150,16 +174,13 @@ exports.socketHallFuc = function(nsp,client) {
     });
 }
 
-
-
-function getUser(uid,callback){
-    var userOpt = {
-        uri: 'http://ums.kankanews.com/t/getUserInfo.do',
-        method: 'POST',
-        body :uid,
-        headers: {'Content-Type': 'text/xml'}
+function randomString(len) {
+    len = len || 32;
+    var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+    var maxPos = $chars.length;
+    var pwd = '';
+    for (var i = 0; i < len; i++) {
+        pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
     }
-    request(userOpt,function(err,res,body){
-        callback(null,body);
-    });
+    return pwd;
 }

@@ -26,6 +26,7 @@
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
     "socket.io-redis": "^1.0.0",
-    "sticky-session": "^1.0.2"
+    "sticky-session": "^1.0.2",
+    "xss": "^0.2.12"
   }
 }

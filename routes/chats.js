@@ -5,6 +5,10 @@ var User = require('../model/user');
 router.get('/',function(req, res, next) {
     res.render('chat',{namespance:'',room:''});
 });
+router.get('/chatroom/:room',function(req, res, next) {
+    var room = req.params.room;
+    res.render('chat',{namespance:'chatroom',room:room});
+});
 router.get('/live/:room',function(req, res, next) {
     var room = req.params.room;
     res.render('chat',{namespance:'live',room:room});
@@ -13,10 +17,15 @@ router.get('/vod/:room',function(req, res, next) {
     var room = req.params.room;
     res.render('chat',{namespance:'vod',room:room});
 });
-router.get('/chatroom/:room',function(req, res, next) {
+router.get('/wechat/:room',function(req, res, next) {
     var room = req.params.room;
-    res.render('chat',{namespance:'chatroom',room:room});
+    res.render('chat',{namespance:'wechat',room:room});
 });
+router.get('/broadcast/:room',function(req, res, next) {
+    var room = req.params.room;
+    res.render('chat',{namespance:'broadcast',room:room});
+});
+
 
 router.route('/user/get').post(function(req,res){
     console.log('post-code',req.body.code);

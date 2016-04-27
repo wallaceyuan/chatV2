@@ -1,29 +1,14 @@
 
 angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$timeout,socket,$location){
-    $scope.status = false;$scope.dialog = false;
-    $scope.ptop;
-    $scope.messages = [],$scope.message = '',$scope.line = '',$scope.onlines = [],$scope.world = [],$scope.times= [];
+    $scope.status = false;$scope.dialog = false;$scope.ptop;
+    $scope.world = [],$scope.times= [];
     $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
-    $scope.onlinesum = 0;
     $scope.chat = function(name){
         $scope.ptop = name;
     }
-    $scope.createMessage = function(){
-        if($scope.message){
-            socket.emit('createMessage',{user:$scope.user,message:$scope.message,time:getTime()});
-            $scope.message = '';
-        }
-    }
 
-    /*回车事件*/
-    $scope.enter = function(keyEvent){
-        var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
-        if(char == 13){
-            $scope.createMessage();
-        }
-    }
-
-    $scope.line = $scope.user = randomString(5);
+    $scope.messages = [],$scope.message = '',$scope.onlines = [];
+    $scope.onlinesum = 0;
 
     /*1 测试连接事件*/
     socket.on('connect', function(){
@@ -38,20 +23,28 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }else{
             var room = $rootScope.param.room;
         }
-        if ($location.search().code) {
-            var code = $location.search().code;
+        if ($location.search().index) {
+            var index = $location.search().index;
         }else{
-            var code = 'MRSjYogg5WQ+q92N57YFY4z/lno4Oy0eqU0ztgRe5zTzOc+tHQkLBps+RgTI+e4ROsiyEPKeSwLKVlX5nKpYp/hStUvdNcbkuXZ2zsvHLvtijacLpJVvpB9Jpy4Hh04309yRdq/A+5DtcUJ24Ud1W4u0PvfTCaHoEdDjFQgpJzqsenXqJmv1tqQck6I6vu98yYydNjxXMpkEaWg8aZRfUj+YXPcqwhl81uqCVFz3Slpern9nNiKjz1mFnfltTU/ykm8+jtIXufhQrfALUycEvthnQ6kgbMg5ayupRgUW2bg1U0nDNN0n630B1bX2dh9pgYgyjCaubl6NmkDCcLNh67cJjc/EgFPiFsrOz8BYxAIECRLrEbRrGpUkJ2ilpfxgy1YFKlzbWRciJKSjjQOIL9wRaKvm1FyNG7oo+TZ86cGHstcmYy8I6QmvS3NhnO5k/kNwhISANny9z/D/YpqQdALEzY3G6uL4IUHYnxXlm4kfVvDEhY0n8lx9yM08XaZUCIxqaUiU8pLyQ7q+J9LYEVTNvfgFwbQ18ijf9qlfx0mqZorvpXvIATzDU98e6hKo86dIMXJPqa8nSXd/oSs7y4SM4G0cfYYMmMVCH+fIEq/052I85+b6tIMhhThGHq41WfcW2kEqXwP+FJvQ7Sygk1HR88/kFNJfQJV1VM1KkxI=';
+            var index = 0;
         }
+
+        var tone = 'opV5fwXDlHdvHRdJGJ8WD2Am6z7lkyryo0BO8wJ0ViqVs+wUox3ppMQMb49dLI6tbwi24nML7DClJVNH2I53SsdRc7X0TxB33INM/Hzl1xrGXgcZbIgQo028WtgYwFlNf5RggnqJMvj/YtIzxLOr1CJ/iUw5b5df028QJ6TISVFJjKYItasMLsyitLIA9V1TP3vWawTdju1eKiu/8z6E6/SV8y9V6GN4BH4ObcG69o7LLD+yfpv/mXXNK17UeoqP4p/+4Cp++ZAxdW/2ZtMdbwOpPyxZu4Ux4cAm5ZTSQLJbWqpVbdKgrKfuMbeMWu8d8mw4MEe/HHCZeHzH/PHsf/5hU8ZbagTuxYSvqk3W0OJuyEpKhrbQDqP/gA7VrZXQujzUCMAXWT3JPYLs6D1hEdoPpNGsQKAxdqScAkLfGDbm9gzph7PjgdHOeojZf9+JlZWSkmG0Id15grtH2keH3T8HNVg7ywTIQRkq87lnvUqGrHCG2S3fKTLIgPxsvaC5JL/GPkvA3kPRqu5Xjj45RSUc7pPR+mOlAVujuRHnJqpQfxK1EZ0DdI88XjUaLFO7pIpyU8aADT17exnhLDXP1PVmD2a5WojV0nZ5Hv7DjSWPEvfcNI0+dxkd1po1AJCl+XNmdHOY1arbF1ol2sbKCbuxZS3530RjHbGuKitgA2E=';
+
+        var ttwo = 'LyNgmY7bk21bEWHAqZXKDsVdZaJd0p2/z+6qZI44YK3UYi0XNEKWNZMOGu7skNTQBDLj0Vd9lDKy25LuOJ3OiMSNknjHw+vKP/KLmuBIYx+MMjmKBdqIn3/BIKAuShO91iGFPp68xMjAHTaNO8APaKSfZfBdYoaQaP7+CsJDQeLMdUwCTKIItLGwMQVfw4HcmL8kir2g5g9+BB0Qg5HiBacnIUBcKetsdq913PoQdekFyMKWLYwLVTFeFA/JOBLGndIbpL/TZjH9aJbgGf0qKPVhlizKoX23BlVfUSS+I6g+s8cOuy86pc/idYHUbf7X9XnUmwDFJ7e2H7OreNxcAO4isQsx4EhVwEBA2XZ+9ERSspT7tB9h2RjPXqX8UUfsQOhyJYdRmu5+70fDLmdRykY7+PutkIomcm2rzDAyfQ2DMcLisSLUknNl0/Xi/mSWTgqngMuleyhIa48R6XXZ2JWtJePAIJOtk0uumajDKqsZwwosBDRXkE1usnqU38sOL5L3AAtXu4EZrIpNtZITVZ1rZdmyHIRtBR3tRSmm1dKW5M6g0EXcJAm3REWQbHq+Ovx1d6zjGCrZCTjyI1HpBS3pc9UDfox+v+Fx/Lff6K79fqHBuAhm0UwMNDLebN6g6NnTrkbN0zzMyeO4o4s+FsFSUmE36Ls0J/iK1hRHEyI=';
+
+        var tokenBox = [tone,ttwo];
 
         $scope.roomName = room;
 
-        socket.emit('userInit',{room:$scope.roomName,user:$scope.user,code:code});
-
+        socket.emit('userInit',{room:$scope.roomName,token:tokenBox[index]});
     });
 
-    socket.on('allMessages',function(data){
-        console.log(data.users);
+    socket.on('userStatus',function(data){
+        console.log(data);
+        if(parseInt(data.status.code) == 0){
+            $scope.line = data.userData.nickName;
+        }
         $scope.onlines = data.users;
         $scope.onlinesum = data.onlinesum;
     });
@@ -81,7 +74,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }else{
             $scope.times.push(msg.time);
         }
-        if(msg.user == $scope.line){
+        if(msg.nickName == $scope.line){
             msg.flag = 'me message-reply';
         }else{
             msg.flag = 'other message-receive';
@@ -110,8 +103,32 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     });
 
     socket.on('disconnect',function(){
-        //alert('disconnext');
+        //alert('disconnect');
     });
+
+
+    $scope.createMessage = function(){
+        if($scope.message){
+            socket.emit('createMessage',{
+                message:$scope.message,
+                time:getTime(),
+                type:'',up:0,down:0,
+                perform:{
+                    color:'red',fontSize:'16px'
+                },
+            });
+            $scope.message = '';
+        }
+    }
+
+    /*回车事件*/
+    $scope.enter = function(keyEvent){
+        var char = keyEvent.charCode || keyEvent.keyCode || keyEvent.which;
+        if(char == 13){
+            $scope.createMessage();
+        }
+    }
+
 });
 
 function getTime(){
@@ -122,13 +139,4 @@ function getTime(){
     var hour = t.getHours(),min = t.getMinutes(),sec=t.getSeconds();
     return hour+':'+min
 }
-function randomString(len) {
-    len = len || 32;
-    var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
-    var maxPos = $chars.length;
-    var pwd = '';
-    for (var i = 0; i < len; i++) {
-        pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
-    }
-    return pwd;
-}
+

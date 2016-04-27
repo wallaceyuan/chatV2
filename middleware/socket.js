@@ -1,6 +1,3 @@
-/**
- * Created by yuan on 2016/4/20.
- */
 
 var redisio = require('socket.io-redis');
 
@@ -15,20 +12,31 @@ exports.socketio = function(server) {
     var io = require('socket.io')(server);
 
     //var rootSpaceName = '/';
+    //var root = io.of(rootSpaceName);
+    //socketF.socketHallFuc(root,client);
+    //io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
+
+    var nameBox = ['/chatroom','/live','/vod','/wechat','/broadcast'];
+
+    for(var item in nameBox){
+
+        var lnsp = io.of(nameBox[item]);
+
+        socketF.socketHallFuc(lnsp,client);
+    }
+
+/*
+    var chatroomSpaceName = '/chatroom';
 
     var liveSpaceName = '/live';
 
     var vodSpaceName = '/vod';
 
-    var chatroomSpaceName = '/chatroom';
+    var wechatSpaceName = '/wechat';
 
-    //io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
+    var broadcastSpaceName = 'broadcast';
 
-    //var root = io.of(rootSpaceName);
-
-    //socketF.socketHallFuc(root,client);
-
-    var lnsp = io.of(liveSpaceName);
+   var lnsp = io.of(liveSpaceName);
 
     socketF.socketHallFuc(lnsp,client);
 
@@ -38,5 +46,5 @@ exports.socketio = function(server) {
 
     var cnsp = io.of(chatroomSpaceName);
 
-    socketF.socketHallFuc(cnsp,client);
+    socketF.socketHallFuc(cnsp,client);*/
 }

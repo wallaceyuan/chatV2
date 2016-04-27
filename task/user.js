@@ -14,10 +14,10 @@ var pool = mysql.createPool({
 
 exports.userViolatorRedis = function(data,callback){
     var client = data.client;
-    client.hgetall('kkUserBlack'+data.code, function (err, obj) {
+    client.hgetall('kkUserBlack'+data.token, function (err, obj) {
         if(obj){
             console.log('getViolator-you');
-            callback({code:110,msg:'被禁言用户'},null);
+            callback({code:700,msg:'被禁言用户'},null);
         }else {
             console.log('getViolator-wu');
             callback(null,0);
@@ -27,7 +27,7 @@ exports.userViolatorRedis = function(data,callback){
 
 exports.userAllowedRedis  = function(data,callback){
     var client = data.client;
-    client.hgetall(data.code, function (err, obj) {
+    client.hgetall(data.token, function (err, obj) {
         if(obj){
             console.log('getAllowed-you');
             callback(null,obj);
@@ -36,13 +36,13 @@ exports.userAllowedRedis  = function(data,callback){
             var codeOpt = {
                 uri: 'http://ums.kankanews.com/t/tokenValidate.do',
                 method: 'POST',
-                body : data.code,
+                body : data.token,
                 headers: {'Content-Type': 'text/xml'}
             };
             request(codeOpt,function(err,res,body){
                 var body = JSON.parse(body);
                 if(parseInt(body.code) == 0){
-                    client.multi().HMSET(data.code, body).expire(data.code,3600).exec(function (err, replies) {
+                    client.multi().HMSET(data.token, body).expire(data.token,3600).exec(function (err, replies) {
                         console.log("MULTI got " + replies.length + " replies");
                     });
                     callback(null,body);
@@ -66,7 +66,7 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
             if(rows.length>0){
                 callback(null,rows[0]);
             }else{
-                callback({code:400,msg:'没有对应开放的房间'},null);
+                callback({code:701,msg:'没有对应开放的房间'},null);
             }
         }
     });
@@ -74,21 +74,21 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
 
 exports.userValidateSql   = function(data,callback){
     var client = data.client;
-    client.hgetall('kkUserBlack'+data.code, function (err, obj) {
+    client.hgetall('kkUserBlack'+data.token, function (err, obj) {
         if(obj){
             console.log('kkUserBlack-you');
-            callback({code:110,msg:'黑名单用户'},null);
+            callback({code:700,msg:'被禁言用户'},null);
         }else {
             console.log('kkUserBlack-wu');
-            pool.query('select * from kk_danmaku_violators where uid = ?',[data.uid],function(err,rows){
+            pool.query('select * from kk_danmaku_violators where uid = ? and free = 1',[data.uid],function(err,rows){
                 if(err){
                     console.log(err);
                 }else{
                     if(rows.length>0){
-                        client.multi().HMSET('kkUserBlack'+data.code, '1').expire('kkUserBlack'+data.code,3600).exec(function (err, replies) {
+                        client.multi().HMSET('kkUserBlack'+data.token, '1').expire('kkUserBlack'+data.token,3600).exec(function (err, replies) {
                             console.log("MULTI got " + replies.length + " replies");
                         });
-                        callback({code:110,msg:'黑名单用户'},null);
+                        callback({code:700,msg:'被禁言用户'},null);
                     }else{
                         callback(null,{msg:'OK'});
                     }
@@ -100,7 +100,7 @@ exports.userValidateSql   = function(data,callback){
 
 exports.messageValidate   = function(data,callback){
 
-    var client = data.client,res = data.result,code = res.code;
+    var client = data.client,res = data.result,token = res.token;
 
     var codeOpt = {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -112,37 +112,39 @@ exports.messageValidate   = function(data,callback){
         var body = JSON.parse(body);
         //console.log(body.size);
         if(parseInt(body.size) > 0){
-            client.multi().HMSET('kkUserBlack'+code, {free:1}).expire('kkUserBlack'+code,3600).exec(function (err, replies) {
+            client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,3600).exec(function (err, replies) {
                 console.log("kkUserBlack set");
             });
-            pool.query('replace into kk_danmaku_violators(uid,openid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?,?)',[res.uid,'',res.tel,res.nickName,res.posterURL,res.createTime,1],function(err,result){
+            pool.query('replace into kk_danmaku_violators(uid,openid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?,?)',[res.uid,'',res.tel,res.nickName,res.posterURL,res.createTime,0],function(err,result){
                 if(err){
                     console.log(err);
                 }else{
                     console.log(result);
                 }
             });
-            callback({code:444,msg:'存在敏感词'},null);
+            callback({code:702,msg:'存在敏感词'},null);
         }else{
             callback(null,0);
         }
     });
 }
 
+exports.messageDirty      = function(message,callback){
+    console.log(message);
+    var re = /select|update|delete|exec|count|=|;|>|<|%/i;
+    if (re.test(message)) {//特殊字符和SQL关键字
+        console.log('存在特殊字符');
+        callback({code:703,msg:'存在特殊字符'+message},null);
+    }else{
+        callback(null,0);
+    }
+}
+
 exports.messageToKu       = function(data,callback){
-    pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,voliate,createTime,type,perform,message) values(?,?,?,?,?,?,?,?,?)',[data.cid,data.uid,'',1,data.voliate,data.createTime,'','',data.message],function(err,result){
+    pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,voliate,createTime,up,down,type,perform,message) values(?,?,?,?,?,?,?,?,?,?,?)',[data.cid,data.uid,data.openid,1,data.voliate,data.createTime,data.up,data.down,data.type,data.perform,data.message],function(err,result){
         if(err){
             console.log(err);
         }
     });
 }
 
-//把分类列表存入数据库
-exports.category = function(list,callback){
-    async.forEach(list,function(item,cb){
-        debug('保存分类',JSON.stringify(item));
-        pool.query('replace into category(id,name,url) values(?,?,?)',[item.id,item.name,item.url],function(err,result){
-            cb();
-        });
-    },callback);
-}

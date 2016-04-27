@@ -11,7 +11,20 @@ var pool = mysql.createPool({
     database:'kk_danmaku'
 });
 var client = require("redis").createClient();
+var xss = require('xss');
+var html = xss('<div>1212</div>');
+console.log(html);
 
+re = /select|update|delete|exec|count|'|"|=|;|>|<|%/i;
+if (re.test('alert')) {//特殊字符和SQL关键字
+    console.log('存在特殊字符');
+    //callback({code:703,msg:'存在特殊字符'},null);
+}else{
+    console.log('ok');
+
+    //var message = xss(message);
+    //callback(null,message);
+}
 
 /*
 var codeOpt = {
@@ -28,10 +41,12 @@ request(codeOpt,function(err,res,body){
 */
 
 
+/*
 var code = 'BK8eDVWVCjPRLZmdtLhIq7gMBxo4cHLJ/2JevlLADdJdanuiQWHCDL5NZ7Gx4P8ixxS6PJDW0jzcgpW20TXUbobEw0BRKW3DdgqMdaWLtEmgvENx1GkJtMM3+HkoPpo86D3li4mSb6wZ1+Srf+FxYzxpFGT29ugFnuobU2ZZK9KbM0IISxVY6/GSTNpRt9OMug2S8hy79VEW0aCUqgbMmmAAqXYEl7Q/2I47jjKDm6H1jtRxITom67Ifrf0mmB4zvrzERgUlE7Ql6Jp1QoTvoMj658rrY9UCjzfA9a4zpBo0+PFcAwzKVW7j4Xj7kae8zUp2xxri1hEj9Vrmd1bWmJxtbN1co8NZacNOxW4z7KpZxypgVQK1voLOwHqurv0VSwlN3iE3S1d/0HrJ8mnDI0A25/qy6ZG7sq3wJaiu4vrtwYA/vqrmSlA9FiDvO14gp1pJPKkxTQcWRUbLQZrcBbI/erfBgPBSZugt+8E1AKV+ivTBQ2gZ+cHLi36Q8BykrPy2bR75EpxGgNe9h4GErfBu+zb/V4BP8i7dYXyI3BGFz0BWo+pfG2idV5CHRzDCRPOVto4YSyMw5HuqWsWXXiIqmX/wt1zp2/wqYWXmoZ+36CyA0k1TjqgJqWPzasnhfTnoi4JQibU37ne3cXNWTEHu4Ucg8jGfnxl2vbZfh6Y=';
 client.multi().HMSET('kkUserBlack'+code, {free:1}).expire('kkUserBlack'+code,3600).exec(function (err, replies) {
     console.log("kkUserBlack set");
 });
+*/
 
 
 
