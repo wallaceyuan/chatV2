@@ -1,16 +1,17 @@
+
 var io = require('socket.io-client');
 var async = require('async');
-var redis = require('redis');
 var xss = require('xss');
 
-//var client  = redis.createClient(6379, 'knews-redis2-001.nrm01e.0001.cnn1.cache.amazonaws.com.cn');
-var client  = redis.createClient();
 var user = require('../task/user');
+var config = require('../task/config');
 var debug = require('debug')('socket-client:main');
 
 
-//var ip = 'http://54.222.215.248/';
-var ip = 'http://127.0.0.1:3000';
+var ip = config.ip;
+var client  = config.client;
+
+//var ip = 'http://127.0.0.1:3000';
 var origin = io.connect(ip+'/', {reconnect: true});
 var chatroom = io.connect(ip+'/chatroom', {reconnect: true});
 var live = io.connect(ip+'/live', {reconnect: true});
@@ -35,7 +36,7 @@ function compute() {
                 });
             }else{
                 waithall(100);
-                console.log('working for 1s 空的 暂停取数据, nexttick',time);
+                console.log('working for 1s empty pause, nexttick',time);
                 process.nextTick(compute);
             }
         }
@@ -48,35 +49,35 @@ function popLogs(){
         var place = result.place.split(':');
         var nsp = place[0],room = place[1];
         var time = getTime();
-        console.log('start'+nsp +room +time);
+        console.log('start '+'nsp: '+nsp +"room "+room + 'time: '+time);
         result.room = room;
 
         async.waterfall([
             function(done){
                 console.log('sroom');
                 user.roomValidateSql(nsp,room,function(err,res){
-                    console.log('完成房间验证');
+                    console.log('room done');
                     done(err,res);
                 });
             },
             function(res,done){
                 console.log('suser');
                 user.userValidateSql({token:result.token,uid:result.uid,client:client},function(err,res){
-                    console.log('完成用户验证'/*,res*/);
+                    console.log('user done'/*,res*/);
                     done(err,res);
                 });
             },
             function(res,done){
                 console.log('ssql');
                 user.messageDirty({msg:result.message},function(err,res){
-                    console.log('完成注入验证'/*,res*/);
+                    console.log('sql done'/*,res*/);
                     done(err,res);
                 });
             },
             function(arg,done){
                 console.log(arg,'skey');
                 user.messageValidate({result:result,client:client},function(err,res){
-                    console.log('完成关键词验证'/*,res*/);
+                    console.log('key done'/*,res*/);
                     done(err,res);
                 });
             },
@@ -92,15 +93,14 @@ function popLogs(){
                     user.messageToKu(result);
                 }
                 if(parseInt(err.code) == 703){
-                    console.log('error有注入',err.msg);
+                    console.log('error sql',err.msg);
                 }
                 process.nextTick(compute);
             }else{
-                console.log('全部完成',res);
-
+                console.log('all done',res);
+                user.messageToKu(result);
                 namBox[nsp].emit('redisCome',result,function(){
                     console.log('redisSend, nexttick');
-                    user.messageToKu(result);
                     process.nextTick(compute);
                 });
             }

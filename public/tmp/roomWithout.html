@@ -1,5 +1,4 @@
 
-
 <div class="mask" ng-show="status">
     <div class="jumbotron">
         <h4>请设置昵称</h4>
@@ -22,10 +21,10 @@
             <div class="msg-list-body user-content  mCustomScrollbar">
                 <ul>
                     <li ng-repeat="onl in onlines" ng-init="show = onl.icon">
-                        <img src="../public/images/1.jpg" class="img-thumbnail">
-                        <span>{{onl.name}}</span>
-                        <em class="glyphicon glyphicon-star" aria-hidden="true" ng-show="onl.icon"></em>
-                        <i ng-if="!onl.icon" data-toggle="modal" data-target="#myModal" ng-click="chat(onl.name)"><img src="../public/images/chat.png"></i>
+                        <img src="{{onl.posterURL}}" class="img-thumbnail">
+                        <span>{{onl.nickName}}</span>
+                        <em class="glyphicon glyphicon-star" aria-hidden="true" ng-show="line==onl.nickName"></em>
+                        <i ng-if="line!=onl.nickName" data-toggle="modal" data-target="#myModal" ng-click="chat(onl.nickName)"><img src="../public/images/chat.png"></i>
                     </li>
                 </ul>
             </div>
@@ -51,10 +50,10 @@
                     <div class="time" ng-show="mes.time"><i></i> {{mes.time}}</div>
                     <div class="message-info">
                         <span class="user-info">
-                            <img src="../public/images/1.jpg" class="user-avatar img-thumbnail" title="{{mes.user}}">
+                            <img src="{{mes.posterURL}}" class="user-avatar img-thumbnail" title="{{mes.user}}">
                         </span>
                         <div class="name">
-                            {{mes.user}}
+                            {{mes.nickName}}
                         </div>
                         <div class="message-content-box">
                             <div class="arrow"></div>

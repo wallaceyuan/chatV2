@@ -1,10 +1,16 @@
 angular.module('chatModule',['ngRoute']);
 
-angular.module('chatModule').factory('socket',function($rootScope) {
-    var namespace = $rootScope.param.namespace;
+angular.module('chatModule').factory('socket',function($rootScope,$location) {
+
+    if ($location.search().namespace) {
+        var namespace = $location.search().namespace;
+    }else{
+        var namespace = $rootScope.param.namespace;
+    }
+
     console.log('进入空间',namespace);
-    var socket = io.connect('http://54.222.215.248/'+namespace);
-    //var socket = io.connect('/'+namespace);
+
+    var socket = io.connect('http://54.222.215.248:80/'+namespace);
 
     return {
         on: function (eventName, callback) {

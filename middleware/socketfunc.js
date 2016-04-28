@@ -1,3 +1,4 @@
+
 var redis = require('redis');
 var user = require('../task/user');
 var request = require('request');
@@ -28,15 +29,6 @@ exports.socketHallFuc = function(nsp,client) {
                         console.log('eallow');
                         done(err,res);
                     });
-/*                    var res = {
-                        data:{
-                            nickName : 'yy',
-                            posterURL : '',
-                            uid : 11,
-                            tel : 13122122222
-                        }
-                    }
-                    done(null,res);*/
                 },
             ],function(err,res){
                 if(err){
@@ -56,7 +48,6 @@ exports.socketHallFuc = function(nsp,client) {
                     black = false;
 
                     var uif = JSON.parse(res.data);
-                    //var uif = res.data;
 
                     roomName = data.room, userName = uif.nickName,clients[socket.id] = socket;
 

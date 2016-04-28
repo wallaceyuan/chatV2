@@ -11,11 +11,11 @@ var pool = mysql.createPool({
     database:'kk_danmaku'
 });
 var client = require("redis").createClient();
-var xss = require('xss');
+/*var xss = require('xss');
 var html = xss('<div>1212</div>');
-console.log(html);
+console.log(html);*/
 
-re = /select|update|delete|exec|count|'|"|=|;|>|<|%/i;
+/*re = /select|update|delete|exec|count|'|"|=|;|>|<|%/i;
 if (re.test('alert')) {//特殊字符和SQL关键字
     console.log('存在特殊字符');
     //callback({code:703,msg:'存在特殊字符'},null);
@@ -24,7 +24,7 @@ if (re.test('alert')) {//特殊字符和SQL关键字
 
     //var message = xss(message);
     //callback(null,message);
-}
+}*/
 
 /*
 var codeOpt = {
