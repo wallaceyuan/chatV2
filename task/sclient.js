@@ -11,7 +11,6 @@ var debug = require('debug')('socket-client:main');
 var ip = config.ip;
 var client  = config.client;
 
-//var ip = 'http://127.0.0.1:3000';
 var origin = io.connect(ip+'/', {reconnect: true});
 var chatroom = io.connect(ip+'/chatroom', {reconnect: true});
 var live = io.connect(ip+'/live', {reconnect: true});
@@ -82,6 +81,8 @@ function popLogs(){
                 });
             },
         ],function(err,res){
+
+            console.log('err',err);
 
             result.message = xss(result.message).replace(/<[^>]+>/g,"");
 

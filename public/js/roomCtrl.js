@@ -54,7 +54,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         console.log('joinChat',msg);
         var user = msg;
         $scope.ws = '';$scope.wss = '';
-        $scope.world = {user:user.name,content:'上线了'};
+        $scope.world = {user:user.nickName,content:'上线了'};
         $scope.onlines.push(user);
         $scope.onlinesum = msg.onlinesum;
 

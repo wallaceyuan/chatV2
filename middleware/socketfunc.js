@@ -47,10 +47,6 @@ exports.socketHallFuc = function(nsp,client) {
                 }else{
                     black = false;
 
-                    var uif = JSON.parse(res.data);
-
-                    roomName = data.room, userName = uif.nickName,clients[socket.id] = socket;
-
                     if(data.openid){
                         var openid = data.openid;
                         var token = '';
@@ -58,10 +54,22 @@ exports.socketHallFuc = function(nsp,client) {
                         var openid = '';
                         var token = data.token;
                     }
+
+                    /*将数组封装成用户信息*/
+                    var uif = JSON.parse(res.data);
+
+                    roomName = data.room, userName = uif.nickName,clients[socket.id] = socket;
+
                     userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
                         tel:uif.tel,uid:uif.uid,nickName:userName,onlinesum:onlinesum};
 
-                    users.push(userData);
+                    /*检查用户是否在同一个命名空间下的房间内重复登录*/
+                    for (var item in users) {
+                        if(userData.uid == users[item].uid ){
+                            socket.emit('userStatus',{status:{code:704,msg:'用户在同一个命名空间下的房间内重复登录'},users:users,onlinesum:onlinesum});
+                            return
+                        }
+                    }
 
                     if(roomName!=''){
                         socket.join(roomName);
@@ -69,6 +77,8 @@ exports.socketHallFuc = function(nsp,client) {
                     }else{
                         socket.broadcast.emit('joinChat',userData);
                     }
+
+                    users.push(userData);
 
                     users = users.filter(function(user){
                         if(user)

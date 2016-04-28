@@ -57,7 +57,7 @@ exports.userAllowedRedis  = function(data,callback){
 exports.roomValidateSql   = function(nsp,infoid,callback){
     var sid  = 'infoid';
     if(nsp == 'wechat')
-        sid = 'id';
+        sid = 't1.id';
 
     pool.query('select t1.id from kk_danmaku_chatrooms as t1,kk_danmaku_namespace as t2 where t2.id = t1.type and namespace = ? and '+sid+' = ? and open = ? ',[nsp,infoid,1],function(err,rows){
         if(err){
@@ -106,7 +106,7 @@ exports.messageValidate   = function(data,callback){
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         url: 'http://kankanews.cn-north-1.eb.amazonaws.com.cn/KKShielder',
         method: 'POST',
-        body:"words="+res.message
+        body:"words="+res.message+res.nickName
     };
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);

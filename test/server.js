@@ -11,6 +11,7 @@ var pool = mysql.createPool({
     database:'kk_danmaku'
 });
 var client = require("redis").createClient();
+
 /*var xss = require('xss');
 var html = xss('<div>1212</div>');
 console.log(html);*/
@@ -51,15 +52,27 @@ client.multi().HMSET('kkUserBlack'+code, {free:1}).expire('kkUserBlack'+code,360
 
 
 
-//var time = Date.parse(new Date())/1000;
-/*pool.query('replace into kk_danmaku_chatrooms(open,createTime,type,infoid,title,intro) values(?,?,?,?,?,?)',[1,time,3,1,'vod1','vod1'],function(err,result){
+/*
+var time = Date.parse(new Date())/1000;
+pool.query('replace into kk_danmaku_chatrooms(open,createTime,type,infoid,title,intro) values(?,?,?,?,?,?)',[1,time,4,5,'wechat1','wechat1'],function(err,result){
     if(err){
         console.log(err);
     }else{
         console.log(result);
     }
-});*/
-
+});
+*/
+pool.query('select t1.id from kk_danmaku_chatrooms as t1,kk_danmaku_namespace as t2 where t2.id = t1.type and namespace = ? and  t1.id = ? and open = ? ',['wechat',5,1],function(err,rows){
+    if(err){
+        console.log(err);
+    }else{
+        if(rows.length>0){
+            console.log(rows[0]);
+        }else{
+            console.log('没有对应开放的房间');
+        }
+    }
+});
 
 //select student.name,score.score from student,score where student.id = score.stuid
 

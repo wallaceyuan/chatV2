@@ -7,7 +7,7 @@ angular.module('chatModule').factory('socket',function($rootScope,$location) {
     }else{
         var namespace = $rootScope.param.namespace;
     }
-    //var socket = io.connect('http://54.222.215.248/'+namespace);
+
     var socket = io.connect('/'+namespace);
 
     return {
