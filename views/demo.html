@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室</title>
+</head>
+<body>
+
+<pre></pre>
+
+
+<button class="button">发送消息（test）</button>
+
+<div class="message"></div>
+
+
+<script src="http://54.222.215.248/socket.io/socket.io.js"></script>
+<script>
+
+    var token = 'LyNgmY7bk21bEWHAqZXKDsVdZaJd0p2/z+6qZI44YK3UYi0XNEKWNZMOGu7skNTQBDLj0Vd9lDKy25LuOJ3OiMSNknjHw+vKP/KLmuBIYx+MMjmKBdqIn3/BIKAuShO91iGFPp68xMjAHTaNO8APaKSfZfBdYoaQaP7+CsJDQeLMdUwCTKIItLGwMQVfw4HcmL8kir2g5g9+BB0Qg5HiBacnIUBcKetsdq913PoQdekFyMKWLYwLVTFeFA/JOBLGndIbpL/TZjH9aJbgGf0qKPVhlizKoX23BlVfUSS+I6g+s8cOuy86pc/idYHUbf7X9XnUmwDFJ7e2H7OreNxcAO4isQsx4EhVwEBA2XZ+9ERSspT7tB9h2RjPXqX8UUfsQOhyJYdRmu5+70fDLmdRykY7+PutkIomcm2rzDAyfQ2DMcLisSLUknNl0/Xi/mSWTgqngMuleyhIa48R6XXZ2JWtJePAIJOtk0uumajDKqsZwwosBDRXkE1usnqU38sOL5L3AAtXu4EZrIpNtZITVZ1rZdmyHIRtBR3tRSmm1dKW5M6g0EXcJAm3REWQbHq+Ovx1d6zjGCrZCTjyI1HpBS3pc9UDfox+v+Fx/Lff6K79fqHBuAhm0UwMNDLebN6g6NnTrkbN0zzMyeO4o4s+FsFSUmE36Ls0J/iK1hRHEyI=';
+
+    var socket = io.connect('http://54.222.215.248:80/live');
+
+    socket.on('connect', function(){
+        socket.emit('userInit',{room:1, token:token });
+    });
+
+    socket.on('userStatus',function(data){
+        if(parseInt(data.status.code) == 0){
+
+        }
+        console.log(data);
+
+        document.getElementsByTagName('pre')[0].innerHTML = JSON.stringify(data);
+    });
+
+    document.querySelector('.button').addEventListener('click',function(){
+        socket.emit('createMessage', {
+            message:'test',
+            time:Date.parse(new Date())/1000,
+            type: '',
+            up: 0,
+            down: 0,
+            perform: {
+                color: 'red',
+                fontSize: '16px'
+            },
+        });
+    });
+
+    socket.on('message.add',function(msg){
+
+        var textnode=document.createTextNode(JSON.stringify(msg));
+
+        document.querySelector('.message').appendChild(textnode);
+    });
+
+
+</script>
+</body>
+</html>

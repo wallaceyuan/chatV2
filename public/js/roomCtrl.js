@@ -68,7 +68,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     });
 
     socket.on('message.add',function(msg){
-        //console.log(msg);
+        console.log(msg);
         if($.inArray(msg.time, $scope.times)>-1){
             msg.time = false;
         }else{
