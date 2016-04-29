@@ -1,4 +1,3 @@
-
 var redis = require('redis');
 var user = require('../task/user');
 var request = require('request');
@@ -13,7 +12,8 @@ var onlinesum = 0;
 
 exports.socketHallFuc = function(nsp,client) {
     nsp.on('connection',function(socket){
-        var black = false,roomName = '',NSP = '',userData,appUserData,userName;
+        var black = false,roomName = '',userData,appUserData,userName,
+        NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
         socket.on('userInit',function(data){//监听 客户端的消息
             async.waterfall([
                 function(done){//用code查询是否被禁言(redis)
@@ -30,10 +30,22 @@ exports.socketHallFuc = function(nsp,client) {
                         done(err,res);
                     });
                 },
+                function(arg,done){/*检查用户是否在同一个命名空间下的房间内重复登录*/
+                    roomName = data.room;
+                    users = users.filter(function(user){
+                        if(user)
+                            return roomName == user.room;
+                    });
+                    var mivar = JSON.parse(arg.data);
+                    user.userRoomIn({uid:mivar.uid,users:users},function(err,res){
+                        console.log('euserin',res);
+                        done(err,arg);
+                    });
+                }
             ],function(err,res){
                 if(err){
                     console.log(err);
-                    black = true,roomName = data.room
+                    black = true;
                     if(roomName!=''){
                         socket.join(roomName);
                     }
@@ -76,15 +88,6 @@ exports.socketHallFuc = function(nsp,client) {
 
                     appUserData = {nickName:userName,posterURL:uif.posterURL};
 
-                    /*检查用户是否在同一个命名空间下的房间内重复登录*/
-                    for (var item in users) {
-                        if(userData.uid == users[item].uid ){
-                            socket.emit('userWebStatus',{status:704,msg:'用户在同一个命名空间下的房间内重复登录',users:users,onlinesum:onlinesum});
-                            socket.emit('userStatus',{status:704,msg:'用户在同一个命名空间下的房间内重复登录'});
-                            return
-                        }
-                    }
-
                     if(roomName!=''){
                         socket.broadcast.in(roomName).emit('joinChat',userData);
                     }else{
@@ -103,8 +106,6 @@ exports.socketHallFuc = function(nsp,client) {
                     socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
 
                 }
-
-                NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
 
                 console.log('所有的任务完成了'/*,res*/);
                 //debug('所有的任务完成了',res);

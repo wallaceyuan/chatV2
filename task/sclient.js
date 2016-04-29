@@ -48,7 +48,7 @@ function popLogs(){
         var place = result.place.split(':');
         var nsp = place[0],room = place[1];
         var time = getTime();
-        console.log('start '+'nsp: '+nsp +"room "+room + 'time: '+time);
+        console.log(' start '+' nsp: '+nsp +" room "+room + ' time: '+time);
         result.room = room;
 
         async.waterfall([
@@ -97,17 +97,25 @@ function popLogs(){
                     console.log('error sql',err.msg);
                 }
                 err.room = room;
-                namBox[nsp].emit('messageError',err,function(){
-                    console.log('messageError, nexttick');
-                    process.nextTick(compute);
-                });
+                if(namBox[nsp]){
+                    namBox[nsp].emit('messageError',err,function(){
+                        console.log('messageError, nexttick');
+                    });
+                }else{
+                    console.log('error namespace');
+                }
+                process.nextTick(compute);
             }else{
                 console.log('all done',res);
                 user.messageToKu(result);
-                namBox[nsp].emit('redisCome',result,function(){
-                    console.log('redisSend, nexttick');
-                    process.nextTick(compute);
-                });
+                if(namBox[nsp]){
+                    namBox[nsp].emit('redisCome',result,function(){
+                        console.log('redisSend, nexttick');
+                    });
+                }else{
+                    console.log('error namespace');
+                }
+                process.nextTick(compute);
             }
         });
     });

@@ -50,6 +50,23 @@ exports.userAllowedRedis  = function(data,callback){
     });
 }
 
+exports.userRoomIn = function(data,callback){
+    var uid = data.uid;
+    var users = data.users;
+    if(users.length == 0){
+        callback(null,0);
+    }else{
+        for (var item in users) {
+            if(uid == users[item].uid ){
+                callback({code:704,msg:'用户在同一个命名空间下的房间内重复登录'},null);
+                return;
+            }else{
+                callback(null,0);
+            }
+        }
+    }
+}
+
 exports.roomValidateSql   = function(nsp,infoid,callback){
     var sid  = 'infoid';
     if(nsp == 'wechat')
@@ -62,7 +79,7 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
             if(rows.length>0){
                 callback(null,rows[0]);
             }else{
-                callback({status:701,msg:'没有对应开放的房间'},null);
+                callback({status:701,msg:'没有对应开放的聊天室'},null);
             }
         }
     });
