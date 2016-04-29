@@ -8,6 +8,7 @@
 
 <pre></pre>
 
+<input type="text" placeholder="text" class="text" id="input1">
 
 <button class="button">发送消息（test）</button>
 
@@ -17,7 +18,7 @@
 <script src="http://54.222.215.248/socket.io/socket.io.js"></script>
 <script>
 
-    var token = 'LyNgmY7bk21bEWHAqZXKDsVdZaJd0p2/z+6qZI44YK3UYi0XNEKWNZMOGu7skNTQBDLj0Vd9lDKy25LuOJ3OiMSNknjHw+vKP/KLmuBIYx+MMjmKBdqIn3/BIKAuShO91iGFPp68xMjAHTaNO8APaKSfZfBdYoaQaP7+CsJDQeLMdUwCTKIItLGwMQVfw4HcmL8kir2g5g9+BB0Qg5HiBacnIUBcKetsdq913PoQdekFyMKWLYwLVTFeFA/JOBLGndIbpL/TZjH9aJbgGf0qKPVhlizKoX23BlVfUSS+I6g+s8cOuy86pc/idYHUbf7X9XnUmwDFJ7e2H7OreNxcAO4isQsx4EhVwEBA2XZ+9ERSspT7tB9h2RjPXqX8UUfsQOhyJYdRmu5+70fDLmdRykY7+PutkIomcm2rzDAyfQ2DMcLisSLUknNl0/Xi/mSWTgqngMuleyhIa48R6XXZ2JWtJePAIJOtk0uumajDKqsZwwosBDRXkE1usnqU38sOL5L3AAtXu4EZrIpNtZITVZ1rZdmyHIRtBR3tRSmm1dKW5M6g0EXcJAm3REWQbHq+Ovx1d6zjGCrZCTjyI1HpBS3pc9UDfox+v+Fx/Lff6K79fqHBuAhm0UwMNDLebN6g6NnTrkbN0zzMyeO4o4s+FsFSUmE36Ls0J/iK1hRHEyI=';
+    var token = 'opV5fwXDlHdvHRdJGJ8WD2Am6z7lkyryo0BO8wJ0ViqVs+wUox3ppMQMb49dLI6tbwi24nML7DClJVNH2I53SsdRc7X0TxB33INM/Hzl1xrGXgcZbIgQo028WtgYwFlNf5RggnqJMvj/YtIzxLOr1CJ/iUw5b5df028QJ6TISVFJjKYItasMLsyitLIA9V1TP3vWawTdju1eKiu/8z6E6/SV8y9V6GN4BH4ObcG69o7LLD+yfpv/mXXNK17UeoqP4p/+4Cp++ZAxdW/2ZtMdbwOpPyxZu4Ux4cAm5ZTSQLJbWqpVbdKgrKfuMbeMWu8d8mw4MEe/HHCZeHzH/PHsf/5hU8ZbagTuxYSvqk3W0OJuyEpKhrbQDqP/gA7VrZXQujzUCMAXWT3JPYLs6D1hEdoPpNGsQKAxdqScAkLfGDbm9gzph7PjgdHOeojZf9+JlZWSkmG0Id15grtH2keH3T8HNVg7ywTIQRkq87lnvUqGrHCG2S3fKTLIgPxsvaC5JL/GPkvA3kPRqu5Xjj45RSUc7pPR+mOlAVujuRHnJqpQfxK1EZ0DdI88XjUaLFO7pIpyU8aADT17exnhLDXP1PVmD2a5WojV0nZ5Hv7DjSWPEvfcNI0+dxkd1po1AJCl+XNmdHOY1arbF1ol2sbKCbuxZS3530RjHbGuKitgA2E=';
 
     var socket = io.connect('http://54.222.215.248:80/live');
 
@@ -26,35 +27,30 @@
     });
 
     socket.on('userStatus',function(data){
-        if(parseInt(data.status.code) == 0){
-
-        }
         console.log(data);
-
         document.getElementsByTagName('pre')[0].innerHTML = JSON.stringify(data);
     });
 
     document.querySelector('.button').addEventListener('click',function(){
+        var vv = document.getElementById("input1").value;
         socket.emit('createMessage', {
-            message:'test',
-            time:Date.parse(new Date())/1000,
-            type: '',
-            up: 0,
-            down: 0,
-            perform: {
-                color: 'red',
-                fontSize: '16px'
-            },
+            message:vv,
+            type:'',up:0,down:0,
+            perform:{
+                color:'red',fontSize:'16px'
+            }
         });
     });
 
     socket.on('message.add',function(msg){
-
+        console.log(msg);
         var textnode=document.createTextNode(JSON.stringify(msg));
-
         document.querySelector('.message').appendChild(textnode);
     });
 
+    socket.on('message.error',function(msg){
+        console.log('messageError',msg);
+    });
 
 </script>
 </body>

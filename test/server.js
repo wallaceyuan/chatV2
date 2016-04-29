@@ -4,6 +4,7 @@
 
 var request = require('request');
 var mysql = require('mysql');
+var moment = require('moment');
 var pool = mysql.createPool({
     host:'kankanewsapi.cjspd4t43dgd.rds.cn-north-1.amazonaws.com.cn',
     user:'kankanewsapi',
@@ -12,23 +13,33 @@ var pool = mysql.createPool({
 });
 var client = require("redis").createClient();
 
+/*node 时间戳*/
+/*var unix_time = moment().unix();
+console.log(unix_time);//例如：1423721820
+var tmp_time = moment.unix(unix_time).format("YYYY-MM-DD hh:mm:ss a");
+console.log(tmp_time);//2015-02-12 02:16:02 pm*/
+
+
+/*xxs防止sql注入*/
 /*var xss = require('xss');
 var html = xss('<div>1212</div>');
 console.log(html);*/
 
-/*re = /select|update|delete|exec|count|'|"|=|;|>|<|%/i;
-if (re.test('alert')) {//特殊字符和SQL关键字
+
+/*去除sql特殊字符*/
+re = /select|update|delete|exec|count|'|"|=|;|>|<|%/i;
+if (re.test('update')) {//特殊字符和SQL关键字
     console.log('存在特殊字符');
     //callback({code:703,msg:'存在特殊字符'},null);
 }else{
     console.log('ok');
-
     //var message = xss(message);
     //callback(null,message);
-}*/
+}
 
-/*
-var codeOpt = {
+
+/*敏感词库post*/
+/*var codeOpt = {
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
     url: 'http://kankanews.cn-north-1.eb.amazonaws.com.cn/KKShielder',
     method: 'POST',
@@ -37,11 +48,11 @@ var codeOpt = {
 request(codeOpt,function(err,res,body){
     var body = JSON.parse(body);
     console.log(body.size,body);
-});
-
-*/
+});*/
 
 
+
+/*redis 记录黑名单*/
 /*
 var code = 'BK8eDVWVCjPRLZmdtLhIq7gMBxo4cHLJ/2JevlLADdJdanuiQWHCDL5NZ7Gx4P8ixxS6PJDW0jzcgpW20TXUbobEw0BRKW3DdgqMdaWLtEmgvENx1GkJtMM3+HkoPpo86D3li4mSb6wZ1+Srf+FxYzxpFGT29ugFnuobU2ZZK9KbM0IISxVY6/GSTNpRt9OMug2S8hy79VEW0aCUqgbMmmAAqXYEl7Q/2I47jjKDm6H1jtRxITom67Ifrf0mmB4zvrzERgUlE7Ql6Jp1QoTvoMj658rrY9UCjzfA9a4zpBo0+PFcAwzKVW7j4Xj7kae8zUp2xxri1hEj9Vrmd1bWmJxtbN1co8NZacNOxW4z7KpZxypgVQK1voLOwHqurv0VSwlN3iE3S1d/0HrJ8mnDI0A25/qy6ZG7sq3wJaiu4vrtwYA/vqrmSlA9FiDvO14gp1pJPKkxTQcWRUbLQZrcBbI/erfBgPBSZugt+8E1AKV+ivTBQ2gZ+cHLi36Q8BykrPy2bR75EpxGgNe9h4GErfBu+zb/V4BP8i7dYXyI3BGFz0BWo+pfG2idV5CHRzDCRPOVto4YSyMw5HuqWsWXXiIqmX/wt1zp2/wqYWXmoZ+36CyA0k1TjqgJqWPzasnhfTnoi4JQibU37ne3cXNWTEHu4Ucg8jGfnxl2vbZfh6Y=';
 client.multi().HMSET('kkUserBlack'+code, {free:1}).expire('kkUserBlack'+code,3600).exec(function (err, replies) {
@@ -51,7 +62,7 @@ client.multi().HMSET('kkUserBlack'+code, {free:1}).expire('kkUserBlack'+code,360
 
 
 
-
+/*增加chatrooms*/
 /*
 var time = Date.parse(new Date())/1000;
 pool.query('replace into kk_danmaku_chatrooms(open,createTime,type,infoid,title,intro) values(?,?,?,?,?,?)',[1,time,4,5,'wechat1','wechat1'],function(err,result){
@@ -62,7 +73,10 @@ pool.query('replace into kk_danmaku_chatrooms(open,createTime,type,infoid,title,
     }
 });
 */
-pool.query('select t1.id from kk_danmaku_chatrooms as t1,kk_danmaku_namespace as t2 where t2.id = t1.type and namespace = ? and  t1.id = ? and open = ? ',['wechat',5,1],function(err,rows){
+
+
+/*查询开放房间*/
+/*pool.query('select t1.id from kk_danmaku_chatrooms as t1,kk_danmaku_namespace as t2 where t2.id = t1.type and namespace = ? and  t1.id = ? and open = ? ',['wechat',5,1],function(err,rows){
     if(err){
         console.log(err);
     }else{
@@ -72,30 +86,6 @@ pool.query('select t1.id from kk_danmaku_chatrooms as t1,kk_danmaku_namespace as
             console.log('没有对应开放的房间');
         }
     }
-});
-
-//select student.name,score.score from student,score where student.id = score.stuid
-
-/*
-pool.query('select * from kk_danmaku_chatrooms,kk_danmaku_namespace where kk_danmaku_namespace.id = kk_danmaku_chatrooms.type and type = ? and infoid = ?',[2,2],function(err,rows){
-*/
-
-/*var nsp = 'live';
-var sid  = 'infoid';
-if(nsp == 'wechat'){
-    sid = 'id';
-}
-
-pool.query('select * from kk_danmaku_chatrooms as t1,kk_danmaku_namespace as t2 where t2.id = t1.type and namespace = ? and '+sid+' = ? and open = ? ',[nsp,2,1],function(err,rows){
-    if(err){
-        console.log(err);
-    }else{
-        if(rows.length>0){
-            console.log(rows);
-        }else{
-            console.log('wu');
-        }
-    }
 });*/
 
 
@@ -103,6 +93,8 @@ pool.query('select * from kk_danmaku_chatrooms as t1,kk_danmaku_namespace as t2 
 
 
 
+
+/*用户token验证*/
 /*
 var userOpt = {
     uri: 'http://ums.kankanews.com/t/getUserInfo.do',
@@ -124,8 +116,9 @@ request(userOpt,function(err,res,body){
 });
 */
 
-/*var data = {uid:'68'}
 
+
+/*var data = {uid:'68'}
 client.hgetall('kkUserBlack'+data.uid, function (err, obj) {
     if(obj){
         console.log('you',obj);
@@ -161,9 +154,7 @@ client.hgetall('kkUserBlack'+data.uid, function (err, obj) {
 });*/
 
 /*console.log(Date.parse(new Date())/1000);
-
 var data = { user: 'KzxGa', message: 'sss', time: '11:5' };*/
-
 /*
 var data2 = { cid: 'aa', uid: '12', openid: '',checked:0,voliate:0,createTime:Date.parse(new Date())/1000,type:'',perform:'',place:'' };
 
@@ -171,20 +162,3 @@ for(var item in data2){
     data[item]=data2[item];
 }
 console.log(data);*/
-
-
-
-
-/*
-var userOpt = {
-    uri: 'http://127.0.0.1/chat/message/valide',
-    method: 'POST',
-    body :'6767',
-    headers: {'Content-Type': 'text/xml'}
-}
-
-request(userOpt,function(err,res,body){
-
-});
-*/
-

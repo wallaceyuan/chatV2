@@ -4,6 +4,7 @@ var user = require('../task/user');
 var request = require('request');
 var async = require('async');
 var debug = require('debug')('socketfunc:save');
+var moment = require('moment');
 
 
 var clients = [];//在线socket
@@ -12,20 +13,19 @@ var onlinesum = 0;
 
 exports.socketHallFuc = function(nsp,client) {
     nsp.on('connection',function(socket){
-        var black = false,roomName = '',NSP = '',userData,userName;
+        var black = false,roomName = '',NSP = '',userData,appUserData,userName;
         socket.on('userInit',function(data){//监听 客户端的消息
-            onlinesum++;
             async.waterfall([
                 function(done){//用code查询是否被禁言(redis)
                     console.log('svolidate');
-                    user.userViolatorRedis({token:data.token,client:client},function(err,res){
+                    user.userViolatorRedis({token:data.token},function(err,res){
                         console.log('evolidate');
                         done(err,res);
                     });
                 },
                 function(arg,done){//用code检测时候是allow用户（redis/sso）
                     console.log('sallow');
-                    user.userAllowedRedis({token:data.token,client:client},function(err,res){
+                    user.userAllowedRedis({token:data.token},function(err,res){
                         console.log('eallow');
                         done(err,res);
                     });
@@ -42,37 +42,50 @@ exports.socketHallFuc = function(nsp,client) {
                             return roomName == user.room;
                     });
 
-                    socket.emit('userStatus',{status:err,users:users,onlinesum:onlinesum});
+                    roomClientNum(nsp,roomName,function(num){
+                        onlinesum = num;
+                    });
+
+                    socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
+
+                    socket.emit('userStatus',{status:err.code,msg:err.msg});
 
                 }else{
                     black = false;
-
-                    if(data.openid){
-                        var openid = data.openid;
-                        var token = '';
-                    }else{
-                        var openid = '';
-                        var token = data.token;
-                    }
-
                     /*将数组封装成用户信息*/
                     var uif = JSON.parse(res.data);
 
                     roomName = data.room, userName = uif.nickName,clients[socket.id] = socket;
 
+                    if(data.openid){
+                        var openid = data.openid,token = '';
+                    }else{
+                        var openid = '',token = data.token;
+                    }
+
+                    if(roomName!=''){
+                        socket.join(roomName);
+                    }
+
+                    roomClientNum(nsp,roomName,function(num){
+                        onlinesum = num;
+                    });
+
                     userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
                         tel:uif.tel,uid:uif.uid,nickName:userName,onlinesum:onlinesum};
+
+                    appUserData = {nickName:userName,posterURL:uif.posterURL};
 
                     /*检查用户是否在同一个命名空间下的房间内重复登录*/
                     for (var item in users) {
                         if(userData.uid == users[item].uid ){
-                            socket.emit('userStatus',{status:{code:704,msg:'用户在同一个命名空间下的房间内重复登录'},users:users,onlinesum:onlinesum});
+                            socket.emit('userWebStatus',{status:704,msg:'用户在同一个命名空间下的房间内重复登录',users:users,onlinesum:onlinesum});
+                            socket.emit('userStatus',{status:704,msg:'用户在同一个命名空间下的房间内重复登录'});
                             return
                         }
                     }
 
                     if(roomName!=''){
-                        socket.join(roomName);
                         socket.broadcast.in(roomName).emit('joinChat',userData);
                     }else{
                         socket.broadcast.emit('joinChat',userData);
@@ -85,15 +98,16 @@ exports.socketHallFuc = function(nsp,client) {
                             return roomName == user.room;
                     });
 
-                    socket.emit('userStatus',{status:{code:0,msg:'用户验证成功'},userData:userData,users:users,onlinesum:onlinesum});
+                    socket.emit('userStatus',{status:0,msg:'用户验证成功',userData:appUserData});
+
+                    socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
+
                 }
 
                 NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
 
                 console.log('所有的任务完成了'/*,res*/);
-
                 //debug('所有的任务完成了',res);
-                //console.log('nsp',nsp.name,'room',roomName,'connection','userData',userData);
             });
         });
 
@@ -121,34 +135,57 @@ exports.socketHallFuc = function(nsp,client) {
         /*接收redis发来的消息*/
         socket.on('redisCome',function (data,callback) {
             console.log('redisCome'/*,data*/);
+            var msgInfo = {"message":data.message,"createTime":data.createTime,
+                "type":data.type,"up":data.up,
+                "down":data.down,"perform":data.perform,
+                "nickName":data.nickName,"posterURL":data.posterURL,
+            }
             if(data.room!=''){
-                nsp.in(data.room).emit('message.add',data);
+                nsp.in(data.room).emit('message.add',msgInfo);
             }else{
-                nsp.emit('message.add',data);
+                nsp.emit('message.add',msgInfo);
+            }
+            callback();
+        });
+
+        /*接收redis错误信息返回*/
+        socket.on('messageError',function(data,callback){
+            console.log('messageError',data);
+            var err = {status:data.status,msg:data.msg}
+            if(data.room!=''){
+                nsp.in(data.room).emit('message.error',err);
+            }else{
+                nsp.emit('message.error',err);
             }
             callback();
         });
 
         /*用户下线*/
         socket.on('disconnect', function () {
-            onlinesum--;
+
             users = users.filter(function(user){
+                if(socket.id == user.id){
+                    //roomClientNum(nsp,roomName);
+                }
                 if(user)
                     return socket.id != user.id;
             });
 
             //console.log('disconnect',socket.id,users,onlinesum);
-
             if(socket.id)
                 delete clients[socket.id];
 
             socket.emit('unsubscribe',{"room" : roomName});
 
-            if(roomName!=''){
-                socket.broadcast.in(roomName).emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
-            }else{
-                socket.broadcast.emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
-            }
+
+            roomClientNum(nsp,roomName,function(num){
+                onlinesum = num;
+                if(roomName!=''){
+                    socket.broadcast.in(roomName).emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
+                }else{
+                    socket.broadcast.emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
+                }
+            });
         });
 
         /*用户发送消息*/
@@ -159,7 +196,7 @@ exports.socketHallFuc = function(nsp,client) {
                 var data2 = {
                     openid:userData.openid, token:userData.token, cid: roomName, uid: userData.uid,
                     nickName:userData.nickName,posterURL:userData.posterURL,tel:userData.tel,
-                    openid: '',checked:0,voliate:0,createTime:Date.parse(new Date())/1000,
+                    openid: '',checked:0,voliate:0,createTime:moment().unix(),
                     place:NSP+':'+roomName
                 };
                 for(var item in data2){
@@ -184,4 +221,12 @@ function randomString(len) {
         pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
     }
     return pwd;
+}
+
+function roomClientNum(nsp,room,callback){
+    nsp.in(room).clients(function(error, clients){
+        if (error) throw error;
+        //console.log(clients,clients.length); // => [Anw2LatarvGVVXEIAAAD]
+        callback(clients.length);
+    });
 }

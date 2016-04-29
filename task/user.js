@@ -4,16 +4,13 @@
 var request = require('request');
 var async = require('async');
 var debug = require('debug')('mysql:save');
-var mysql = require('mysql');
-var pool = mysql.createPool({
-    host:'kankanewsapi.cjspd4t43dgd.rds.cn-north-1.amazonaws.com.cn',
-    user:'kankanewsapi',
-    password:'kankanewsaws2016',
-    database:'kk_danmaku'
-});
+
+
+var config = require('../task/config');
+var client  = config.client;
+var pool  = config.pool;
 
 exports.userViolatorRedis = function(data,callback){
-    var client = data.client;
     client.hgetall('kkUserBlack'+data.token, function (err, obj) {
         if(obj){
             console.log('getViolator-you');
@@ -26,7 +23,6 @@ exports.userViolatorRedis = function(data,callback){
 }
 
 exports.userAllowedRedis  = function(data,callback){
-    var client = data.client;
     client.hgetall(data.token, function (err, obj) {
         if(obj){
             console.log('getAllowed-you');
@@ -66,29 +62,28 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
             if(rows.length>0){
                 callback(null,rows[0]);
             }else{
-                callback({code:701,msg:'没有对应开放的房间'},null);
+                callback({status:701,msg:'没有对应开放的房间'},null);
             }
         }
     });
 }
 
 exports.userValidateSql   = function(data,callback){
-    var client = data.client;
     client.hgetall('kkUserBlack'+data.token, function (err, obj) {
         if(obj){
             console.log('kkUserBlack-you');
-            callback({code:700,msg:'被禁言用户'},null);
+            callback({status:700,msg:'被禁言用户'},null);
         }else {
             console.log('kkUserBlack-wu');
-            pool.query('select * from kk_danmaku_violators where uid = ? and free = 1',[data.uid],function(err,rows){
+            pool.query('select * from kk_danmaku_violators where uid = ? and free = 0',[data.uid],function(err,rows){
                 if(err){
                     console.log(err);
                 }else{
                     if(rows.length>0){
-                        client.multi().HMSET('kkUserBlack'+data.token, '1').expire('kkUserBlack'+data.token,3600).exec(function (err, replies) {
+                        client.multi().HMSET('kkUserBlack'+data.token, '0').expire('kkUserBlack'+data.token,3600).exec(function (err, replies) {
                             console.log("MULTI got " + replies.length + " replies");
                         });
-                        callback({code:700,msg:'被禁言用户'},null);
+                        callback({status:700,msg:'被禁言用户'},null);
                     }else{
                         callback(null,{msg:'OK'});
                     }
@@ -100,7 +95,7 @@ exports.userValidateSql   = function(data,callback){
 
 exports.messageValidate   = function(data,callback){
 
-    var client = data.client,res = data.result,token = res.token;
+    var res = data.result,token = res.token;
 
     var codeOpt = {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -110,7 +105,6 @@ exports.messageValidate   = function(data,callback){
     };
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);
-        //console.log(body.size);
         if(parseInt(body.size) > 0){
             client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,3600).exec(function (err, replies) {
                 console.log("kkUserBlack set");
@@ -122,7 +116,7 @@ exports.messageValidate   = function(data,callback){
                     console.log(result);
                 }
             });
-            callback({code:702,msg:'存在敏感词'},null);
+            callback({status:702,msg:'存在敏感词'},null);
         }else{
             callback(null,0);
         }
@@ -130,11 +124,11 @@ exports.messageValidate   = function(data,callback){
 }
 
 exports.messageDirty      = function(message,callback){
-    console.log(message);
+    console.log(message.msg);
     var re = /select|update|delete|exec|count|=|;|>|<|%/i;
-    if (re.test(message)) {//特殊字符和SQL关键字
+    if (re.test(message.msg)) {//特殊字符和SQL关键字
         console.log('存在特殊字符');
-        callback({code:703,msg:'存在特殊字符'+message},null);
+        callback({status:703,msg:'存在特殊字符'},null);
     }else{
         callback(null,0);
     }

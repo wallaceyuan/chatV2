@@ -61,7 +61,7 @@ function popLogs(){
             },
             function(res,done){
                 console.log('suser');
-                user.userValidateSql({token:result.token,uid:result.uid,client:client},function(err,res){
+                user.userValidateSql({token:result.token,uid:result.uid},function(err,res){
                     console.log('user done'/*,res*/);
                     done(err,res);
                 });
@@ -75,7 +75,7 @@ function popLogs(){
             },
             function(arg,done){
                 console.log(arg,'skey');
-                user.messageValidate({result:result,client:client},function(err,res){
+                user.messageValidate({result:result},function(err,res){
                     console.log('key done'/*,res*/);
                     done(err,res);
                 });
@@ -96,7 +96,11 @@ function popLogs(){
                 if(parseInt(err.code) == 703){
                     console.log('error sql',err.msg);
                 }
-                process.nextTick(compute);
+                err.room = room;
+                namBox[nsp].emit('messageError',err,function(){
+                    console.log('messageError, nexttick');
+                    process.nextTick(compute);
+                });
             }else{
                 console.log('all done',res);
                 user.messageToKu(result);

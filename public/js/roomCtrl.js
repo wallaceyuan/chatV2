@@ -40,13 +40,23 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         socket.emit('userInit',{room:$scope.roomName,token:tokenBox[index]});
     });
 
-    socket.on('userStatus',function(data){
-        console.log(data);
-        if(parseInt(data.status.code) == 0){
+
+    socket.on('userWebStatus',function(data){
+        if(parseInt(data.status) == 0){
+            console.log('userWebStatus',data);
             $scope.line = data.userData.nickName;
+            $scope.onlines = data.users;
+            $scope.onlinesum = data.onlinesum;
+        }else if(parseInt(data.status) == 704){
+            $scope.onlines = data.users;
+            $scope.onlinesum = data.onlinesum;
+        }else{
+            console.log('error',data);
         }
-        $scope.onlines = data.users;
-        $scope.onlinesum = data.onlinesum;
+    });
+
+    socket.on('userStatus',function(data){
+        console.log('userStatus',data);
     });
 
     /*4.用户加入世界通知*/
@@ -68,7 +78,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     });
 
     socket.on('message.add',function(msg){
-        console.log(msg);
+        console.log('message.add',msg);
         if($.inArray(msg.time, $scope.times)>-1){
             msg.time = false;
         }else{
@@ -86,6 +96,10 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
             });
             $timeout.cancel(timer);
         }, 0);
+    });
+
+    socket.on('message.error',function(msg){
+        console.log('messageError',msg);
     });
 
     socket.on('people.del',function(msg){
@@ -111,7 +125,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         if($scope.message){
             socket.emit('createMessage',{
                 message:$scope.message,
-                time:getTime(),
                 type:'',up:0,down:0,
                 perform:{
                     color:'red',fontSize:'16px'
