@@ -18,7 +18,6 @@ var pool = mysql.createPool({
     user:'root',
     password:'admin',
     database:'kk_danmaku',
-    connectionLimit : 100,
     connectTimeout:3000
 });
 module.exports = {

@@ -111,13 +111,13 @@ function popLogs(){
                 result.message = xss(result.message).replace(/<[^>]+>/g,"");
 
                 if(err){
-                    if(parseInt(err.code) == 702){
+                    if(parseInt(err.status) == 702){
                         result.voliate = 1;
                     }
-                    if(parseInt(err.code) != 703){
+                    if(parseInt(err.status) != 703){
                         user.messageToKu(result);
                     }
-                    if(parseInt(err.code) == 703){
+                    if(parseInt(err.status) == 703){
                         console.log('error sql',err.msg);
                     }
                     err.room = room;
