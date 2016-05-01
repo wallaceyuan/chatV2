@@ -12,12 +12,16 @@ var pool  = config.pool;
 
 exports.userViolatorRedis = function(data,callback){
     client.hgetall('kkUserBlack'+data.token, function (err, obj) {
-        if(obj){
-            console.log('getViolator-you');
-            callback({code:700,msg:'被禁言用户'},null);
-        }else {
-            console.log('getViolator-wu');
-            callback(null,0);
+        if(err){
+            console.log(err);
+        }else{
+            if(obj){
+                console.log('getViolator-you');
+                callback({code:700,msg:'被禁言用户'},null);
+            }else {
+                console.log('getViolator-wu');
+                callback(null,0);
+            }
         }
     });
 }
@@ -39,7 +43,11 @@ exports.userAllowedRedis  = function(data,callback){
                 var body = JSON.parse(body);
                 if(parseInt(body.code) == 0){
                     client.multi().HMSET(data.token, body).expire(data.token,3600).exec(function (err, replies) {
-                        console.log("MULTI got " + replies.length + " replies");
+                        if(err){
+                            console.log(err);
+                        }else{
+                            console.log("MULTI got " + replies.length + " replies");
+                        }
                     });
                     callback(null,body);
                 }else{
@@ -53,16 +61,18 @@ exports.userAllowedRedis  = function(data,callback){
 exports.userRoomIn = function(data,callback){
     var uid = data.uid;
     var users = data.users;
+    var room = data.room;
     if(users.length == 0){
         callback(null,0);
     }else{
-        for (var item in users) {
-            if(uid == users[item].uid ){
-                callback({code:704,msg:'用户在同一个命名空间下的房间内重复登录'},null);
-                return;
-            }else{
-                callback(null,0);
-            }
+        var judge = users.filter(function(user){
+            if(user)
+                return room == user.room && uid == user.uid;
+        });
+        if(judge.length > 0){
+            callback({code:704,msg:'用户在同一个命名空间下的房间内重复登录'},null);
+        }else{
+            callback(null,0);
         }
     }
 }
@@ -92,12 +102,12 @@ exports.userValidateSql   = function(data,callback){
             callback({status:700,msg:'被禁言用户'},null);
         }else {
             console.log('kkUserBlack-wu');
-            pool.query('select * from kk_danmaku_violators where uid = ? and free = 0',[data.uid],function(err,rows){
+            pool.query('select id from kk_danmaku_violators where uid = ? and free = 0',[data.uid],function(err,rows){
                 if(err){
                     console.log(err);
                 }else{
                     if(rows.length>0){
-                        client.multi().HMSET('kkUserBlack'+data.token, '0').expire('kkUserBlack'+data.token,3600).exec(function (err, replies) {
+                        client.multi().HMSET('kkUserBlack'+data.token, {free:0}).expire('kkUserBlack'+data.token,3600).exec(function (err, replies) {
                             console.log("MULTI got " + replies.length + " replies");
                         });
                         callback({status:700,msg:'被禁言用户'},null);
@@ -118,13 +128,21 @@ exports.messageValidate   = function(data,callback){
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         url: 'http://kankanews.cn-north-1.eb.amazonaws.com.cn/KKShielder',
         method: 'POST',
+        body:"words="+res.message
+/*
         body:"words="+res.message+res.nickName
+*/
     };
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);
+        //console.log('codeOpt',body,res.message+res.nickName,body.size,parseInt(body.size));
         if(parseInt(body.size) > 0){
             client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,3600).exec(function (err, replies) {
-                console.log("kkUserBlack set");
+                if(err){
+                    console.log(err);
+                }else{
+                    console.log("kkUserBlack set");
+                }
             });
             pool.query('replace into kk_danmaku_violators(uid,openid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?,?)',[res.uid,'',res.tel,res.nickName,res.posterURL,res.createTime,0],function(err,result){
                 if(err){
@@ -155,6 +173,8 @@ exports.messageToKu       = function(data,callback){
     pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,voliate,createTime,up,down,type,perform,message) values(?,?,?,?,?,?,?,?,?,?,?)',[data.cid,data.uid,data.openid,1,data.voliate,data.createTime,data.up,data.down,data.type,data.perform,data.message],function(err,result){
         if(err){
             console.log(err);
+        }else{
+             console.log('insert success');
         }
     });
 }

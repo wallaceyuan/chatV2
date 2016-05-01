@@ -45,14 +45,11 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         if(parseInt(data.status) == 0){
             console.log('userWebStatus',data);
             $scope.line = data.userData.nickName;
-            $scope.onlines = data.users;
-            $scope.onlinesum = data.onlinesum;
-        }else if(parseInt(data.status) == 704 || parseInt(data.status) == 201){
-            $scope.onlines = data.users;
-            $scope.onlinesum = data.onlinesum;
         }else{
             console.log('error',data);
         }
+        $scope.onlines = data.users;
+        $scope.onlinesum = data.onlinesum;
     });
 
     socket.on('userStatus',function(data){
