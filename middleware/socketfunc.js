@@ -10,31 +10,6 @@ var clients = [];//在线socket
 var users = [];//在线users
 var onlinesum = 0;
 
-
-var reqDomain = domain.create();
-reqDomain.on('error', function (err) {
-    console.log('reqDomain',err);
-    process.nextTick(compute);
-});
-reqDomain.run(function () {
-
-});
-
-process.on('uncaughtException', function (err) {
-    console.log(err);
-    try {
-        var killTimer = setTimeout(function () {
-            process.exit(1);
-        }, 30000);
-        killTimer.unref();
-        server.close();
-    } catch (e) {
-        console.log('error when exit', e.stack);
-    }
-});
-
-
-
 exports.socketHallFuc = function(nsp,client) {
 
     nsp.on('connection',function(socket){
@@ -42,6 +17,10 @@ exports.socketHallFuc = function(nsp,client) {
         NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
 
         socket.on('userInit',function(data){//监听 客户端的消息
+            if(nsp == null || data.token == null || data.room == null){
+                socket.emit('message.error',{status: 705, msg: "参数传入错误"});
+                return;
+            }
             async.waterfall([
                 function(done){//用code查询是否被禁言(redis)
                     console.log('svolidate');
@@ -160,10 +139,12 @@ exports.socketHallFuc = function(nsp,client) {
             console.log('messageError',data);
             var errSocket = clients[data.socketid];
             var err = {status:data.status,msg:data.msg}
-            if(data.room!=''){
-                errSocket.emit('message.error',err);
-            }else{
-                errSocket.emit('message.error',err);
+            if(errSocket){
+                if(data.room!=''){
+                    errSocket.emit('message.error',err);
+                }else{
+                    errSocket.emit('message.error',err);
+                }
             }
             callback();
         });
@@ -226,11 +207,6 @@ exports.socketHallFuc = function(nsp,client) {
     });
 }
 
-
-
-function socketMain(){
-
-}
 
 function roomClientNum(nsp,room,callback){
     nsp.in(room).clients(function(error, clients){
