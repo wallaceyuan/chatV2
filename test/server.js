@@ -5,18 +5,74 @@
 var request = require('request');
 var mysql = require('mysql');
 var moment = require('moment');
+
+var client = require("redis").createClient();
 var pool = mysql.createPool({
     host:'kankanewsapi.cjspd4t43dgd.rds.cn-north-1.amazonaws.com.cn',
     user:'kankanewsapi',
     password:'kankanewsaws2016',
     database:'kk_danmaku'
 });
+/*var pool = mysql.createPool({
+    host:'120.27.5.9',
+    user:'root',
+    password:'admin',
+    database:'kk_danmaku',
+    connectTimeout:3000
+});*/
 var client = require("redis").createClient();
-var token = 'opV5fwXDlHdvHRdJGJ8WD2Am6z7lkyryo0BO8wJ0ViqVs+wUox3ppMQMb49dLI6tbwi24nML7DClJVNH2I53SsdRc7X0TxB33INM/Hzl1xrGXgcZbIgQo028WtgYwFlNf5RggnqJMvj/YtIzxLOr1CJ/iUw5b5df028QJ6TISVFJjKYItasMLsyitLIA9V1TP3vWawTdju1eKiu/8z6E6/SV8y9V6GN4BH4ObcG69o7LLD+yfpv/mXXNK17UeoqP4p/+4Cp++ZAxdW/2ZtMdbwOpPyxZu4Ux4cAm5ZTSQLJbWqpVbdKgrKfuMbeMWu8d8mw4MEe/HHCZeHzH/PHsf/5hU8ZbagTuxYSvqk3W0OJuyEpKhrbQDqP/gA7VrZXQujzUCMAXWT3JPYLs6D1hEdoPpNGsQKAxdqScAkLfGDbm9gzph7PjgdHOeojZf9+JlZWSkmG0Id15grtH2keH3T8HNVg7ywTIQRkq87lnvUqGrHCG2S3fKTLIgPxsvaC5JL/GPkvA3kPRqu5Xjj45RSUc7pPR+mOlAVujuRHnJqpQfxK1EZ0DdI88XjUaLFO7pIpyU8aADT17exnhLDXP1PVmD2a5WojV0nZ5Hv7DjSWPEvfcNI0+dxkd1po1AJCl+XNmdHOY1arbF1ol2sbKCbuxZS3530RjHbGuKitgA2E=';
+/*var token = 'opV5fwXDlHdvHRdJGJ8WD2Am6z7lkyryo0BO8wJ0ViqVs+wUox3ppMQMb49dLI6tbwi24nML7DClJVNH2I53SsdRc7X0TxB33INM/Hzl1xrGXgcZbIgQo028WtgYwFlNf5RggnqJMvj/YtIzxLOr1CJ/iUw5b5df028QJ6TISVFJjKYItasMLsyitLIA9V1TP3vWawTdju1eKiu/8z6E6/SV8y9V6GN4BH4ObcG69o7LLD+yfpv/mXXNK17UeoqP4p/+4Cp++ZAxdW/2ZtMdbwOpPyxZu4Ux4cAm5ZTSQLJbWqpVbdKgrKfuMbeMWu8d8mw4MEe/HHCZeHzH/PHsf/5hU8ZbagTuxYSvqk3W0OJuyEpKhrbQDqP/gA7VrZXQujzUCMAXWT3JPYLs6D1hEdoPpNGsQKAxdqScAkLfGDbm9gzph7PjgdHOeojZf9+JlZWSkmG0Id15grtH2keH3T8HNVg7ywTIQRkq87lnvUqGrHCG2S3fKTLIgPxsvaC5JL/GPkvA3kPRqu5Xjj45RSUc7pPR+mOlAVujuRHnJqpQfxK1EZ0DdI88XjUaLFO7pIpyU8aADT17exnhLDXP1PVmD2a5WojV0nZ5Hv7DjSWPEvfcNI0+dxkd1po1AJCl+XNmdHOY1arbF1ol2sbKCbuxZS3530RjHbGuKitgA2E=';
 
 client.multi().HMSET('kkUserBlac'+token, {free:0}).expire('kkUserBlack'+token,3600).exec(function (err, replies) {
     console.log("MULTI got " + replies.length + " replies");
+});*/
+
+var BlackToken = 'kkUserBlackLyNgmY7bk21bEWHAqZXKDsVdZaJd0p2/z+6qZI44YK3UYi0XNEKWNZMOGu7skNTQBDLj0Vd9lDKy25LuOJ3OiMSNknjHw+vKP/KLmuBIYx+MMjmKBdqIn3/BIKAuShO91iGFPp68xMjAHTaNO8APaKSfZfBdYoaQaP7+CsJDQeLMdUwCTKIItLGwMQVfw4HcmL8kir2g5g9+BB0Qg5HiBacnIUBcKetsdq913PoQdekFyMKWLYwLVTFeFA/JOBLGndIbpL/TZjH9aJbgGf0qKPVhlizKoX23BlVfUSS+I6g+s8cOuy86pc/idYHUbf7X9XnUmwDFJ7e2H7OreNxcAO4isQsx4EhVwEBA2XZ+9ERSspT7tB9h2RjPXqX8UUfsQOhyJYdRmu5+70fDLmdRykY7+PutkIomcm2rzDAyfQ2DMcLisSLUknNl0/Xi/mSWTgqngMuleyhIa48R6XXZ2JWtJePAIJOtk0uumajDKqsZwwosBDRXkE1usnqU38sOL5L3AAtXu4EZrIpNtZITVZ1rZdmyHIRtBR3tRSmm1dKW5M6g0EXcJAm3REWQbHq+Ovx1d6zjGCrZCTjyI1HpBS3pc9UDfox+v+Fx/Lff6K79fqHBuAhm0UwMNDLebN6g6NnTrkbN0zzMyeO4o4s+FsFSUmE36Ls0J/iK1hRHEyI=';
+var re = 'kkUserBlack';
+/*
+var nameList = BlackToken.split(re);
+var token = nameList[1];
+client.hgetall(token, function (err, obj) {
+    if(obj){
+        var data = obj.data;
+        var uid = JSON.parse(data).uid;
+
+        client.DEL(BlackToken,function(err, obj){
+            if(obj){
+                console.log(obj);
+            }else{
+                console.log(err);
+            }
+        })
+
+        pool.query('delete from kk_danmaku_violators where uid = ? and free = 0',[uid],function(err,rows){
+            if(err){
+                console.log(err);
+            }else{
+                console.log(rows);
+            }
+        });
+        console.log(obj);
+    }else {
+        console.log(err);
+    }
 });
+*/
+client.keys('kkUserBlack*', function (err, obj) {
+    if(err){
+        console.log(err);
+    }else{
+        if(obj.length > 0){
+            for(var i = 0;i<obj.length;i++){
+                console.log(obj[i]);
+                var token = obj[i].split('kkUserBlack')[1];
+                console.log(token);
+            }
+        }
+    }
+});
+
+
 /*node 时间戳*/
 /*var unix_time = moment().unix();
 console.log(unix_time);//例如：1423721820
@@ -31,7 +87,7 @@ console.log(html);*/
 
 
 /*去除sql特殊字符*/
-re = /select|update|delete|exec|count|'|"|=|;|>|<|%/i;
+/*re = /select|update|delete|exec|count|'|"|=|;|>|<|%/i;
 if (re.test('update')) {//特殊字符和SQL关键字
     console.log('存在特殊字符');
     //callback({code:703,msg:'存在特殊字符'},null);
@@ -39,7 +95,7 @@ if (re.test('update')) {//特殊字符和SQL关键字
     console.log('ok');
     //var message = xss(message);
     //callback(null,message);
-}
+}*/
 
 
 /*敏感词库post*/

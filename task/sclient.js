@@ -32,6 +32,7 @@ reqDomain.on('error', function (err) {
 reqDomain.run(function () {
     process.nextTick(compute);
 });
+
 process.on('uncaughtException', function (err) {
     console.log(err);
     try {
@@ -105,11 +106,8 @@ function popLogs(){
                     });
                 },
             ],function(err,res){
-
                 console.log('err',err);
-
                 result.message = xss(result.message).replace(/<[^>]+>/g,"");
-
                 if(err){
                     if(parseInt(err.status) == 702){
                         result.voliate = 1;
@@ -121,6 +119,7 @@ function popLogs(){
                         console.log('error sql',err.msg);
                     }
                     err.room = room;
+                    err.socketid = result.socketid;
                     if(namBox[nsp]){
                         namBox[nsp].emit('messageError',err,function(){
                             console.log('messageError, nexttick');

@@ -4,16 +4,43 @@ var request = require('request');
 var async = require('async');
 var debug = require('debug')('socketfunc:save');
 var moment = require('moment');
-
+var domain = require('domain');
 
 var clients = [];//在线socket
 var users = [];//在线users
 var onlinesum = 0;
 
+
+var reqDomain = domain.create();
+reqDomain.on('error', function (err) {
+    console.log('reqDomain',err);
+    process.nextTick(compute);
+});
+reqDomain.run(function () {
+
+});
+
+process.on('uncaughtException', function (err) {
+    console.log(err);
+    try {
+        var killTimer = setTimeout(function () {
+            process.exit(1);
+        }, 30000);
+        killTimer.unref();
+        server.close();
+    } catch (e) {
+        console.log('error when exit', e.stack);
+    }
+});
+
+
+
 exports.socketHallFuc = function(nsp,client) {
+
     nsp.on('connection',function(socket){
         var black = false,roomName = '',userData,appUserData,userName,
         NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
+
         socket.on('userInit',function(data){//监听 客户端的消息
             async.waterfall([
                 function(done){//用code查询是否被禁言(redis)
@@ -41,9 +68,7 @@ exports.socketHallFuc = function(nsp,client) {
             ],function(err,res){
                 if(err){
                     console.log(err);
-
                     black = true,roomName = data.room,clients[socket.id] = socket;
-
                     if(roomName!=''){
                         socket.join(roomName);
                     }
@@ -51,61 +76,41 @@ exports.socketHallFuc = function(nsp,client) {
                         if(user)
                             return roomName == user.room;
                     });
-
                     roomClientNum(nsp,roomName,function(num){
-
                         onlinesum = num;
-                        console.log(users,onlinesum);
-
                         socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
-
                         socket.emit('userStatus',{status:err.code,msg:err.msg});
                     });
-
-
                 }else{
                     black = false;
                     /*将数组封装成用户信息*/
                     var uif = JSON.parse(res.data);
-
                     roomName = data.room, userName = uif.nickName,clients[socket.id] = socket;
-
                     if(data.openid){
                         var openid = data.openid,token = '';
                     }else{
                         var openid = '',token = data.token;
                     }
-
                     if(roomName!=''){
                         socket.join(roomName);
                     }
-
                     roomClientNum(nsp,roomName,function(num){
-
                         onlinesum = num;
-
                         userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
                             tel:uif.tel,uid:uif.uid,nickName:userName,onlinesum:onlinesum};
-
                         appUserData = {nickName:userName,posterURL:uif.posterURL};
-
                         if(roomName!=''){
                             socket.broadcast.in(roomName).emit('joinChat',userData);
                         }else{
                             socket.broadcast.emit('joinChat',userData);
                         }
-
                         users.push(userData);
-
                         users = users.filter(function(user){
                             if(user)
                                 return roomName == user.room;
                         });
-
                         socket.emit('userStatus',{status:0,msg:'用户验证成功',userData:appUserData});
-
                         socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
-
                     });
                 }
                 console.log('所有的任务完成了'/*,res*/);
@@ -153,11 +158,12 @@ exports.socketHallFuc = function(nsp,client) {
         /*接收redis错误信息返回*/
         socket.on('messageError',function(data,callback){
             console.log('messageError',data);
+            var errSocket = clients[data.socketid];
             var err = {status:data.status,msg:data.msg}
             if(data.room!=''){
-                nsp.in(data.room).emit('message.error',err);
+                errSocket.emit('message.error',err);
             }else{
-                nsp.emit('message.error',err);
+                errSocket.emit('message.error',err);
             }
             callback();
         });
@@ -182,8 +188,9 @@ exports.socketHallFuc = function(nsp,client) {
             if(socket.id)
                 delete clients[socket.id];
 
-            socket.emit('unsubscribe',{"room" : roomName});
+            console.log(roomName);
 
+            socket.leave(roomName);
 
             roomClientNum(nsp,roomName,function(num){
                 onlinesum = num;
@@ -203,7 +210,7 @@ exports.socketHallFuc = function(nsp,client) {
                 var data2 = {
                     openid:userData.openid, token:userData.token, cid: roomName, uid: userData.uid,
                     nickName:userData.nickName,posterURL:userData.posterURL,tel:userData.tel,
-                    openid: '',checked:0,voliate:0,createTime:moment().unix(),
+                    openid: '',checked:0,voliate:0,createTime:moment().unix(),socketid:userData.id,
                     place:NSP+':'+roomName
                 };
                 for(var item in data2){
@@ -219,15 +226,10 @@ exports.socketHallFuc = function(nsp,client) {
     });
 }
 
-function randomString(len) {
-    len = len || 32;
-    var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
-    var maxPos = $chars.length;
-    var pwd = '';
-    for (var i = 0; i < len; i++) {
-        pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
-    }
-    return pwd;
+
+
+function socketMain(){
+
 }
 
 function roomClientNum(nsp,room,callback){

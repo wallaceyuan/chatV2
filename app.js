@@ -12,6 +12,8 @@ var socket = require('./middleware/socket');
 
 var routes = require('./routes/index');
 var chats = require('./routes/chats');
+var violates = require('./routes/violates');
+
 
 var app = express();
 // view engine setup
@@ -30,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/chats', chats);
+app.use('/violates', violates);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -125,6 +128,7 @@ function onListening() {
       : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
 
 
 
