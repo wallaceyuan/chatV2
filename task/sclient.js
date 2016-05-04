@@ -24,15 +24,19 @@ var broadcast = io.connect(ip+'/broadcast', {reconnect: true});
 var namBox = {root:origin,chatroom:chatroom,live:live,vod:vod,wechat:wechat,broadcast:broadcast};
 
 
-var reqDomain = domain.create();
+/*var reqDomain = domain.create();
 reqDomain.on('error', function (err) {
     console.log('reqDomain',err);
     process.nextTick(compute);
 });
 reqDomain.run(function () {
     process.nextTick(compute);
-});
+});*/
 
+
+process.nextTick(compute);
+
+/*
 process.on('uncaughtException', function (err) {
     console.log(err);
     try {
@@ -45,6 +49,7 @@ process.on('uncaughtException', function (err) {
         console.log('error when exit', e.stack);
     }
 });
+*/
 
 function compute() {
     var time = moment().unix();
@@ -71,7 +76,13 @@ function popLogs(){
             console.log(err);
         }else{
             var result = JSON.parse(result);
-            var place = result.place.split(':');
+            console.log('place',result.place);
+            try{
+                var place = result.place.split(':');
+            }catch(e){
+                process.nextTick(compute);
+                return;
+            }
             var nsp = place[0],room = place[1];
             var time = moment().unix();
             console.log(' start '+' nsp: '+nsp +" room "+room + ' time: '+time);
@@ -120,6 +131,7 @@ function popLogs(){
                     }
                     err.room = room;
                     err.socketid = result.socketid;
+                    console.log(err);
                     if(namBox[nsp]){
                         namBox[nsp].emit('messageError',err,function(){
                             console.log('messageError, nexttick');
@@ -129,16 +141,16 @@ function popLogs(){
                     }
                     process.nextTick(compute);
                 }else{
-                    console.log('all done',res);
-                    user.messageToKu(result);
                     if(namBox[nsp]){
-                        namBox[nsp].emit('redisCome',result,function(){
-                            console.log('redisSend, nexttick');
+                        user.messageToKu(result, function () {
+                            console.log('redisEmit all done',res);
+                            namBox[nsp].emit('redisCome',result);
+                            process.nextTick(compute);
                         });
                     }else{
+                        process.nextTick(compute);
                         console.log('error namespace');
                     }
-                    process.nextTick(compute);
                 }
             });
         }

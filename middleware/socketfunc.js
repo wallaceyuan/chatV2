@@ -54,7 +54,8 @@ function socketMain(nsp,client){
                             done(err,arg);
                         });
                     }catch(e){
-                        mivar = {};
+                        socket.emit('userStatus',{status: 705, msg: "参数传入错误"});
+                        return;
                     }
                 }
             ],function(err,res){
@@ -74,13 +75,15 @@ function socketMain(nsp,client){
                         socket.emit('userStatus',{status:err.code,msg:err.msg});
                     });
                 }else{
+                    console.log('asy success');
                     black = false;
                     /*将数组封装成用户信息*/
                     var uif;
                     try{
                         uif = JSON.parse(res.data);
                     }catch(e){
-                        uif = {};
+                        socket.emit('userStatus',{status: 705, msg: "参数传入错误"});
+                        return;
                     }
                     roomName = data.room, userName = uif.nickName,clients[socket.id] = socket;
                     if(data.openid){
@@ -110,7 +113,7 @@ function socketMain(nsp,client){
                         socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
                     });
                 }
-                console.log('所有的任务完成了'/*,res*/);
+                console.log('all done'/*,res*/);
                 //debug('所有的任务完成了',res);
             });
         });
@@ -137,8 +140,8 @@ function socketMain(nsp,client){
         });
 
         /*接收redis发来的消息*/
-        socket.on('redisCome',function (data,callback) {
-            console.log('redisCome'/*,data*/);
+        socket.on('redisCome',function (data) {
+            console.log('redisComeCome'/*,data*/);
             try{
                 var msgInfo = {"message":data.message,"createTime":data.createTime,
                     "type":data.type,"up":data.up,
@@ -153,7 +156,6 @@ function socketMain(nsp,client){
             }else{
                 nsp.emit('message.add',msgInfo);
             }
-            callback();
         });
 
         /*接收redis错误信息返回*/
@@ -162,6 +164,7 @@ function socketMain(nsp,client){
             try{
                 var errSocket = clients[data.socketid];
                 var err = {status:data.status,msg:data.msg}
+                console.log('messageError-errSocket',data.socketid);
                 if(errSocket){
                     if(data.room!=''){
                         errSocket.emit('message.error',err);
@@ -177,23 +180,22 @@ function socketMain(nsp,client){
 
         /*用户下线*/
         socket.on('disconnect', function () {
-
-            dis = users.filter(function(user){
+            var discus = users.filter(function(user){
                 if(user)
                     return socket.id == user.id;
-            })
-            if(dis.length == 0){
+            });
+            if(discus.length == 0){
                 return
             }
-
             users = users.filter(function(user){
                 if(user)
                     return socket.id != user.id;
             });
 
-            //console.log('disconnect',socket.id,users,onlinesum);
             if(socket.id)
                 delete clients[socket.id];
+
+            console.log('leave socket',socket.id);
 
             socket.leave(roomName);
 
@@ -221,6 +223,7 @@ function socketMain(nsp,client){
                 for(var item in data2){
                     data[item]=data2[item];
                 }
+                console.log('socketid',data.socketid);
                 if(data.perform){
                     try{
                         data.perform = JSON.stringify(data.perform);
