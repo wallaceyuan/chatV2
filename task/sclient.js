@@ -58,9 +58,7 @@ function compute() {
             console.log(error);
         }else{
             if(count){
-                popLogs(count, function(logs){
-                    console.log('final: '+ logs);
-                });
+                popLogs();
             }else{
                 waithall(100);
                 //console.log('working for 1s empty pause, nexttick',time);
@@ -71,6 +69,7 @@ function compute() {
 }
 
 function popLogs(){
+    console.log('-------------deal-------------');
     client.rpop('message',function(err,result){
         if(err){
             console.log(err);
@@ -117,40 +116,40 @@ function popLogs(){
                     });
                 },
             ],function(err,res){
-                console.log('err',err);
                 result.message = xss(result.message).replace(/<[^>]+>/g,"");
                 if(err){
-                    if(parseInt(err.status) == 702){
-                        result.violate = 1;
-                    }
-                    if(parseInt(err.status) != 703){
-                        user.messageToKu(result);
-                    }
-                    if(parseInt(err.status) == 703){
-                        console.log('error sql',err.msg);
-                    }
+                    console.log('err!!!!',err);
                     err.room = room;
                     err.socketid = result.socketid;
-                    console.log(err);
-                    if(namBox[nsp]){
-                        namBox[nsp].emit('messageError',err,function(){
-                            console.log('messageError, nexttick');
+                    if(parseInt(err.status) == 702){
+                        result.violate = 1;
+                        user.messageToKu(result,function(){
+                            if(namBox[nsp]){
+                                namBox[nsp].emit('messageError',err);
+                                console.log('-------------messageError, nexttick-------------');
+                            }else{
+                                console.log('-------------error namespace-------------');
+                            }
                         });
                     }else{
-                        console.log('error namespace');
+                        if(namBox[nsp]){
+                            namBox[nsp].emit('messageError',err);
+                            console.log('-------------messageError, nexttick-------------');
+                        }else{
+                            console.log('-------------error namespace-------------');
+                        }
                     }
                     process.nextTick(compute);
                 }else{
                     if(namBox[nsp]){
                         user.messageToKu(result, function () {
-                            console.log('redisEmit all done',res);
+                            console.log('-------------redisEmit all done-------------',res);
                             namBox[nsp].emit('redisCome',result);
-                            process.nextTick(compute);
                         });
                     }else{
-                        process.nextTick(compute);
                         console.log('error namespace');
                     }
+                    process.nextTick(compute);
                 }
             });
         }

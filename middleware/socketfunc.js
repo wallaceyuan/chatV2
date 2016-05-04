@@ -31,7 +31,7 @@ function socketMain(nsp,client){
             }
             async.waterfall([
                 function(done){//用code查询是否被禁言(redis)
-                    console.log('svolidate');
+                    console.log('-------------svolidate-------------');
                     user.userViolatorRedis({token:data.token},function(err,res){
                         console.log('evolidate');
                         done(err,res);
@@ -60,7 +60,7 @@ function socketMain(nsp,client){
                 }
             ],function(err,res){
                 if(err){
-                    console.log(err);
+                    console.log('-------------',err,'-------------');
                     black = true,roomName = data.room,clients[socket.id] = socket;
                     if(roomName!=''){
                         socket.join(roomName);
@@ -75,7 +75,6 @@ function socketMain(nsp,client){
                         socket.emit('userStatus',{status:err.code,msg:err.msg});
                     });
                 }else{
-                    console.log('asy success');
                     black = false;
                     /*将数组封装成用户信息*/
                     var uif;
@@ -113,7 +112,7 @@ function socketMain(nsp,client){
                         socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
                     });
                 }
-                console.log('all done'/*,res*/);
+                console.log('-------------asy success-------------'/*,res*/);
                 //debug('所有的任务完成了',res);
             });
         });
@@ -141,7 +140,7 @@ function socketMain(nsp,client){
 
         /*接收redis发来的消息*/
         socket.on('redisCome',function (data) {
-            console.log('redisComeCome'/*,data*/);
+            console.log('-------------redisComeCome-------------'/*,data*/);
             try{
                 var msgInfo = {"message":data.message,"createTime":data.createTime,
                     "type":data.type,"up":data.up,
@@ -159,12 +158,12 @@ function socketMain(nsp,client){
         });
 
         /*接收redis错误信息返回*/
-        socket.on('messageError',function(data,callback){
-            console.log('messageError',data);
+        socket.on('messageError',function(data){
+            console.log('messageError',data,data.socketid);
             try{
                 var errSocket = clients[data.socketid];
                 var err = {status:data.status,msg:data.msg}
-                console.log('messageError-errSocket',data.socketid);
+                console.log('-------------messageError-errSocket-------------',data.socketid);
                 if(errSocket){
                     if(data.room!=''){
                         errSocket.emit('message.error',err);
@@ -172,9 +171,8 @@ function socketMain(nsp,client){
                         errSocket.emit('message.error',err);
                     }
                 }
-                callback();
             }catch(e){
-                callback();
+
             }
         });
 

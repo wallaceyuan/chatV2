@@ -11,9 +11,16 @@ var pool = mysql.createPool({
     host:'kankanewsapi.cjspd4t43dgd.rds.cn-north-1.amazonaws.com.cn',
     user:'kankanewsapi',
     password:'kankanewsaws2016',
-    database:'kk_danmaku'
+    database:'kk_danmaku',
+    connectTimeout:30000
 });
-
+/*var pool = mysql.createPool({
+    host:'120.27.5.9',
+    user:'root',
+    password:'admin',
+    database:'kk_danmaku',
+    connectTimeout:30000
+});*/
 module.exports = {
     client:client,
     ip:ip,
