@@ -10,11 +10,19 @@ var clients = [];//在线socket
 var users = [];//在线users
 var onlinesum = 0;
 
-exports.socketHallFuc = function(nsp,client) {
 
+exports.socketHallFuc = function(nsp,client) {
+    socketMain(nsp,client);
+}
+
+function socketMain(nsp,client){
     nsp.on('connection',function(socket){
+        if(!nsp.name){
+            return
+        }
+
         var black = false,roomName = '',userData,appUserData,userName,
-        NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
+            NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
 
         socket.on('userInit',function(data){//监听 客户端的消息
             if(nsp == null || data.token == null || data.room == null){
@@ -38,11 +46,16 @@ exports.socketHallFuc = function(nsp,client) {
                 },
                 function(arg,done){/*检查用户是否在同一个命名空间下的房间内重复登录*/
                     roomName = data.room;
-                    var mivar = JSON.parse(arg.data);
-                    user.userRoomIn({uid:mivar.uid,users:users,room:roomName},function(err,res){
-                        console.log('euserin',res);
-                        done(err,arg);
-                    });
+                    var mivar;
+                    try{
+                        mivar = JSON.parse(arg.data);
+                        user.userRoomIn({uid:mivar.uid,users:users,room:roomName},function(err,res){
+                            console.log('euserin',res);
+                            done(err,arg);
+                        });
+                    }catch(e){
+                        mivar = {};
+                    }
                 }
             ],function(err,res){
                 if(err){
@@ -63,7 +76,12 @@ exports.socketHallFuc = function(nsp,client) {
                 }else{
                     black = false;
                     /*将数组封装成用户信息*/
-                    var uif = JSON.parse(res.data);
+                    var uif;
+                    try{
+                        uif = JSON.parse(res.data);
+                    }catch(e){
+                        uif = {};
+                    }
                     roomName = data.room, userName = uif.nickName,clients[socket.id] = socket;
                     if(data.openid){
                         var openid = data.openid,token = '';
@@ -121,10 +139,14 @@ exports.socketHallFuc = function(nsp,client) {
         /*接收redis发来的消息*/
         socket.on('redisCome',function (data,callback) {
             console.log('redisCome'/*,data*/);
-            var msgInfo = {"message":data.message,"createTime":data.createTime,
-                "type":data.type,"up":data.up,
-                "down":data.down,"perform":data.perform,
-                "nickName":data.nickName,"posterURL":data.posterURL
+            try{
+                var msgInfo = {"message":data.message,"createTime":data.createTime,
+                    "type":data.type,"up":data.up,
+                    "down":data.down,"perform":data.perform,
+                    "nickName":data.nickName,"posterURL":data.posterURL
+                }
+            }catch(e){
+                var msgInfo = {};
             }
             if(data.room!=''){
                 nsp.in(data.room).emit('message.add',msgInfo);
@@ -137,16 +159,20 @@ exports.socketHallFuc = function(nsp,client) {
         /*接收redis错误信息返回*/
         socket.on('messageError',function(data,callback){
             console.log('messageError',data);
-            var errSocket = clients[data.socketid];
-            var err = {status:data.status,msg:data.msg}
-            if(errSocket){
-                if(data.room!=''){
-                    errSocket.emit('message.error',err);
-                }else{
-                    errSocket.emit('message.error',err);
+            try{
+                var errSocket = clients[data.socketid];
+                var err = {status:data.status,msg:data.msg}
+                if(errSocket){
+                    if(data.room!=''){
+                        errSocket.emit('message.error',err);
+                    }else{
+                        errSocket.emit('message.error',err);
+                    }
                 }
+                callback();
+            }catch(e){
+                callback();
             }
-            callback();
         });
 
         /*用户下线*/
@@ -169,8 +195,6 @@ exports.socketHallFuc = function(nsp,client) {
             if(socket.id)
                 delete clients[socket.id];
 
-            console.log(roomName);
-
             socket.leave(roomName);
 
             roomClientNum(nsp,roomName,function(num){
@@ -191,14 +215,18 @@ exports.socketHallFuc = function(nsp,client) {
                 var data2 = {
                     openid:userData.openid, token:userData.token, cid: roomName, uid: userData.uid,
                     nickName:userData.nickName,posterURL:userData.posterURL,tel:userData.tel,
-                    openid: '',checked:0,voliate:0,createTime:moment().unix(),socketid:userData.id,
+                    openid: '',checked:0,violate:0,createTime:moment().unix(),socketid:userData.id,
                     place:NSP+':'+roomName
                 };
                 for(var item in data2){
                     data[item]=data2[item];
                 }
                 if(data.perform){
-                    data.perform = JSON.stringify(data.perform);
+                    try{
+                        data.perform = JSON.stringify(data.perform);
+                    }catch(e){
+                        data.perform = '';
+                    }
                 }
                 client.lpush('message',JSON.stringify(data),redis.print);
             }
@@ -207,7 +235,6 @@ exports.socketHallFuc = function(nsp,client) {
     });
 }
 
-
 function roomClientNum(nsp,room,callback){
     nsp.in(room).clients(function(error, clients){
         if (error) throw error;
@@ -215,3 +242,4 @@ function roomClientNum(nsp,room,callback){
         callback(clients.length);
     });
 }
+

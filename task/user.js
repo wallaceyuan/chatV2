@@ -11,6 +11,7 @@ var client  = config.client;
 var pool  = config.pool;
 
 exports.userViolatorRedis = function(data,callback){
+    console.log('kkUserBlack'+data.token);
     client.hgetall('kkUserBlack'+data.token, function (err, obj) {
         if(err){
             console.log(err);
@@ -29,10 +30,10 @@ exports.userViolatorRedis = function(data,callback){
 exports.userAllowedRedis  = function(data,callback){
     client.hgetall(data.token, function (err, obj) {
         if(obj){
-            console.log('getAllowed-you');
+            //console.log('getAllowed-you');
             callback(null,obj);
         }else {
-            console.log('getAllowed-wu');
+            //console.log('getAllowed-wu');
             var codeOpt = {
                 uri: 'http://ums.kankanews.com/t/tokenValidate.do',
                 method: 'POST',
@@ -65,14 +66,18 @@ exports.userRoomIn = function(data,callback){
     if(users.length == 0){
         callback(null,0);
     }else{
-        var judge = users.filter(function(user){
-            if(user)
-                return room == user.room && uid == user.uid;
-        });
-        if(judge.length > 0){
-            callback({code:704,msg:'用户在同一个命名空间下的房间内重复登录'},null);
+        if(uid && users && room){
+            var judge = users.filter(function(user){
+                if(user)
+                    return room == user.room && uid == user.uid;
+            });
+            if(judge.length > 0){
+                callback({code:704,msg:'用户在同一个命名空间下的房间内重复登录'},null);
+            }else{
+                callback(null,0);
+            }
         }else{
-            callback(null,0);
+            callback({code:704,msg:'用户在同一个命名空间下的房间内重复登录'},null);
         }
     }
 }
@@ -98,10 +103,10 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
 exports.userValidateSql   = function(data,callback){
     client.hgetall('kkUserBlack'+data.token, function (err, obj) {
         if(obj){
-            console.log('kkUserBlack-you');
+            //console.log('kkUserBlack-you');
             callback({status:700,msg:'被禁言用户'},null);
         }else {
-            console.log('kkUserBlack-wu');
+            //console.log('kkUserBlack-wu');
             pool.query('select id from kk_danmaku_violators where uid = ? and free = 0',[data.uid],function(err,rows){
                 if(err){
                     console.log(err);
@@ -159,10 +164,10 @@ exports.messageValidate   = function(data,callback){
 }
 
 exports.messageDirty      = function(message,callback){
-    console.log(message.msg);
+    //console.log(message.msg);
     var re = /select|update|delete|exec|count|=|;|>|<|%/i;
     if (re.test(message.msg)) {//特殊字符和SQL关键字
-        console.log('存在特殊字符');
+        //console.log('存在特殊字符');
         callback({status:703,msg:'存在特殊字符'},null);
     }else{
         callback(null,0);
@@ -170,7 +175,7 @@ exports.messageDirty      = function(message,callback){
 }
 
 exports.messageToKu       = function(data,callback){
-    pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,voliate,createTime,up,down,type,perform,message) values(?,?,?,?,?,?,?,?,?,?,?)',[data.cid,data.uid,data.openid,1,data.voliate,data.createTime,data.up,data.down,data.type,data.perform,data.message+data.nickName],function(err,result){
+    pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,violate,createTime,up,down,type,perform,message) values(?,?,?,?,?,?,?,?,?,?,?)',[data.cid,data.uid,data.openid,1,data.violate,data.createTime,data.up,data.down,data.type,data.perform,data.message+data.nickName],function(err,result){
         if(err){
             console.log(err);
         }else{

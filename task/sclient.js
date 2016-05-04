@@ -58,7 +58,7 @@ function compute() {
                 });
             }else{
                 waithall(100);
-                console.log('working for 1s empty pause, nexttick',time);
+                //console.log('working for 1s empty pause, nexttick',time);
                 process.nextTick(compute);
             }
         }
@@ -110,7 +110,7 @@ function popLogs(){
                 result.message = xss(result.message).replace(/<[^>]+>/g,"");
                 if(err){
                     if(parseInt(err.status) == 702){
-                        result.voliate = 1;
+                        result.violate = 1;
                     }
                     if(parseInt(err.status) != 703){
                         user.messageToKu(result);
