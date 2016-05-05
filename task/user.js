@@ -133,10 +133,7 @@ exports.messageValidate   = function(data,callback){
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         url: 'http://kankanews.cn-north-1.eb.amazonaws.com.cn/KKShielder',
         method: 'POST',
-        body:"words="+res.message
-/*
         body:"words="+res.message+res.nickName
-*/
     };
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);

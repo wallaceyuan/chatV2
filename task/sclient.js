@@ -33,9 +33,7 @@ reqDomain.run(function () {
     process.nextTick(compute);
 });*/
 
-var status = true;
-process.nextTick(compute);
-
+compute();
 /*
 process.on('uncaughtException', function (err) {
     console.log(err);
@@ -58,17 +56,16 @@ function compute() {
             console.log(error);
         }else{
             if(count){
-                if(status){
-                    console.log('-------------has count',time);
-                    popLogs();
-                }
+                console.log('-------------has count',time);
+                popLogs();
+                process.nextTick(compute);
             }else{
-                status = false;
                 console.log('-------------empty',time);
-                sleep(100);
+                setTimeout(function(){
+                    compute();
+                },100);
             }
         }
-        process.nextTick(compute);
     });
 }
 

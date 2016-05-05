@@ -72,14 +72,32 @@ client.keys('kkUserBlack*', function (err, obj) {
     }
 });*/
 
-console.log(new Date().getTime());
+//console.log(new Date().getTime());
+process.nextTick(function(){
+    console.log('nextTick');
+});
+setTimeout(function(){
+    console.log(111);
+},0);
+var x="",i= 0,j=0;
+while (i<1000)
+{
+    i++;
+    console.log(i);
+}
+while (j<1000)
+{
+    j++;
+    console.log('second',j);
+}
+console.log(111222);
 //new Date().getTime();
+
 /*node 时间戳*/
 /*var unix_time = moment().unix();
 console.log(unix_time);//例如：1423721820
 var tmp_time = moment.unix(unix_time).format("YYYY-MM-DD hh:mm:ss a");
 console.log(tmp_time);//2015-02-12 02:16:02 pm*/
-
 
 /*xxs防止sql注入*/
 /*var xss = require('xss');
@@ -112,7 +130,6 @@ request(codeOpt,function(err,res,body){
 });*/
 
 
-
 /*redis 记录黑名单*/
 /*
 var code = 'BK8eDVWVCjPRLZmdtLhIq7gMBxo4cHLJ/2JevlLADdJdanuiQWHCDL5NZ7Gx4P8ixxS6PJDW0jzcgpW20TXUbobEw0BRKW3DdgqMdaWLtEmgvENx1GkJtMM3+HkoPpo86D3li4mSb6wZ1+Srf+FxYzxpFGT29ugFnuobU2ZZK9KbM0IISxVY6/GSTNpRt9OMug2S8hy79VEW0aCUqgbMmmAAqXYEl7Q/2I47jjKDm6H1jtRxITom67Ifrf0mmB4zvrzERgUlE7Ql6Jp1QoTvoMj658rrY9UCjzfA9a4zpBo0+PFcAwzKVW7j4Xj7kae8zUp2xxri1hEj9Vrmd1bWmJxtbN1co8NZacNOxW4z7KpZxypgVQK1voLOwHqurv0VSwlN3iE3S1d/0HrJ8mnDI0A25/qy6ZG7sq3wJaiu4vrtwYA/vqrmSlA9FiDvO14gp1pJPKkxTQcWRUbLQZrcBbI/erfBgPBSZugt+8E1AKV+ivTBQ2gZ+cHLi36Q8BykrPy2bR75EpxGgNe9h4GErfBu+zb/V4BP8i7dYXyI3BGFz0BWo+pfG2idV5CHRzDCRPOVto4YSyMw5HuqWsWXXiIqmX/wt1zp2/wqYWXmoZ+36CyA0k1TjqgJqWPzasnhfTnoi4JQibU37ne3cXNWTEHu4Ucg8jGfnxl2vbZfh6Y=';
@@ -120,7 +137,6 @@ client.multi().HMSET('kkUserBlack'+code, {free:1}).expire('kkUserBlack'+code,360
     console.log("kkUserBlack set");
 });
 */
-
 
 
 /*增加chatrooms*/
@@ -150,11 +166,6 @@ pool.query('replace into kk_danmaku_chatrooms(open,createTime,type,infoid,title,
 });*/
 
 
-
-
-
-
-
 /*用户token验证*/
 /*
 var userOpt = {
@@ -176,7 +187,6 @@ request(userOpt,function(err,res,body){
     }
 });
 */
-
 
 
 /*var data = {uid:'68'}
