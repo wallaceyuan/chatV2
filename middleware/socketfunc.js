@@ -140,7 +140,7 @@ function socketMain(nsp,client){
 
         /*接收redis发来的消息*/
         socket.on('redisCome',function (data) {
-            console.log('-------------redisComeCome-------------'/*,data*/);
+            console.log('-------------redisCome',data.message);
             try{
                 var msgInfo = {"message":data.message,"createTime":data.createTime,
                     "type":data.type,"up":data.up,
@@ -221,7 +221,7 @@ function socketMain(nsp,client){
                 for(var item in data2){
                     data[item]=data2[item];
                 }
-                console.log('socketid',data.socketid);
+                console.log('socketid',data.socketid,'message',data.message);
                 if(data.perform){
                     try{
                         data.perform = JSON.stringify(data.perform);

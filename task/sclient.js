@@ -33,7 +33,7 @@ reqDomain.run(function () {
     process.nextTick(compute);
 });*/
 
-
+var status = true;
 process.nextTick(compute);
 
 /*
@@ -58,13 +58,17 @@ function compute() {
             console.log(error);
         }else{
             if(count){
-                popLogs();
+                if(status){
+                    console.log('-------------has count',time);
+                    popLogs();
+                }
             }else{
-                waithall(100);
-                //console.log('working for 1s empty pause, nexttick',time);
-                process.nextTick(compute);
+                status = false;
+                console.log('-------------empty',time);
+                sleep(100);
             }
         }
+        process.nextTick(compute);
     });
 }
 
@@ -75,11 +79,11 @@ function popLogs(){
             console.log(err);
         }else{
             var result = JSON.parse(result);
-            console.log('place',result.place);
             try{
                 var place = result.place.split(':');
+                console.log('place',result.place);
             }catch(e){
-                process.nextTick(compute);
+                console.log('空数据',result);
                 return;
             }
             var nsp = place[0],room = place[1];
@@ -116,12 +120,14 @@ function popLogs(){
                     });
                 },
             ],function(err,res){
-                result.message = xss(result.message).replace(/<[^>]+>/g,"");
+                console.log('-------------result.message:-------------',result.message);
+                console.log('result.socketid:',result.socketid);
                 if(err){
                     console.log('err!!!!',err);
                     err.room = room;
                     err.socketid = result.socketid;
                     if(parseInt(err.status) == 702){
+                        result.message = xss(result.message).replace(/<[^>]+>/g,"");
                         result.violate = 1;
                         user.messageToKu(result,function(){
                             if(namBox[nsp]){
@@ -139,8 +145,8 @@ function popLogs(){
                             console.log('-------------error namespace-------------');
                         }
                     }
-                    process.nextTick(compute);
                 }else{
+                    result.message = xss(result.message).replace(/<[^>]+>/g,"");
                     if(namBox[nsp]){
                         user.messageToKu(result, function () {
                             console.log('-------------redisEmit all done-------------',res);
@@ -149,14 +155,16 @@ function popLogs(){
                     }else{
                         console.log('error namespace');
                     }
-                    process.nextTick(compute);
                 }
             });
         }
     });
 }
 
-function waithall(mils){
+
+function sleep(mils) {
     var now = new Date;
     while (new Date - now <= mils);
+    status = true;
+
 }
