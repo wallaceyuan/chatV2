@@ -180,7 +180,7 @@ exports.messageToKu       = function(data,callback){
             console.log(err);
             callback();
         }else{
-            pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,violate,createTime,up,down,type,perform,message) values(?,?,?,?,?,?,?,?,?,?,?)',[rows[0].id,data.uid,data.openid,0,data.violate,data.createTime,data.up,data.down,data.type,data.perform,data.message+data.nickName],function(err,result){
+            pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,violate,createTime,up,down,type,perform,message,nickName,posterURL) values(?,?,?,?,?,?,?,?,?,?,?,?,?)',[rows[0].id,data.uid,data.openid,0,data.violate,data.createTime,data.up,data.down,data.type,data.perform,data.message,data.nickName,data.posterURL],function(err,result){
                 if(err){
                     console.log(err);
                     callback();
