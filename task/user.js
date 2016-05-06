@@ -175,14 +175,22 @@ exports.messageDirty      = function(message,callback){
 }
 
 exports.messageToKu       = function(data,callback){
-    pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,violate,createTime,up,down,type,perform,message) values(?,?,?,?,?,?,?,?,?,?,?)',[data.cid,data.uid,data.openid,0,data.violate,data.createTime,data.up,data.down,data.type,data.perform,data.message+data.nickName],function(err,result){
+    pool.query('select id from kk_danmaku_chatrooms where infoid = ?',[data.cid],function(err,rows){
         if(err){
             console.log(err);
             callback();
         }else{
-            console.log('insert success');
-            callback();
+            pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,violate,createTime,up,down,type,perform,message) values(?,?,?,?,?,?,?,?,?,?,?)',[rows[0].id,data.uid,data.openid,0,data.violate,data.createTime,data.up,data.down,data.type,data.perform,data.message+data.nickName],function(err,result){
+                if(err){
+                    console.log(err);
+                    callback();
+                }else{
+                    console.log('insert success');
+                    callback();
+                }
+            });
         }
     });
+
 }
 

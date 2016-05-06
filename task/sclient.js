@@ -20,7 +20,6 @@ var vod = io.connect(ip+'/vod', {reconnect: true});
 var wechat = io.connect(ip+'/wechat', {reconnect: true});
 var broadcast = io.connect(ip+'/broadcast', {reconnect: true});
 
-//io.adapter(adapter({host:"knews-redis1.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn", port:6379}));
 var namBox = {root:origin,chatroom:chatroom,live:live,vod:vod,wechat:wechat,broadcast:broadcast};
 
 
