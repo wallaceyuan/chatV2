@@ -11,7 +11,7 @@ var client  = config.client;
 var pool  = config.pool;
 
 exports.userViolatorRedis = function(data,callback){
-    console.log('kkUserBlack'+data.token);
+    //console.log('kkUserBlack'+data.token);
     client.hgetall('kkUserBlack'+data.token, function (err, obj) {
         if(err){
             console.log(err);

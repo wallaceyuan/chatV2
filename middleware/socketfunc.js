@@ -8,6 +8,7 @@ var user = require('../task/user');
 var config = require('../task/config');
 
 var onlinesum = 0;
+var usersRedis = [];
 var users = [];//在线users
 var clients = [];//在线socket
 var key = '';
@@ -41,6 +42,18 @@ function socketMain(nsp,client){
                     onlinesum = 1;
                 }else{
                     onlinesum = parseInt(val);
+                }
+            });
+
+            client.get(key+'users', function(error, val){
+                console.log(key+'users');
+                if(error){
+                    console.log(error);
+                }else{
+                    if(val){
+                        console.log('val',val);
+                        users = JSON.parse(val);
+                    }
                 }
             });
 
@@ -80,7 +93,6 @@ function socketMain(nsp,client){
                     if(roomName!=''){
                         socket.join(roomName);
                     }
-
                     users = users.filter(function(user){
                         if(user)
                             return roomName == user.room;
@@ -132,6 +144,9 @@ function socketMain(nsp,client){
                             if(user)
                                 return roomName == user.room;
                         });
+
+                        client.MSET(key+'users',JSON.stringify(users), redis.print);
+
                         socket.emit('userStatus',{status:0,msg:'用户验证成功',userData:{nickName:userName,posterURL:uif.posterURL}});
                         socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
                     });
@@ -213,6 +228,8 @@ function socketMain(nsp,client){
                 if(user)
                     return socket.id != user.id;
             });
+
+            client.MSET(key+'users',JSON.stringify(users), redis.print);
 
             if(socket.id)
                 delete clients[socket.id];

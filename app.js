@@ -7,7 +7,7 @@ var debug = require('debug')('yuanchat:server');
 var http = require('http');
 var fs = require('fs');
 //var port = normalizePort(process.env.PORT || '1000');
-var port = normalizePort(process.argv[2] || '3000');
+var port = normalizePort(process.argv[2] || '2000');
 var socket = require('./middleware/socket');
 
 var routes = require('./routes/index');
