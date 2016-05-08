@@ -21,7 +21,21 @@ var pool = mysql.createPool({
     connectTimeout:3000
 });
 
+/*
+var text = preg_replace_callback("/(\\\u[ed][0-9a-f]{3})/i",function($str){
+    return addslashes($str[0]);
+},text);
+*/
+var aaa = "\ue122";
+var s1 = 1212121+aaa+11111111;
 
+var s2 = s1.replace(/^\\u0000-\\uFFFF/, '');
+
+console.log(s2);
+
+
+
+/*
 pool.query('select id from kk_danmaku_chatrooms where infoid = ?',[144],function(err,rows){
     if(err){
         console.log(err);
@@ -29,6 +43,7 @@ pool.query('select id from kk_danmaku_chatrooms where infoid = ?',[144],function
     }else{
         console.log(rows);
         console.log('id',rows[0].id);
+*/
 /*        pool.query('replace into kk_danmaku_message(cid,uid,openid,checked,violate,createTime,up,down,type,perform,message) values(?,?,?,?,?,?,?,?,?,?,?)',[data.cid,data.uid,data.openid,0,data.violate,data.createTime,data.up,data.down,data.type,data.perform,data.message+data.nickName],function(err,result){
             if(err){
                 console.log(err);
@@ -37,9 +52,11 @@ pool.query('select id from kk_danmaku_chatrooms where infoid = ?',[144],function
                 console.log('insert success');
                 callback();
             }
-        });*/
+        });*//*
+
     }
 });
+*/
 /*
 var client = require("redis").createClient();
 */
@@ -95,7 +112,7 @@ client.keys('kkUserBlack*', function (err, obj) {
 });*/
 
 //console.log(new Date().getTime());
-process.nextTick(function(){
+/*process.nextTick(function(){
     console.log('nextTick');
 });
 setTimeout(function(){
@@ -112,7 +129,7 @@ while (j<1000)
     j++;
     console.log('second',j);
 }
-console.log(111222);
+console.log(111222);*/
 //new Date().getTime();
 
 /*node 时间戳*/

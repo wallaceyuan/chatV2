@@ -123,7 +123,7 @@ function popLogs(){
                     err.room = room;
                     err.socketid = result.socketid;
                     if(parseInt(err.status) == 702){
-                        result.message = xss(result.message).replace(/<[^>]+>/g,"");
+                        result.message = escape(xss(result.message));
                         result.violate = 1;
                         user.messageToKu(result,function(){
                             if(namBox[nsp]){
@@ -142,11 +142,12 @@ function popLogs(){
                         }
                     }
                 }else{
-                    result.message = xss(result.message).replace(/<[^>]+>/g,"");
                     if(namBox[nsp]){
+                        namBox[nsp].emit('redisCome',result);
+                        result.message = escape(xss(result.message));
+                        console.log(result.message);
                         user.messageToKu(result, function () {
                             console.log('-------------redisEmit all done-------------',res);
-                            namBox[nsp].emit('redisCome',result);
                         });
                     }else{
                         console.log('error namespace');
@@ -164,3 +165,15 @@ function sleep(mils) {
     status = true;
 
 }
+
+function escape(html) {
+    return String(html)
+        .replace(/[^\u0000-\uFFFF]/,"")
+        .replace(/<[^>]+>/g,"")
+        .replace(/^\:[a-z0-9_]+\:$/g,"")
+        .replace(/&(?!\w+;)/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;'); // IE􁀰不支持&apos;􀇄单引􀡽􀇅转义
+};
