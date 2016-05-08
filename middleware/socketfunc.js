@@ -35,7 +35,7 @@ function socketMain(nsp,client){
 
             key = keyPrim+NSP+data.room;
 
-            client.get(key, function(err, val){
+            client.get(key, function(error, val){
                 if(parseInt(val) < 1){
                     client.set(key, 1);
                     onlinesum = 1;
@@ -86,7 +86,7 @@ function socketMain(nsp,client){
                             return roomName == user.room;
                     });
 
-                    client.incr(key, function(err, val){
+                    client.incr(key, function(error, val){
                         onlinesum = val;
                         socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
                         socket.emit('userStatus',{status:err.code,msg:err.msg});
@@ -116,7 +116,7 @@ function socketMain(nsp,client){
                         socket.join(roomName);
                     }
 
-                    client.incr(key, function(err, val){
+                    client.incr(key, function(error, val){
                         onlinesum = val;
                         userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
                             tel:uif.tel,uid:uif.uid,nickName:userName,onlinesum:onlinesum};
@@ -221,7 +221,7 @@ function socketMain(nsp,client){
 
             socket.leave(roomName);
 
-            client.decr(key, function(err, val){
+            client.decr(key, function(error, val){
                 if(parseInt(val) < 1) client.set(key, 1);
                 onlinesum = val;
                 if(roomName!=''){
