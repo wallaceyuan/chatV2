@@ -55,11 +55,13 @@ function socketMain(nsp,client){
                     if(obj){
                         var userBox = [];
                         for(var key in obj){
+                            console.log(JSON.parse(obj[key]).uid);
                             userBox.push(JSON.parse(obj[key]));
                         }
                         users = userBox;
                     }
                 }
+                console.log(users);
             });
 
             async.waterfall([
@@ -103,11 +105,9 @@ function socketMain(nsp,client){
                             return roomName == user.room;
                     });*/
 
-                    client.incr(key, function(error, val){
-                        onlinesum = val;
-                        socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
-                        socket.emit('userStatus',{status:err.code,msg:err.msg});
-                    });
+                    socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
+                    socket.emit('userStatus',{status:err.code,msg:err.msg});
+
                     /* roomClientNum(nsp,roomName,function(num){
                      onlinesum = num;
                      socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
@@ -145,12 +145,10 @@ function socketMain(nsp,client){
 
                         users.push(userData);
 
-/*
                         users = users.filter(function(user){
                             if(user)
                                 return roomName == user.room;
                         });
-*/
 
                         userCode = uif.uid;
 
