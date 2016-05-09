@@ -37,7 +37,7 @@ function socketMain(nsp,client){
             }
 
             key = keyPrim+NSP+data.room;
-            keyRoom = NSP+data.room;
+            keyRoom = 'RoomPeopleDetail'+NSP+data.room;
 
             client.get(key, function(error, val){
                 if(parseInt(val) < 1){
@@ -61,7 +61,6 @@ function socketMain(nsp,client){
                         users = userBox;
                     }
                 }
-                console.log(users);
             });
 
             async.waterfall([
@@ -108,11 +107,6 @@ function socketMain(nsp,client){
                     socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
                     socket.emit('userStatus',{status:err.code,msg:err.msg});
 
-                    /* roomClientNum(nsp,roomName,function(num){
-                     onlinesum = num;
-                     socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
-                     socket.emit('userStatus',{status:err.code,msg:err.msg});
-                     });*/
                 }else{
                     black = false;
                     /*将数组封装成用户信息*/
@@ -144,11 +138,6 @@ function socketMain(nsp,client){
                         }
 
                         users.push(userData);
-
-                        users = users.filter(function(user){
-                            if(user)
-                                return roomName == user.room;
-                        });
 
                         userCode = uif.uid;
 

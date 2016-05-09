@@ -60,7 +60,7 @@ function compute() {
                 popLogs();
                 process.nextTick(compute);
             }else{
-                console.log('-------------empty',time);
+                //console.log('-------------empty',time);
                 setTimeout(function(){
                     compute();
                 },100);
@@ -117,14 +117,14 @@ function popLogs(){
                     });
                 },
             ],function(err,res){
-                console.log('-------------result.message:-------------',result.message);
+                console.log('-------------result.message:'+result.message+'-------------');
                 console.log('result.socketid:',result.socketid);
                 if(err){
                     console.log('err!!!!',err);
                     err.room = room;
                     err.socketid = result.socketid;
                     if(parseInt(err.status) == 702){
-                        result.message = escape(xss(result.message));
+                        result.message = escape(xss(emoji.unifiedToText(result.message)));
                         result.violate = 1;
                         user.messageToKu(result,function(){
                             if(namBox[nsp]){
@@ -145,7 +145,6 @@ function popLogs(){
                 }else{
                     if(namBox[nsp]){
                         namBox[nsp].emit('redisCome',result);
-                        console.log('result.message',result.message);
                         result.message = escape(xss(emoji.unifiedToText(result.message)));
                         user.messageToKu(result, function () {
                             console.log('-------------redisEmit all done-------------',res);

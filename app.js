@@ -148,7 +148,7 @@ if(port == 3000){
     }
   });
 
-  client.keys('live*', function (err, obj) {
+  client.keys('RoomPeopleDetail*', function (err, obj) {
     if(err){
       console.log(err);
       res.send('err');
