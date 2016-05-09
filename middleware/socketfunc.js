@@ -12,6 +12,7 @@ var usersRedis = [];
 var users = [];//在线users
 var clients = [];//在线socket
 var key = '';
+var keyRoom = '';
 var keyPrim     = "KKDanMaKuOnlineUser";
 var client  = config.client;
 
@@ -25,6 +26,7 @@ function socketMain(nsp,client){
             return
         }
 
+        var userCode;
         var black = false,roomName = '',userData,userName,
             NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
 
@@ -35,6 +37,7 @@ function socketMain(nsp,client){
             }
 
             key = keyPrim+NSP+data.room;
+            keyRoom = NSP+data.room;
 
             client.get(key, function(error, val){
                 if(parseInt(val) < 1){
@@ -45,14 +48,16 @@ function socketMain(nsp,client){
                 }
             });
 
-            client.get(key+'users', function(error, val){
-                console.log(key+'users');
-                if(error){
-                    console.log(error);
+            client.HGETALL(keyRoom,function(err, obj){
+                if(err){
+                    console.log(err);
                 }else{
-                    if(val){
-                        console.log('val',val);
-                        users = JSON.parse(val);
+                    if(obj){
+                        var userBox = [];
+                        for(var key in obj){
+                            userBox.push(JSON.parse(obj[key]));
+                        }
+                        users = userBox;
                     }
                 }
             });
@@ -93,21 +98,21 @@ function socketMain(nsp,client){
                     if(roomName!=''){
                         socket.join(roomName);
                     }
-                    users = users.filter(function(user){
+/*                    users = users.filter(function(user){
                         if(user)
                             return roomName == user.room;
-                    });
+                    });*/
 
                     client.incr(key, function(error, val){
                         onlinesum = val;
                         socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
                         socket.emit('userStatus',{status:err.code,msg:err.msg});
                     });
-/*                    roomClientNum(nsp,roomName,function(num){
-                        onlinesum = num;
-                        socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
-                        socket.emit('userStatus',{status:err.code,msg:err.msg});
-                    });*/
+                    /* roomClientNum(nsp,roomName,function(num){
+                     onlinesum = num;
+                     socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
+                     socket.emit('userStatus',{status:err.code,msg:err.msg});
+                     });*/
                 }else{
                     black = false;
                     /*将数组封装成用户信息*/
@@ -140,12 +145,22 @@ function socketMain(nsp,client){
 
                         users.push(userData);
 
+/*
                         users = users.filter(function(user){
                             if(user)
                                 return roomName == user.room;
                         });
+*/
 
-                        client.MSET(key+'users',JSON.stringify(users), redis.print);
+                        userCode = uif.uid;
+
+                        client.HMSET(keyRoom,userCode,JSON.stringify(userData),function(err, replies){
+                            if(err){
+                                console.log(err);
+                            }else{
+                                console.log(replies);
+                            }
+                        })
 
                         socket.emit('userStatus',{status:0,msg:'用户验证成功',userData:{nickName:userName,posterURL:uif.posterURL}});
                         socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
@@ -229,7 +244,13 @@ function socketMain(nsp,client){
                     return socket.id != user.id;
             });
 
-            client.MSET(key+'users',JSON.stringify(users), redis.print);
+            client.HDEL(keyRoom,userCode,function(err, replies){
+                if(err){
+                    console.log(err);
+                }else{
+                    console.log(replies);
+                }
+            });
 
             if(socket.id)
                 delete clients[socket.id];
@@ -247,14 +268,14 @@ function socketMain(nsp,client){
                     socket.broadcast.emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
                 }
             });
-/*            roomClientNum(nsp,roomName,function(num){
-                onlinesum = num;
-                if(roomName!=''){
-                    socket.broadcast.in(roomName).emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
-                }else{
-                    socket.broadcast.emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
-                }
-            });*/
+            /*            roomClientNum(nsp,roomName,function(num){
+             onlinesum = num;
+             if(roomName!=''){
+             socket.broadcast.in(roomName).emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
+             }else{
+             socket.broadcast.emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
+             }
+             });*/
         });
 
         /*用户发送消息*/
@@ -287,8 +308,6 @@ function socketMain(nsp,client){
 }
 
 
-
-
 function roomClientNum(nsp,room,callback){
     nsp.in(room).clients(function(error, clients){
         if (error) throw error;
@@ -296,4 +315,3 @@ function roomClientNum(nsp,room,callback){
         callback(clients.length);
     });
 }
-

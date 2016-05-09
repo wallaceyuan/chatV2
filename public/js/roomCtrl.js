@@ -125,7 +125,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         if($scope.message){
             socket.emit('createMessage',{
                 message:$scope.message,
-                type:'',up:0,down:0,
+                type:0,up:0,down:0,
                 perform:{
                     color:'red',fontSize:'16px'
                 },

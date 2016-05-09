@@ -3,6 +3,7 @@ var io = require('socket.io-client');
 var async = require('async');
 var xss = require('xss');
 var moment = require('moment');
+var emoji = require('emoji');
 
 var user = require('../task/user');
 var config = require('../task/config');
@@ -144,8 +145,8 @@ function popLogs(){
                 }else{
                     if(namBox[nsp]){
                         namBox[nsp].emit('redisCome',result);
-                        result.message = escape(xss(result.message));
-                        console.log(result.message);
+                        console.log('result.message',result.message);
+                        result.message = escape(xss(emoji.unifiedToText(result.message)));
                         user.messageToKu(result, function () {
                             console.log('-------------redisEmit all done-------------',res);
                         });
@@ -158,7 +159,6 @@ function popLogs(){
     });
 }
 
-
 function sleep(mils) {
     var now = new Date;
     while (new Date - now <= mils);
@@ -168,12 +168,11 @@ function sleep(mils) {
 
 function escape(html) {
     return String(html)
-        .replace(/[^\u0000-\uFFFF]/,"")
         .replace(/<[^>]+>/g,"")
-        .replace(/^\:[a-z0-9_]+\:$/g,"")
         .replace(/&(?!\w+;)/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;'); // IE􁀰不支持&apos;􀇄单引􀡽􀇅转义
 };
+
