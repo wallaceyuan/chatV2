@@ -1,9 +1,8 @@
 
 var io = require('socket.io-client');
 var async = require('async');
-var xss = require('xss');
 var moment = require('moment');
-var emoji = require('emoji');
+
 
 var user = require('../task/user');
 var config = require('../task/config');
@@ -24,39 +23,42 @@ var broadcast = io.connect(ip+'/broadcast', {reconnect: true});
 var namBox = {root:origin,chatroom:chatroom,live:live,vod:vod,wechat:wechat,broadcast:broadcast};
 
 
-/*var reqDomain = domain.create();
+var reqDomain = domain.create();
 reqDomain.on('error', function (err) {
-    console.log('reqDomain',err);
-    process.nextTick(compute);
+    console.log(err);
+    try {
+        var killTimer = setTimeout(function () {
+            process.exit(1);
+        }, 100);
+        killTimer.unref();
+    } catch (e) {
+        console.log('error when exit', e.stack);
+    }
 });
 reqDomain.run(function () {
-    process.nextTick(compute);
-});*/
+    compute();
+});
 
-compute();
-/*
+
 process.on('uncaughtException', function (err) {
     console.log(err);
     try {
         var killTimer = setTimeout(function () {
             process.exit(1);
-        }, 30000);
+        }, 100);
         killTimer.unref();
-        server.close();
     } catch (e) {
         console.log('error when exit', e.stack);
     }
 });
-*/
 
 function compute() {
-    var time = moment().unix();
     client.llen('message', function(error, count){
         if(error){
             console.log(error);
         }else{
             if(count){
-                console.log('-------------has count',time);
+                //console.log('-------------has count',time);
                 popLogs();
                 process.nextTick(compute);
             }else{
@@ -70,7 +72,8 @@ function compute() {
 }
 
 function popLogs(){
-    console.log('-------------deal-------------');
+    var time = moment().unix();
+    console.log('-------------deal-------------',time);
     client.rpop('message',function(err,result){
         if(err){
             console.log(err);
@@ -78,15 +81,14 @@ function popLogs(){
             var result = JSON.parse(result);
             try{
                 var place = result.place.split(':');
-                console.log('place',result.place);
+                //console.log('place',result.place);
             }catch(e){
                 console.log('空数据',result);
                 return;
             }
             var nsp = place[0],room = place[1];
-            var time = moment().unix();
-            console.log(' start '+' nsp: '+nsp +" room "+room + ' time: '+time);
             result.room = room;
+            console.log(' start '+' nsp: '+nsp +" room "+room + ' time: '+time);
             async.waterfall([
                 function(done){
                     console.log('sroom');
@@ -124,7 +126,6 @@ function popLogs(){
                     err.room = room;
                     err.socketid = result.socketid;
                     if(parseInt(err.status) == 702){
-                        result.message = escape(xss(emoji.unifiedToText(result.message)));
                         result.violate = 1;
                         user.messageToKu(result,function(){
                             if(namBox[nsp]){
@@ -144,10 +145,15 @@ function popLogs(){
                     }
                 }else{
                     if(namBox[nsp]){
-                        namBox[nsp].emit('redisCome',result);
-                        result.message = escape(xss(emoji.unifiedToText(result.message)));
-                        user.messageToKu(result, function () {
-                            console.log('-------------redisEmit all done-------------',res);
+                        var messageSave = result.message;
+                        user.messageToKu(result, function (err,data) {
+                            if(err){
+                                console.log(err);
+                            }else{
+                                result.message = messageSave;
+                                namBox[nsp].emit('redisCome',result);
+                                console.log('-------------redisEmit all done-------------',data);
+                            }
                         });
                     }else{
                         console.log('error namespace');
@@ -157,21 +163,4 @@ function popLogs(){
         }
     });
 }
-
-function sleep(mils) {
-    var now = new Date;
-    while (new Date - now <= mils);
-    status = true;
-
-}
-
-function escape(html) {
-    return String(html)
-        .replace(/<[^>]+>/g,"")
-        .replace(/&(?!\w+;)/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;'); // IE􁀰不支持&apos;􀇄单引􀡽􀇅转义
-};
 

@@ -25,15 +25,15 @@ var client = require("redis").createClient(6379, "knews-redis2.nrm01e.ng.0001.cn
         }
     }
 });*/
-pool.query('select * from kk_danmaku_violators where uid = ? ',[3832],function(err,rows){
+/*pool.query('select * from kk_danmaku_violators where uid = ? ',[3832],function(err,rows){
     if(err){
         console.log(err);
     }else{
         console.log(rows);
     }
-});
-/*
-client.keys('kkUserBlackoeaNrRAtC5MDV7XdB4W0NJGb6UmDgUZXp19wKC8wZr2kPevqFyR6g//TFCE31bcIdbxJHE/1bPoOMkHWdf76cksf8K6JcAPweEjHMdeVVAn9WRuB0XWZj9hCc9DxccE+oyDGX6fXh4KNQttziiOS6V262mZ5RE+0FlPWtU8a9LMNhWnpOlbZb4fGS0n0bg3LoUX+DIAVYgb9MLOB5syZVHl/eqz8BP1+BzYMA9NAoLNR4K8PwLfz6oJDtPDXCLi3BLiQGWGkz4ZeR1YWHGsHva5OTHKVgb/IeNtFfw+Tm4lyJB4tU0CP2yX7C847Ebp1HjT3mMQM7Ywi16WxENiQCBu8NDqE9yUzHNh60NHdUZ8RZLzYuh2IHgWuR2RtHLiGmsOu+X3o5ECuEIn/wJvF00M3xNoswmkrVoil9WqkfGpDInjsCzQLJLo5iDYCv6qjvWhgz79S1Zpjlr/VZ6WkUe8lHRILDKZimzJI3Tptm6Um0ZPDIksReI9QJSXEo4JHyjRldyrUNdMwIWRzXq4tOpUnASQE3+E6Hv1CHW+Zd+8t9NQ7SBjOtuRVMAkkiNUq6AshXAjv9CZwmMQXmQ5sbXdnmihPY4uq8ZGzTTCZL4A1rROeVq84Vu2RZlvjj6rzqHCmKGD/inocJwPVFT5XIOMzAl3N4K8cMXdABHzslVg=', function (err, obj) {
+});*/
+
+client.keys('kkUserBlackrcc4XdLDliJW/13Tapw3YJHk1IsCg/0Mg+LctcjeER//xeC/9BNNoVH0lDzTKnPeopFJTj+MRcnAsKosUiHrRiAXH//KbnHUwDqn3AtGrhiNGWj2BuzGwklneeymtcd4RTmFBfYPW8JlGjG4CjCcU2iX8bcfAQuP3wQD/U41T9KlWh8y8MWjGSNsXrXwy/L9cAkXd4NOYrUSpKQs+xhIk4K4HlVRasYvBLzKxBruSra7SaFbDJhCVEf80jxlgQJW0wLlDCgLKHFbbBOClGhM45Pl5MTM028S19KEgjalI5tE3C4PF7r9L29KpHjtB56iccHvCzbX6F2qTxrmnzTmdkNB6+bySVyBXYe3AYhJVp7pCy21O8BomouBzfG1dPr22YHgRLa2mrgbQaU9DEyP9RQjCoOQGQrtDu7s3HNvydFnuBKN4Q8CNU4B51+LMEVpzYFHMHaQQXmBkd7/sQjaJmYoGXj2KG1o5pi3EQUPsmCPRzw2mYYHaql0QKS23cKfjrufQ08YVJh8UbgKp7YjO6M+dA27OPmlzTPPNWE1TGVA8LxMzRFjJDfyD7WJj6CxgCp5ZH3iMHD44HicqMqUPWmlKis9G/Ok1j/zAd6itKsi5bDjC/z/fNdBwsPOEi9lS54nqE1MWJ0QaU+DpUbLgV27v/Wk1yV7JFtS+Ow5CVg=', function (err, obj) {
     if(err){
         console.log(err);
         res.send('err');
@@ -72,6 +72,5 @@ client.keys('kkUserBlackoeaNrRAtC5MDV7XdB4W0NJGb6UmDgUZXp19wKC8wZr2kPevqFyR6g//T
         }
     }
 });
-*/
 
 

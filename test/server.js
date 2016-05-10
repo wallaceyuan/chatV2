@@ -85,15 +85,39 @@ console.log(buf2.toString());*/
     password:'kankanewsaws2016',
     database:'kk_danmaku'
 });*/
-/*
 var pool = mysql.createPool({
-    host:'120.27.5.9',
+    host:'127.0.0.1',
     user:'root',
     password:'admin',
     database:'kk_danmaku',
-    connectTimeout:3000
+    connectTimeout:30000
 });
-*/
+
+
+var userData = {
+    "token": "oeaNrRAtC5MDV7XdB4W0NJGb6UmDgUZXp19wKC8wZr2kPevqFyR6g//TFCE31bcIdbxJHE/1bPoOMkHWdf76cksf8K6JcAPweEjHMdeVVAn9WRuB0XWZj9hCc9DxccE+oyDGX6fXh4KNQttziiOS6V262mZ5RE+0FlPWtU8a9LMNhWnpOlbZb4fGS0n0bg3LoUX+DIAVYgb9MLOB5syZVHl/eqz8BP1+BzYMA9NAoLNR4K8PwLfz6oJDtPDXCLi3BLiQGWGkz4ZeR1YWHGsHva5OTHKVgb/IeNtFfw+Tm4lyJB4tU0CP2yX7C847Ebp1HjT3mMQM7Ywi16WxENiQCBu8NDqE9yUzHNh60NHdUZ8RZLzYuh2IHgWuR2RtHLiGmsOu+X3o5ECuEIn/wJvF00M3xNoswmkrVoil9WqkfGpDInjsCzQLJLo5iDYCv6qjvWhgz79S1Zpjlr/VZ6WkUe8lHRILDKZimzJI3Tptm6Um0ZPDIksReI9QJSXEo4JHyjRldyrUNdMwIWRzXq4tOpUnASQE3+E6Hv1CHW+Zd+8t9NQ7SBjOtuRVMAkkiNUq6AshXAjv9CZwmMQXmQ5sbXdnmihPY4uq8ZGzTTCZL4A1rROeVq84Vu2RZlvjj6rzqHCmKGD/inocJwPVFT5XIOMzAl3N4K8cMXdABHzslVg=",
+    "opneid": "",
+    "id": "/live#vHKMiZ2ZSKXoreX6AAAW",
+    "room": "1",
+    "posterURL": "http://q.qlogo.cn/qqapp/1103880827/A0C6E87820CBA8AFC1ECF3308337E0D0/100",
+    "tel": "13671697034",
+    "uid": "3832",
+    "nickName": "移动手机号",
+    "onlinesum": 2
+}
+
+
+
+
+client.multi().HMSET('RoomPeopleDetaillive1',3832,JSON.stringify(userData)).expire('RoomPeopleDetaillive1',10).exec(function(err, replies){
+    if(err){
+        console.log(err);
+    }else{
+        console.log(replies);
+    }
+});
+
+
 
 /*
 var text = preg_replace_callback("/(\\\u[ed][0-9a-f]{3})/i",function($str){
@@ -136,12 +160,12 @@ var client = require("redis").createClient();
 */
 
 
-client.HMSET('kkUserroom112', {111:1111121212121},function(err, replies){
+/*client.HMSET('kkUserroom112', {111:1111121212121},function(err, replies){
     console.log("MULTI got " + replies.length + " replies");
 })
 client.HMSET('kkUserroom112', {22222:12222211121222222222221},function (err, replies) {
     console.log("MULTI got " + replies.length + " replies");
-});
+});*/
 /*client.HDEL('kkUserroom112',111,function(err, replies){
     console.log("MULTI got " + replies.length + " replies");
 });*/
@@ -162,6 +186,7 @@ client.HGETALL('kkUserroom112',function(err, obj){
 */
 
 
+/*
 client.llen('live1uers', function(error, count){
     if(error){
         console.log(error);
@@ -171,6 +196,7 @@ client.llen('live1uers', function(error, count){
         }
     }
 });
+*/
 
 
 

@@ -3,6 +3,8 @@
  */
 var request = require('request');
 var async = require('async');
+var xss = require('xss');
+var emoji = require('emoji');
 var debug = require('debug')('mysql:save');
 
 
@@ -29,32 +31,36 @@ exports.userViolatorRedis = function(data,callback){
 
 exports.userAllowedRedis  = function(data,callback){
     client.hgetall(data.token, function (err, obj) {
-        if(obj){
-            //console.log('getAllowed-you');
-            callback(null,obj);
-        }else {
-            //console.log('getAllowed-wu');
-            var codeOpt = {
-                uri: 'http://ums.kankanews.com/t/tokenValidate.do',
-                method: 'POST',
-                body : data.token,
-                headers: {'Content-Type': 'text/xml'}
-            };
-            request(codeOpt,function(err,res,body){
-                var body = JSON.parse(body);
-                if(parseInt(body.code) == 0){
-                    client.multi().HMSET(data.token, body).expire(data.token,3600).exec(function (err, replies) {
-                        if(err){
-                            console.log(err);
-                        }else{
-                            console.log("MULTI got " + replies.length + " replies");
-                        }
-                    });
-                    callback(null,body);
-                }else{
-                    callback({code:body.code,msg:body.msg},null);
-                }
-            });
+        if(err){
+            console.log(err);
+        }else{
+            if(obj){
+                //console.log('getAllowed-you');
+                callback(null,obj);
+            }else {
+                //console.log('getAllowed-wu');
+                var codeOpt = {
+                    uri: 'http://ums.kankanews.com/t/tokenValidate.do',
+                    method: 'POST',
+                    body : data.token,
+                    headers: {'Content-Type': 'text/xml'}
+                };
+                request(codeOpt,function(err,res,body){
+                    var body = JSON.parse(body);
+                    if(parseInt(body.code) == 0){
+                        client.multi().HMSET(data.token, body).expire(data.token,3600).exec(function (err, replies) {
+                            if(err){
+                                console.log(err);
+                            }else{
+                                console.log("MULTI got " + replies.length + " replies");
+                            }
+                        });
+                        callback(null,body);
+                    }else{
+                        callback({code:body.code,msg:body.msg},null);
+                    }
+                });
+            }
         }
     });
 }
@@ -102,33 +108,33 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
 
 exports.userValidateSql   = function(data,callback){
     client.hgetall('kkUserBlack'+data.token, function (err, obj) {
-        if(obj){
-            //console.log('kkUserBlack-you');
-            callback({status:700,msg:'被禁言用户'},null);
-        }else {
-            //console.log('kkUserBlack-wu');
-            pool.query('select id from kk_danmaku_violators where uid = ? and free = 0',[data.uid],function(err,rows){
-                if(err){
-                    console.log(err);
-                }else{
-                    if(rows.length>0){
-                        client.multi().HMSET('kkUserBlack'+data.token, {free:0}).expire('kkUserBlack'+data.token,3600).exec(function (err, replies) {
-                            console.log("MULTI got " + replies.length + " replies");
-                        });
-                        callback({status:700,msg:'被禁言用户'},null);
+        if(err){
+            console.log(err);
+        }else{
+            if(obj){//console.log('kkUserBlack-you');
+                callback({status:700,msg:'被禁言用户'},null);
+            }else {//console.log('kkUserBlack-wu');
+                pool.query('select id from kk_danmaku_violators where uid = ? and free = 0',[data.uid],function(err,rows){
+                    if(err){
+                        console.log(err);
                     }else{
-                        callback(null,{msg:'OK'});
+                        if(rows.length>0){
+                            client.multi().HMSET('kkUserBlack'+data.token, {free:0}).expire('kkUserBlack'+data.token,3600).exec(function (err, replies) {
+                                console.log("MULTI got " + replies.length + " replies");
+                            });
+                            callback({status:700,msg:'被禁言用户'},null);
+                        }else{
+                            callback(null,{msg:'OK'});
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     });
 }
 
 exports.messageValidate   = function(data,callback){
-
     var res = data.result,token = res.token;
-
     var codeOpt = {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         url: 'http://kankanews.cn-north-1.eb.amazonaws.com.cn/KKShielder',
@@ -140,7 +146,6 @@ exports.messageValidate   = function(data,callback){
     };
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);
-        //console.log('codeOpt',body,res.message+res.nickName,body.size,parseInt(body.size));
         if(parseInt(body.size) > 0){
             client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,3600).exec(function (err, replies) {
                 if(err){
@@ -149,11 +154,20 @@ exports.messageValidate   = function(data,callback){
                     console.log("kkUserBlack set");
                 }
             });
-            pool.query('replace into kk_danmaku_violators(uid,openid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?,?)',[res.uid,'',res.tel,res.nickName,res.posterURL,res.createTime,0],function(err,result){
+            console.log('validate',res.uid);
+            pool.query("update kk_danmaku_violators set free=0 where uid=?",[res.uid],function(err,result){
                 if(err){
                     console.log(err);
                 }else{
-                    console.log(result);
+                    if(result.changedRows == 0){
+                        pool.query('insert into kk_danmaku_violators(uid,openid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?,?)',[res.uid,'',res.tel,res.nickName,res.posterURL,res.createTime,0],function(err,result){
+                            if(err){
+                                console.log(err);
+                            }else{
+                                console.log(result);
+                            }
+                        });
+                    }
                 }
             });
             callback({status:702,msg:'存在敏感词'},null);
@@ -175,22 +189,34 @@ exports.messageDirty      = function(message,callback){
 }
 
 exports.messageToKu       = function(data,callback){
+
+    data.message = escape(xss(emoji.unifiedToText(data.message)));
     pool.query('select id from kk_danmaku_chatrooms where infoid = ?',[data.cid],function(err,rows){
         if(err){
             console.log(err);
-            callback();
+            callback(err,null);
         }else{
             pool.query('insert into kk_danmaku_message(cid,uid,openid,checked,violate,createTime,up,down,type,perform,message,nickName,posterURL) values(?,?,?,?,?,?,?,?,?,?,?,?,?)',[rows[0].id,data.uid,data.openid,0,data.violate,data.createTime,data.up,data.down,data.type,data.perform,data.message,data.nickName,data.posterURL],function(err,result){
                 if(err){
                     console.log(err);
-                    callback();
+                    callback(null,200);
                 }else{
                     console.log('insert success');
-                    callback();
+                    callback(null,200);
                 }
             });
         }
     });
 
 }
+
+function escape(html) {
+    return String(html)
+        .replace(/<[^>]+>/g,"")
+        .replace(/&(?!\w+;)/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;'); // IE􁀰不支持&apos;􀇄单引􀡽􀇅转义
+};
 
