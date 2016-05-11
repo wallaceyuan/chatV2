@@ -41,7 +41,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
 
         $scope.roomName = room;
 
-        socket.emit('userInit',{"room":"1","token":tokenBox[index]});
+        socket.emit('userInit',{"room":"144","token":tokenBox[index]});
 
         //socket.emit('userInit',{room:$scope.roomName});
     });

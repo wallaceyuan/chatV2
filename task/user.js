@@ -145,7 +145,7 @@ exports.messageValidate   = function(data,callback){
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);
         if(parseInt(body.size) > 0){
-            client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,3600).exec(function (err, replies) {
+            client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,600).exec(function (err, replies) {
                 if(err){
                     console.log(err);
                 }else{
