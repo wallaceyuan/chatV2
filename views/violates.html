@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="usersModule">
+<head>
+    <meta charset="UTF-8">
+    <title>violators</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.css">
+    <style>
+        .controller{
+            margin-top: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+<div class="controller col-md-5 col-md-offset-2" ng-controller="usersCtrl">
+    <div class="form-group">
+        <label>用户 手机号</label>
+        <input type="text" class="form-control" ng-model="token" required/>
+    </div>
+    <button class="btn btn-default" ng-click="deleteToken(token)" >确认删除</button>
+    <user-tip tip="tip" ng-show="show"></user-tip>
+</div>
+-->
+
+<div class="controller col-md-5 col-md-offset-2" ng-controller="tokenRCtrl as vm">
+    <div class="form-group">
+        <label>用户 手机号</label>
+        <input type="text" class="form-control" ng-model="vm.user.tel" required/>
+    </div>
+    <button class="btn btn-default" ng-click="vm.drToken()" >确认删除</button>
+    <user-tip tip="vm.tip" ng-show="vm.show"></user-tip>
+</div>
+
+<script src="/lib/jquery/dist/jquery.js"></script>
+<script src="/lib/angular/angular.js"></script>
+<script src="/lib/angular-resource/angular-resource.js"></script>
+
+<script type="text/javascript">
+
+    angular.module('usersModule', ['ngResource']);
+
+    angular.module('usersModule').factory('usersService', function ($http) {
+        return {
+            post: function (token) {
+                return $http.post('/violates/token', token);
+            }
+        }
+    });
+
+    angular.module('usersModule').controller('usersCtrl', function ($scope,$interval,usersService) {
+        $scope.token = '';
+        $scope.tip = '';
+        $scope.show = false;
+        $scope.deleteToken = function (token) {
+            usersService.post({tel:token}).success(function (data) {
+                $scope.tip = data.code;
+                $scope.show = true;
+                var timeoutId = $interval(function(){
+                    $scope.show = false;
+                    $interval.cancel(timeoutId);
+                },2000);
+            });
+        }
+    });
+
+    angular.module('usersModule').factory('userRService', function ($resource) {
+        /**
+         *  url 路径
+         *  路径参数
+         *  给返回值上添加自定义方法
+         */
+        return $resource('/violates/tokenR/:id', {id: '@id'}, {
+            update: {method: 'PUT'}
+        });
+    });
+
+    angular.module('usersModule').controller('tokenRCtrl', function ($scope,$interval,userRService) {
+        var vm = this;
+        vm.user = {};
+        vm.tip = '';
+        vm.show = false;
+        vm.drToken = function () {
+            userRService.save(vm.user).$promise.then(function(data){
+                vm.tip = data.code;
+                vm.show = true;
+                var timeoutId = $interval(function(){
+                    vm.show = false;
+                    $interval.cancel(timeoutId);
+                },2000);
+            });
+        }
+    });
+
+    angular.module('usersModule').directive('userTip',function(){
+        return {
+            scope:{
+                tip:'=tip'
+            },
+            template:'<div class="alert alert-warning" role="alert">{{tip}}</div>'
+        }
+    });
+
+</script>
+</body>
+</html>

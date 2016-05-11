@@ -94,7 +94,7 @@ var pool = mysql.createPool({
 });
 
 
-var userData = {
+/*var userData = {
     "token": "oeaNrRAtC5MDV7XdB4W0NJGb6UmDgUZXp19wKC8wZr2kPevqFyR6g//TFCE31bcIdbxJHE/1bPoOMkHWdf76cksf8K6JcAPweEjHMdeVVAn9WRuB0XWZj9hCc9DxccE+oyDGX6fXh4KNQttziiOS6V262mZ5RE+0FlPWtU8a9LMNhWnpOlbZb4fGS0n0bg3LoUX+DIAVYgb9MLOB5syZVHl/eqz8BP1+BzYMA9NAoLNR4K8PwLfz6oJDtPDXCLi3BLiQGWGkz4ZeR1YWHGsHva5OTHKVgb/IeNtFfw+Tm4lyJB4tU0CP2yX7C847Ebp1HjT3mMQM7Ywi16WxENiQCBu8NDqE9yUzHNh60NHdUZ8RZLzYuh2IHgWuR2RtHLiGmsOu+X3o5ECuEIn/wJvF00M3xNoswmkrVoil9WqkfGpDInjsCzQLJLo5iDYCv6qjvWhgz79S1Zpjlr/VZ6WkUe8lHRILDKZimzJI3Tptm6Um0ZPDIksReI9QJSXEo4JHyjRldyrUNdMwIWRzXq4tOpUnASQE3+E6Hv1CHW+Zd+8t9NQ7SBjOtuRVMAkkiNUq6AshXAjv9CZwmMQXmQ5sbXdnmihPY4uq8ZGzTTCZL4A1rROeVq84Vu2RZlvjj6rzqHCmKGD/inocJwPVFT5XIOMzAl3N4K8cMXdABHzslVg=",
     "opneid": "",
     "id": "/live#vHKMiZ2ZSKXoreX6AAAW",
@@ -104,11 +104,12 @@ var userData = {
     "uid": "3832",
     "nickName": "移动手机号",
     "onlinesum": 2
-}
+}*/
 
 
 
 
+/*
 client.multi().HMSET('RoomPeopleDetaillive1',3832,JSON.stringify(userData)).expire('RoomPeopleDetaillive1',10).exec(function(err, replies){
     if(err){
         console.log(err);
@@ -116,8 +117,21 @@ client.multi().HMSET('RoomPeopleDetaillive1',3832,JSON.stringify(userData)).expi
         console.log(replies);
     }
 });
+*/
+
+var html = '123   121212  1212';
+var aaa = String(html).replace(/\s/g,"");
+console.log(aaa);
 
 
+/*
+client.DEL('1212',function(err, obj){
+    if(obj){
+        console.log('BlackToken',obj);
+    }else{
+        console.log(err);
+    }
+});*/
 
 /*
 var text = preg_replace_callback("/(\\\u[ed][0-9a-f]{3})/i",function($str){

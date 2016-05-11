@@ -8,7 +8,7 @@ var client  = config.client;
 var pool  = config.pool;
 
 router.get('/',function(req, res, next) {
-    res.send('OK');
+    res.render('violates');
 });
 
 router.route('/token')
@@ -45,10 +45,18 @@ router.route('/token')
                 res.send('删除失败');
             }
         });
+    })
+    .post(function(req,res,next){
+        logical(req,res);
+    });
+
+router.route('/tokenR')
+    .post(function(req,res){
+        logical(req,res);
     });
 
 
-router.route('/tokenAll')
+/*router.route('/tokenAll')
     .get(function(req, res,next) {
         client.keys('kkUserBlack*', function (err, obj) {
             if(err){
@@ -90,7 +98,49 @@ router.route('/tokenAll')
                 res.send('ok');
             }
         });
-    });
+    });*/
 
+
+function logical(req,res){
+    var telreceive = req.body.tel;
+    console.log('telreceive',telreceive);
+    client.keys('kkUserBlack*', function (err, obj) {
+        if(err){
+            res.send(err);
+        }else{
+            if(obj.length > 0){
+                for(var i = 0;i<obj.length;i++){
+                    var userBlackToken  = obj[i];
+                    var token = obj[i].split('kkUserBlack')[1];
+                    client.hgetall(token, function (err, result) {
+                        if(err){
+                            res.send(err);
+                        }else{
+                            if(result){
+                                var tel = JSON.parse(result.data).tel;
+                                console.log(tel);
+                                if(tel == telreceive){
+                                    client.DEL(userBlackToken,function(er, rs){
+                                        if(obj){
+                                            res.send({code:'删除成功'});
+                                        }else{
+                                            res.send(er);
+                                        }
+                                    });
+                                }else{
+                                    res.send({code:'没有这个token'});
+                                }
+                            }else {
+                                res.send({code:'没有这个token'});
+                            }
+                        }
+                    });
+                }
+            }else{
+                res.send({code:'没有这个缓存'});
+            }
+        }
+    });
+}
 
 module.exports = router;

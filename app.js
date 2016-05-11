@@ -135,30 +135,30 @@ var client = config.client;
 
 if(port == 3000){
   client.keys('KKDanMaKuOnlineUser*', function (err, obj) {
-    if(err){
-      console.log(err);
-      res.send('err');
-      return;
-    }else{
-      if(obj.length > 0){
-        for(var i = 0;i<obj.length;i++){
-          client.set(obj[i],'');
-        }
+      if(err){
+          console.log(err);
+          res.send('err');
+          return;
+      }else{
+          if(obj.length > 0){
+              for(var i = 0;i<obj.length;i++){
+                  client.set(obj[i],'');
+              }
+          }
       }
-    }
   });
 
   client.keys('RoomPeopleDetail*', function (err, obj) {
-    if(err){
-      console.log(err);
-      res.send('err');
-      return;
-    }else{
-      if(obj.length > 0){
-        for(var i = 0;i<obj.length;i++){
-          client.DEL(obj[i]);
-        }
+      if(err){
+          console.log(err);
+          res.send('err');
+          return;
+      }else{
+          if(obj.length > 0){
+              for(var i = 0;i<obj.length;i++){
+                  client.DEL(obj[i]);
+              }
+          }
       }
-    }
   });
 }

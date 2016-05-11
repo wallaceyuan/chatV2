@@ -119,7 +119,7 @@ exports.userValidateSql   = function(data,callback){
                         console.log(err);
                     }else{
                         if(rows.length>0){
-                            client.multi().HMSET('kkUserBlack'+data.token, {free:0}).expire('kkUserBlack'+data.token,3600).exec(function (err, replies) {
+                            client.multi().HMSET('kkUserBlack'+data.token, {free:0}).expire('kkUserBlack'+data.token,600).exec(function (err, replies) {
                                 console.log("MULTI got " + replies.length + " replies");
                             });
                             callback({status:700,msg:'被禁言用户'},null);
@@ -139,10 +139,8 @@ exports.messageValidate   = function(data,callback){
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         url: 'http://kankanews.cn-north-1.eb.amazonaws.com.cn/KKShielder',
         method: 'POST',
-/*
-        body:"words="+res.message+res.nickName,
-*/
-        body:"words="+res.message
+        body:"words="+res.message+res.nickName/*,
+        body:"words="+res.message*/
     };
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);

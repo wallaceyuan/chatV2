@@ -32,11 +32,15 @@ function socketMain(nsp,client){
             NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
 
         socket.on('userInit',function(data){//监听 客户端的消息
+            console.log('data-------------------------'+data);
+            console.log('token-------------------------'+data.token);
+            console.log('nsp-------------------------'+nsp.name);
+            console.log('room-------------------------'+data.room);
+
             if(nsp == null || data.token == null || data.room == null){
                 socket.emit('message.error',{status: 705, msg: "参数传入错误"});
                 return;
             }
-
             key = keyPrim+NSP+data.room;
             keyRoom = 'RoomPeopleDetail'+NSP+data.room;
 
@@ -258,6 +262,8 @@ function socketMain(nsp,client){
                 for(var item in data2){
                     data[item]=data2[item];
                 }
+
+                data.message = String(data.message).replace(/\s/g,"");
                 console.log('socketid',data.socketid,'message',data.message);
                 if(data.perform){
                     try{
