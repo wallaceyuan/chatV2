@@ -56,6 +56,9 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }
         $scope.onlines = data.users;
         $scope.onlinesum = data.onlinesum;
+
+
+        console.log($scope.onlines);
     });
 
     socket.on('userStatus',function(data){

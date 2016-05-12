@@ -93,6 +93,14 @@ var pool = mysql.createPool({
     connectTimeout:30000
 });
 
+var key = '3832time1463020538';
+
+if(!key.match(/time/)){
+    console.log('wu');
+}else{
+    console.log('you',key.match(/time/));
+}
+
 
 /*var userData = {
     "token": "oeaNrRAtC5MDV7XdB4W0NJGb6UmDgUZXp19wKC8wZr2kPevqFyR6g//TFCE31bcIdbxJHE/1bPoOMkHWdf76cksf8K6JcAPweEjHMdeVVAn9WRuB0XWZj9hCc9DxccE+oyDGX6fXh4KNQttziiOS6V262mZ5RE+0FlPWtU8a9LMNhWnpOlbZb4fGS0n0bg3LoUX+DIAVYgb9MLOB5syZVHl/eqz8BP1+BzYMA9NAoLNR4K8PwLfz6oJDtPDXCLi3BLiQGWGkz4ZeR1YWHGsHva5OTHKVgb/IeNtFfw+Tm4lyJB4tU0CP2yX7C847Ebp1HjT3mMQM7Ywi16WxENiQCBu8NDqE9yUzHNh60NHdUZ8RZLzYuh2IHgWuR2RtHLiGmsOu+X3o5ECuEIn/wJvF00M3xNoswmkrVoil9WqkfGpDInjsCzQLJLo5iDYCv6qjvWhgz79S1Zpjlr/VZ6WkUe8lHRILDKZimzJI3Tptm6Um0ZPDIksReI9QJSXEo4JHyjRldyrUNdMwIWRzXq4tOpUnASQE3+E6Hv1CHW+Zd+8t9NQ7SBjOtuRVMAkkiNUq6AshXAjv9CZwmMQXmQ5sbXdnmihPY4uq8ZGzTTCZL4A1rROeVq84Vu2RZlvjj6rzqHCmKGD/inocJwPVFT5XIOMzAl3N4K8cMXdABHzslVg=",
