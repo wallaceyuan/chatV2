@@ -265,8 +265,8 @@ function socketMain(nsp,client){
                     console.log(err);
                 }else{
                     if(obj){
-                        for(var key in obj){
-                            if(key.split('time')[0] == queryLey){
+                        for(var keypeople in obj){
+                            if(keypeople.split('time')[0] == queryLey){
                                 quweyFlag = false;
                             }
                         }
