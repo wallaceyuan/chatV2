@@ -119,10 +119,10 @@ function socketMain(nsp,client){
                     });
                     if(judge.length > 0){
                         userCode = uif.uid+'time'+moment().unix();
-                        users = users.filter(function(user){
+/*                        users = users.filter(function(user){
                             if(user)
                                 return roomName == user.room && uif.uid != user.uid;
-                        });
+                         });*/
                         userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
                             tel:uif.tel,uid:uif.uid,nickName:userName,onlinesum:onlinesum};
                         emitUserInit(userData,userCode,userName,uif,socket);
@@ -133,6 +133,7 @@ function socketMain(nsp,client){
                             onlinesum = val;
                             userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
                                 tel:uif.tel,uid:uif.uid,nickName:userName,onlinesum:onlinesum};
+                            users.push(userData);
                             if(roomName!=''){
                                 socket.broadcast.in(roomName).emit('joinChat',userData);
                             }else{
@@ -236,15 +237,17 @@ function socketMain(nsp,client){
 
         /*用户下线*/
         socket.on('disconnect', function () {
+
+            var quweyFlag = true;
+
             if(!userData){
                 return
             }
-
             client.HDEL(keyRoom,userCode,function(err, replies){
                 if(err){
                     console.log(err);
                 }else{
-                    console.log(replies);
+                    console.log('userCode',userCode,replies);
                 }
             });
 
@@ -255,17 +258,32 @@ function socketMain(nsp,client){
 
             socket.leave(roomName);
 
-            if(!userCode.match(/time/)){
-                client.decr(key, function(error, val){
-                    if(parseInt(val) < 1) client.set(key, 1);
-                    onlinesum = val;
-                    if(roomName!=''){
-                        socket.broadcast.in(roomName).emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
-                    }else{
-                        socket.broadcast.emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
+            var queryLey = userCode.split('time')[0];
+
+            client.HGETALL(keyRoom,function(err, obj){
+                if(err){
+                    console.log(err);
+                }else{
+                    if(obj){
+                        for(var key in obj){
+                            if(key.split('time')[0] == queryLey){
+                                quweyFlag = false;
+                            }
+                        }
                     }
-                });
-            }
+                }
+                if(quweyFlag){
+                    client.decr(key, function(error, val){
+                        if(parseInt(val) < 1) client.set(key, 1);
+                        onlinesum = val;
+                        if(roomName!=''){
+                            socket.broadcast.in(roomName).emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
+                        }else{
+                            socket.broadcast.emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
+                        }
+                    });
+                }
+            });
         });
 
     });
@@ -273,7 +291,6 @@ function socketMain(nsp,client){
 
 
 function emitUserInit(userData,userCode,userName,uif,socket){
-    users.push(userData);
     client.HMSET(keyRoom,userCode,JSON.stringify(userData),function(err, replies){
         if(err){
             console.log(err);

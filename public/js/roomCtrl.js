@@ -113,7 +113,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         $scope.world = msg;$scope.onlinesum = msg.onlinesum;
         $scope.onlines = $scope.onlines.filter(function(user){
             if(user)
-                return user.id != msg.id;
+                return user.nickName != msg.user;
         });
 
         var timer = $timeout(function() {

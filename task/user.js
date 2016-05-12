@@ -119,7 +119,7 @@ exports.userValidateSql   = function(data,callback){
                         console.log(err);
                     }else{
                         if(rows.length>0){
-                            client.multi().HMSET('kkUserBlack'+data.token, {free:0}).expire('kkUserBlack'+data.token,600).exec(function (err, replies) {
+                            client.multi().HMSET('kkUserBlack'+data.token, {free:0}).expire('kkUserBlack'+data.token,30).exec(function (err, replies) {
                                 console.log("MULTI got " + replies.length + " replies");
                             });
                             callback({status:700,msg:'被禁言用户'},null);
@@ -145,7 +145,7 @@ exports.messageValidate   = function(data,callback){
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);
         if(parseInt(body.size) > 0){
-            client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,600).exec(function (err, replies) {
+            client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,30).exec(function (err, replies) {
                 if(err){
                     console.log(err);
                 }else{
