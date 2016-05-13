@@ -37,8 +37,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
 
         var tokenBox = [tone,ttwo,tthree];
 
-        console.log(tokenBox[index]);
-
         $scope.roomName = room;
 
         socket.emit('userInit',{"room":"144","token":tokenBox[index]});
@@ -56,9 +54,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }
         $scope.onlines = data.users;
         $scope.onlinesum = data.onlinesum;
-
-
-        console.log($scope.onlines);
     });
 
     socket.on('userStatus',function(data){

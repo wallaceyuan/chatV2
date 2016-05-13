@@ -9,6 +9,17 @@ var emoji = require('emoji');
 
 
 var client = require("redis").createClient();
+client.keys('*', function (err, obj) {
+    if(err){
+        console.log(err);
+    }else{
+        if(obj.length > 0){
+            for(var i = 0;i<obj.length;i++){
+                console.log(obj[i]);
+            }
+        }
+    }
+});
 
 
 

@@ -142,7 +142,8 @@ if(port == 3000){
       }else{
           if(obj.length > 0){
               for(var i = 0;i<obj.length;i++){
-                  client.set(obj[i],'');
+                  client.DEL(obj[i]);
+                  //client.set(obj[i],'');
               }
           }
       }

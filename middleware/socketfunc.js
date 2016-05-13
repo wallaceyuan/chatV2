@@ -40,6 +40,7 @@ function socketMain(nsp,client){
                 socket.emit('message.error',{status: 705, msg: "参数传入错误"});
                 return;
             }
+
             key = keyPrim+NSP+data.room;
             keyRoom = 'RoomPeopleDetail'+NSP+data.room;
 
@@ -139,6 +140,7 @@ function socketMain(nsp,client){
                             }else{
                                 socket.broadcast.emit('joinChat',userData);
                             }
+
                             emitUserInit(userData,userCode,userName,uif,socket);
                         });
                     }
@@ -152,10 +154,12 @@ function socketMain(nsp,client){
         socket.on('subscribe', function(data) {
             roomID = data.room;
             if(roomID == "" || roomID == null){
+                socket.emit('joinMessage',{"msg":302});
                 //console.log("empty Room");
             }else{
                 socket.join(data.room);
-                // console.log(socket.id,'subscribe',roomID);
+                socket.emit('joinMessage',{"msg":200});
+                console.log(nsp.name,socket.id,'subscribe',roomID);
             }
         });
 
@@ -286,6 +290,17 @@ function socketMain(nsp,client){
             });
         });
 
+        socket.on('getOnline',function(){
+            client.get(key, function(error, val){
+                if(parseInt(val) < 1){
+                    client.set(key, 1);
+                    onlinesum = 1;
+                }else{
+                    onlinesum = parseInt(val);
+                }
+            });
+            socket.emit('OnlineNum',onlinesum);
+        });
     });
 }
 

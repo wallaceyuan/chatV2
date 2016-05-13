@@ -20,7 +20,7 @@ exports.userViolatorRedis = function(data,callback){
         }else{
             if(obj){
                 console.log('getViolator-you');
-                callback({code:700,msg:'被禁言用户'},null);
+                callback({"code":700,"msg":'被禁言用户'},null);
             }else {
                 console.log('getViolator-wu');
                 callback(null,0);
@@ -57,7 +57,7 @@ exports.userAllowedRedis  = function(data,callback){
                         });
                         callback(null,body);
                     }else{
-                        callback({code:body.code,msg:body.msg},null);
+                        callback({"code":body.code,"msg":body.msg},null);
                     }
                 });
             }
@@ -78,12 +78,12 @@ exports.userRoomIn = function(data,callback){
                     return room == user.room && uid == user.uid;
             });
             if(judge.length > 0){
-                callback({code:704,msg:'用户在同一个命名空间下的房间内重复登录'},null);
+                callback({"code":704,"msg":'用户在同一个命名空间下的房间内重复登录'},null);
             }else{
                 callback(null,0);
             }
         }else{
-            callback({code:704,msg:'用户在同一个命名空间下的房间内重复登录'},null);
+            callback({"code":704,"msg":'用户在同一个命名空间下的房间内重复登录'},null);
         }
     }
 }
@@ -100,7 +100,7 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
             if(rows.length>0){
                 callback(null,rows[0]);
             }else{
-                callback({status:701,msg:'没有对应开放的聊天室'},null);
+                callback({"status":701,"msg":'没有对应开放的聊天室'},null);
             }
         }
     });
@@ -112,19 +112,19 @@ exports.userValidateSql   = function(data,callback){
             console.log(err);
         }else{
             if(obj){//console.log('kkUserBlack-you');
-                callback({status:700,msg:'被禁言用户'},null);
+                callback({"status":700,"msg":'被禁言用户'},null);
             }else {//console.log('kkUserBlack-wu');
                 pool.query('select id from kk_danmaku_violators where uid = ? and free = 0',[data.uid],function(err,rows){
                     if(err){
                         console.log(err);
                     }else{
                         if(rows.length>0){
-                            client.multi().HMSET('kkUserBlack'+data.token, {free:0}).expire('kkUserBlack'+data.token,30).exec(function (err, replies) {
+                            client.multi().HMSET('kkUserBlack'+data.token, {free:0}).expire('kkUserBlack'+data.token,600).exec(function (err, replies) {
                                 console.log("MULTI got " + replies.length + " replies");
                             });
-                            callback({status:700,msg:'被禁言用户'},null);
+                            callback({"status":700,"msg":'被禁言用户'},null);
                         }else{
-                            callback(null,{msg:'OK'});
+                            callback(null,{"msg":'OK'});
                         }
                     }
                 });
@@ -145,7 +145,7 @@ exports.messageValidate   = function(data,callback){
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);
         if(parseInt(body.size) > 0){
-            client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,30).exec(function (err, replies) {
+            client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,600).exec(function (err, replies) {
                 if(err){
                     console.log(err);
                 }else{
@@ -168,7 +168,7 @@ exports.messageValidate   = function(data,callback){
                     }
                 }
             });
-            callback({status:702,msg:'存在敏感词'},null);
+            callback({"status":702,"msg":'存在敏感词'},null);
         }else{
             callback(null,0);
         }
@@ -180,7 +180,7 @@ exports.messageDirty      = function(message,callback){
     var re = /select|update|delete|exec|count|=|;|>|<|%/i;
     if (re.test(message.msg)) {//特殊字符和SQL关键字
         //console.log('存在特殊字符');
-        callback({status:703,msg:'存在特殊字符'},null);
+        callback({"status":703,"msg":'存在特殊字符'},null);
     }else{
         callback(null,0);
     }

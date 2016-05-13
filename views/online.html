@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<div class="controller">
+    <h1>online</h1>
+</div>
+<script src="http://127.0.0.1:3000/socket.io/socket.io.js"></script>
+
+<script src="../public/lib/jquery/dist/jquery.js"></script>
+<script src="../public/lib/angular/angular.js"></script>
+<script>
+    var socket = io.connect('http://127.0.0.1:3000/live');
+
+    socket.on('connect', function(){
+        socket.emit('subscribe',{room:144});
+    });
+
+    socket.on('joinMessage',function(data){
+        if(data.msg == 200){
+            socket.emit('getOnline');
+        }
+    });
+
+    socket.on('OnlineNum',function(data){
+        console.log(data);
+    });
+
+    socket.on('joinChat',function(msg){
+        console.log(msg);
+    });
+
+    socket.on('people.del',function(msg){
+        console.log('people.del',msg);
+    });
+
+</script>
+
+</body>
+</html>
