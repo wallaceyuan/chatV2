@@ -134,6 +134,9 @@ var config = require('./task/config');
 var client = config.client;
 
 if(port == 3000){
+
+  client.DEL('KKDanMaKuRoomKey');
+
   client.keys('KKDanMaKuOnlineUser*', function (err, obj) {
       if(err){
           console.log(err);
@@ -143,7 +146,6 @@ if(port == 3000){
           if(obj.length > 0){
               for(var i = 0;i<obj.length;i++){
                   client.DEL(obj[i]);
-                  //client.set(obj[i],'');
               }
           }
       }

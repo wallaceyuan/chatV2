@@ -13,7 +13,9 @@ var users = [];//在线users
 var clients = [];//在线socket
 
 
-var roomKey ='KKDanMaKuRoomKey';
+var keyPrim     = "KKDanMaKuOnlineUser";
+var key = '';//在线人数key
+var keyRoom = '';//房间人数key
 var client  = config.client;
 
 exports.socketHallFuc = function(nsp,client) {
@@ -26,29 +28,27 @@ function socketMain(nsp,client){
             return
         }
         var userCode;//userCode-key for redis room people
-        var black = false,roomName = '',userData,userName,keyPrim="KKDanMaKuOnlineUser",key='',keyRoom='',
+        var black = false,roomName = '',userData,userName,
             NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
 
         socket.on('userInit',function(data){//监听 客户端的消息
+/*            console.log('token-----------------------'+data.token);
+            console.log('nsp-------------------------'+nsp.name);
+            console.log('room------------------------'+data.room);*/
 
             if(nsp == null || data.token == null || data.room == null){
                 socket.emit('message.error',{status: 705, msg: "参数传入错误"});
                 return;
             }
-
             key = keyPrim+NSP+data.room;
             keyRoom = 'RoomPeopleDetail'+NSP+data.room;
 
-            client.HMGET(roomKey,key, function(error, val){
-                if(error){
-                    console.log(error);
+            client.get(key, function(error, val){
+                if(parseInt(val) < 1){
+                    client.set(key, 1);
+                    onlinesum = 1;
                 }else{
-                    if(parseInt(val[0]) < 1 ||val[0] == null ){
-                        client.HMSET(roomKey,key, 1);
-                        onlinesum = 1;
-                    }else{
-                        onlinesum = parseInt(val[0]);
-                    }
+                    onlinesum = parseInt(val);
                 }
             });
 
@@ -119,12 +119,16 @@ function socketMain(nsp,client){
                     });
                     if(judge.length > 0){
                         userCode = uif.uid+'time'+moment().unix();
+/*                        users = users.filter(function(user){
+                            if(user)
+                                return roomName == user.room && uif.uid != user.uid;
+                         });*/
                         userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
                             tel:uif.tel,uid:uif.uid,nickName:userName,onlinesum:onlinesum};
-                        emitUserInit(keyRoom,userData,userCode,userName,uif,socket);
+                        emitUserInit(userData,userCode,userName,uif,socket);
                         return;
                     }else{
-                        client.HINCRBY(roomKey,key,1, function(error, val){
+                        client.incr(key, function(error, val){
                             userCode = uif.uid;
                             onlinesum = val;
                             userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
@@ -135,8 +139,7 @@ function socketMain(nsp,client){
                             }else{
                                 socket.broadcast.emit('joinChat',userData);
                             }
-
-                            emitUserInit(keyRoom,userData,userCode,userName,uif,socket);
+                            emitUserInit(userData,userCode,userName,uif,socket);
                         });
                     }
                 }
@@ -149,12 +152,10 @@ function socketMain(nsp,client){
         socket.on('subscribe', function(data) {
             roomID = data.room;
             if(roomID == "" || roomID == null){
-                socket.emit('joinMessage',{"msg":302});
                 //console.log("empty Room");
             }else{
                 socket.join(data.room);
-                socket.emit('joinMessage',{"msg":200});
-                console.log(nsp.name,socket.id,'subscribe',roomID);
+                // console.log(socket.id,'subscribe',roomID);
             }
         });
 
@@ -221,7 +222,7 @@ function socketMain(nsp,client){
                     data[item]=data2[item];
                 }
 
-                data.message = String(data.message).trim();
+                data.message = String(data.message).replace(/\s/g,"");
                 console.log('socketid',data.socketid,'message',data.message);
                 if(data.perform){
                     try{
@@ -236,8 +237,6 @@ function socketMain(nsp,client){
 
         /*用户下线*/
         socket.on('disconnect', function () {
-
-            console.log(roomName);
 
             var quweyFlag = true;
 
@@ -274,7 +273,7 @@ function socketMain(nsp,client){
                     }
                 }
                 if(quweyFlag){
-                    client.HINCRBY(roomKey, key,-1,function(error, val){
+                    client.decr(key, function(error, val){
                         if(parseInt(val) < 1) client.set(key, 1);
                         onlinesum = val;
                         if(roomName!=''){
@@ -287,26 +286,11 @@ function socketMain(nsp,client){
             });
         });
 
-        socket.on('getOnline',function(){
-            client.HMGET(roomKey,key, function(error, val){
-                if(error){
-                    console.log(error);
-                }else{
-                    if(parseInt(val[0]) < 1 ||val[0] == null ){
-                        client.HMSET(roomKey,key, 1);
-                        onlinesum = 1;
-                    }else{
-                        onlinesum = parseInt(val[0]);
-                    }
-                }
-            });
-            socket.emit('OnlineNum',onlinesum);
-        });
     });
 }
 
 
-function emitUserInit(keyRoom,userData,userCode,userName,uif,socket){
+function emitUserInit(userData,userCode,userName,uif,socket){
     client.HMSET(keyRoom,userCode,JSON.stringify(userData),function(err, replies){
         if(err){
             console.log(err);

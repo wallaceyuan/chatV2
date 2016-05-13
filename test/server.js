@@ -9,7 +9,12 @@ var emoji = require('emoji');
 
 
 var client = require("redis").createClient();
-client.keys('*', function (err, obj) {
+
+var sss = '   21212      dsdsds             ';
+var aasss = String(sss).trim();
+
+console.log(aasss);
+/*client.keys('*', function (err, obj) {
     if(err){
         console.log(err);
     }else{
@@ -19,10 +24,39 @@ client.keys('*', function (err, obj) {
             }
         }
     }
+});*/
+/*client.HMGET('KKDanMaKuRoomKey','KKDanMaKuOnlineUserlive144', function(error, val){
+    if(error){
+        console.log(error);
+    }else{
+        console.log(val);
+    }
 });
 
-
-
+client.HINCRBY('KKDanMaKuRoomKey','KKDanMaKuOnlineUserlive144', 1, function(error, val){
+    if(error){
+        console.log(error);
+    }else{
+        console.log(val);
+    }
+});*/
+/*client.keys('KKDanMaKuOnlineUser*', function (err, obj) {
+    if(err){
+        console.log(err);
+        res.send('err');
+        return;
+    }else{
+        console.log(obj);
+        if(obj.length > 0){
+            for(var i = 0;i<obj.length;i++){
+                console.log(obj[i]);
+                client.DEL(obj[i],function(err,val){
+                    console.log(val);
+                });
+            }
+        }
+    }
+});*/
 /*
 console.log('12222😘121212', emoji.unifiedToText('12222😘12222'));
 var aaa = emoji.unifiedToHTML('😘');
