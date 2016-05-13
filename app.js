@@ -135,8 +135,6 @@ var client = config.client;
 
 if(port == 3000){
 
-  client.DEL('KKDanMaKuRoomKey');
-
   client.keys('KKDanMaKuOnlineUser*', function (err, obj) {
       if(err){
           console.log(err);
