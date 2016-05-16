@@ -64,18 +64,17 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     socket.on('joinChat',function(msg){
         console.log('joinChat',msg);
         var user = msg;
-        $scope.ws = '';$scope.wss = '';
-        $scope.world = {user:user.nickName,content:'上线了'};
-        $scope.onlines.push(user);
         $scope.onlinesum = msg.onlinesum;
-
-        $timeout.cancel($scope.promise);
-
-        var timer = $timeout(function() {
-            $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
-            $timeout.cancel(timer);
-        }, 3000);
-
+        if(msg.id){
+            $scope.ws = '';$scope.wss = '';
+            $scope.world = {user:user.nickName,content:'上线了'};
+            $scope.onlines.push(user);
+            $timeout.cancel($scope.promise);
+            var timer = $timeout(function() {
+                $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
+                $timeout.cancel(timer);
+            }, 3000);
+        }
     });
 
     socket.on('message.add',function(msg){
@@ -104,17 +103,19 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     });
 
     socket.on('people.del',function(msg){
-        $scope.ws = '';$scope.wss = '';
         $scope.world = msg;$scope.onlinesum = msg.onlinesum;
-        $scope.onlines = $scope.onlines.filter(function(user){
-            if(user)
-                return user.nickName != msg.user;
-        });
+        if(msg.user){
+            $scope.ws = '';$scope.wss = '';
+            $scope.onlines = $scope.onlines.filter(function(user){
+                if(user)
+                    return user.nickName != msg.user;
+            });
+            var timer = $timeout(function() {
+                $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
+                $timeout.cancel(timer);
+            }, 3000);
+        }
 
-        var timer = $timeout(function() {
-            $scope.ws = 'messenger-empty';$scope.wss = 'messenger-hidden';
-            $timeout.cancel(timer);
-        }, 3000);
     });
 
     socket.on('disconnect',function(){
@@ -129,7 +130,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
                 type:0,up:0,down:0,
                 perform:{
                     color:'red',fontSize:'16px'
-                },
+                }
             });
             $scope.message = '';
         }
