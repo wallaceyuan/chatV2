@@ -3,40 +3,276 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
+    <style type="text/css">
+        body{background:#f3f3f3;text-align:center;}
+        span{padding:10px;border-radius:10px;background:rgba(39,39,169,.82);color:#fff;font-size:13px;cursor:pointer;}
+        #all,#main{margin:0 auto;}
+        #all{margin-top:20px;}
+    </style>
 </head>
 <body>
 <div class="controller">
     <h1>online</h1>
+    <p></p>
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <span>点击生成全部数据</span>
+    <div id="all" style="width: 600px;height:400px;"></div>
 </div>
-<script src="http://127.0.0.1:3000/socket.io/socket.io.js"></script>
-
+<script src="http://danmaku.kankanews.com/socket.io/socket.io.js"></script>
 <script src="../public/lib/jquery/dist/jquery.js"></script>
 <script src="../public/lib/angular/angular.js"></script>
+<script src="../public/js/echarts.js"></script>
+
 <script>
-    var socket = io.connect('http://127.0.0.1:3000/live');
-
+    var socket = io.connect('http://danmaku.kankanews.com/live');
+    var keyPrim     = "KKDanMaKuOnlineUser";
+    var liveid = GetQueryString('liveid');
+    if(liveid == null){
+        liveid = 144;
+    }
+    var key = keyPrim+'live'+liveid;
     socket.on('connect', function(){
-        socket.emit('subscribe',{room:144});
+        socket.emit('subscribe',{room:liveid});
     });
-
-    socket.on('joinMessage',function(data){
-        if(data.msg == 200){
-            socket.emit('getOnline');
-        }
-    });
-
-    socket.on('OnlineNum',function(data){
+    socket.emit('onlineRequest',{key:key});
+    socket.on('giveOnline',function(data){
         console.log(data);
+        changeDate(data.onlinesum);
+        $('p').html(data.onlinesum);
+    });
+    socket.on('joinChat',function(data){
+        console.log(data);
+        changeDate(data.onlinesum);
+
+        $('p').html(data.onlinesum);
+    });
+    socket.on('people.del',function(data){
+        console.log(data);
+        changeDate(data.onlinesum);
+
+        $('p').html(data.onlinesum);
     });
 
-    socket.on('joinChat',function(msg){
-        console.log(msg);
+
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    var timeCounter = null;
+    var date = [],data = [],dataAll = [],dateAll = [],now = new Date();
+
+    function addData(shift,dataSocket) {
+        now = (new Date()).toLocaleTimeString().replace(/^\D*/,'');
+        date.push(now);
+        data.push(dataSocket);
+        dateAll.push(now);
+        dataAll.push(dataSocket);
+        if (shift) {
+            date.shift();
+            data.shift();
+        }
+    }
+
+    date = (function (){
+        var now = new Date();
+        var res = [];
+        var len = 50;
+        while (len--) {
+            res.unshift(now.toLocaleTimeString().replace(/^\D*/,''));
+            now = new Date(now - 2000);
+        }
+        return res;
+    })();
+
+    data=(function (){
+        var res = [];
+        var len = 50;
+        while (len--) {
+            //res.push((Math.random()*10 + 5).toFixed(1) - 0);
+            res.push(0);
+        }
+        return res;
+    })();
+    option = {
+        tooltip: {
+            trigger: 'axis'
+        },
+        title: {
+            left: 'center',
+            text: '实时数据量折线图',
+        },
+        legend: {
+            top: 'bottom',
+            data:['意向']
+        },
+        toolbox: {
+            show: true,
+            feature: {
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: date
+        },
+        yAxis: {
+            boundaryGap: [0, '50%'],
+            type: 'value'
+        },
+        series: [
+            {
+                name:'人数',
+                type:'line',
+                smooth:true,
+                symbol: 'none',
+                stack: 'a',
+                areaStyle: {
+                    normal: {}
+                },
+                data: data
+            }
+        ]
+    };
+
+    function changeDate(dataSocket){
+        addData(true,dataSocket);
+        myChart.setOption({
+            xAxis: {
+                data: date
+            },
+            series: [{
+                name:'人数',
+                data: data
+            }]
+        });
+    }
+
+    // 使用刚指定的配置项和数据显示图表。
+
+    myChart.setOption(option);
+
+    var allChart = echarts.init(document.getElementById('all'));
+    alloption = {
+        tooltip: {
+            trigger: 'axis'
+        },
+        title: {
+            left: 'center',
+            text: '全部数据量折线图',
+        },
+        legend: {
+            top: 'bottom',
+            data:['意向']
+        },
+        toolbox: {
+            show: true,
+            feature: {
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: []
+        },
+        yAxis: {
+            type: 'value',
+            boundaryGap: [0, '100%']
+        },
+        dataZoom: [{
+            type: 'inside',
+            start: 0,
+            end: 10
+        }, {
+            start: 0,
+            end: 10
+        }],
+        series: [
+            {
+                name:'模拟数据',
+                type:'line',
+                smooth:true,
+                symbol: 'none',
+                sampling: 'average',
+                itemStyle: {
+                    normal: {
+                        color: 'rgb(255, 70, 131)'
+                    }
+                },
+                areaStyle: {
+                    normal: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: 'rgb(255, 158, 68)'
+                        }, {
+                            offset: 1,
+                            color: 'rgb(255, 70, 131)'
+
+                        }])
+                    }
+                },
+                data: []
+            }
+        ]
+    };
+
+    fetchData(function (data) {
+        allChart.setOption({
+            xAxis: {
+                data: data.allDate
+            },
+            series: [{
+                // 根据名字对应到相应的系列
+                name: '人数',
+                data: data.alldata
+            }]
+        });
     });
 
-    socket.on('people.del',function(msg){
-        console.log('people.del',msg);
+    function fetchData(cb) {
+
+        //console.log(dataAll,dateAll);
+
+        // 通过 setTimeout 模拟异步加载
+        setTimeout(function () {
+            cb({
+                allDate: dateAll,
+                alldata: dataAll
+            });
+        }, 500);
+
+    }
+
+    // 使用刚指定的配置项和数据显示图表。
+
+    allChart.setOption(alloption);
+
+    document.querySelector('span').addEventListener('click',function(){
+        fetchData(function (data) {
+            allChart.setOption({
+                xAxis: {
+                    data: data.allDate
+                },
+                series: [{
+                    // 根据名字对应到相应的系列
+                    name: '人数',
+                    data: data.alldata
+                }]
+            });
+        });
     });
 
+
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if(r!=null)return  unescape(r[2]); return null;
+    }
 </script>
 
 </body>
