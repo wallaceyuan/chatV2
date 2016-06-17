@@ -149,8 +149,8 @@ function popLogs(){
                     }
                 }else{
                     if(namBox[nsp]){
-                        client.lpush('messageKKDM'+room,JSON.stringify(result),redis.print);
-                        client.llen('messageKKDM'+room, function(error, count){
+                        client.lpush('messageKKDM'+nsp+room,JSON.stringify(result),redis.print);
+                        client.llen('messageKKDM'+nsp+room, function(error, count){
                             if(error){
                                 console.log(error);
                             }else{

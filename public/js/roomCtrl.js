@@ -74,6 +74,16 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         console.log('userStatus',data);
     });
 
+    socket.on('historyData',function(msgs){
+        var his = msgs.history;
+        for (var k in his){
+            if (his.hasOwnProperty(k)) {
+                $scope.messageAdd( his[k]);
+            }
+        }
+    });
+
+
     /*4.用户加入世界通知*/
     socket.on('joinChat',function(msg){
         console.log('joinChat',msg);
@@ -91,12 +101,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }
     });
 
-    socket.on('historyData',function(msgs){
-/*      msgs.forEach(function(msg){
-        console.log(msg);
-      });*/
-      console.log(msgs);
-    });
+
 
     socket.on('message.add',function(msg){
         $scope.messageAdd(msg);

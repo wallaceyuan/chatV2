@@ -41,4 +41,23 @@ exports.Allowed = function(arg,done,data){
 	}
 }
 
+exports.historyData = function(room,socket){
+	client.LRANGE('messageKKDM'+room,0,10,function(err, objs){
+		if(err){
+			console.log(err);
+		}else{
+			objs = objs.map(function(obj){
+				try{
+					var rObj = JSON.parse(obj);
+					return rObj;
+				}catch(e){
+					console.log(e);
+				}
+
+			});
+			socket.emit('historyData',{history:objs});
+		}
+	});
+}
+
 

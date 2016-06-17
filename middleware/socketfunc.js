@@ -3,14 +3,12 @@ var request = require('request');
 var async = require('async');
 var debug = require('debug')('socketfunc:save');
 var moment = require('moment');
-var domain = require('domain');
 var user = require('../task/user');
 var config = require('../task/config');
 var asy = require('../task/asyncTask.js');
 
 
 var onlinesum = 0;
-var usersRedis = [];
 var users = [];//在线users
 var clients = [];//在线socket
 var client  = config.client;
@@ -77,22 +75,6 @@ function socketMain(nsp,client){
             if(data.room!=''){
                 socket.join(data.room);
             }
-            client.LRANGE('messageKKDM'+data.room,0,10,function(err, objs){
-                if(err){
-                    console.log(err);
-                }else{
-                    objs = objs.map(function(obj){
-                        try{
-                            var rObj = JSON.parse(obj);
-                            return rObj;
-                        }catch(e){
-                            console.log(e);
-                        }
-
-                    });
-                    socket.emit('historyData',{history:objs});
-                }
-            });
 
             async.waterfall([
                 function(done){//用code查询是否被禁言(redis)
@@ -109,6 +91,7 @@ function socketMain(nsp,client){
                     black = true,roomName = data.room,clients[socket.id] = socket;
                     socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
                     socket.emit('userStatus',{status:err.code,msg:err.msg});
+                    asy.historyData(NSP+roomName,socket);
                 }else{
                     black = false;var uif;/*将数组封装成用户信息*/
                     var openid,token;
@@ -165,7 +148,7 @@ function socketMain(nsp,client){
                         });
                         socket.emit('userStatus',{status:0,msg:'用户验证成功',userData:{nickName:userName,posterURL:uif.posterURL}});
                         socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
-
+                        asy.historyData(NSP+roomName,socket);
                     });
                 }
                 console.log('-------------asy success-------------'/*,res*/);
