@@ -37,11 +37,25 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
 
         var tokenBox = [tone,ttwo,tthree];
 
+        var namespace = $rootScope.param.namespace;
+
+        var wxInfo = {
+            "openid":"o81pDuLcFI2sNfOuLFYk9RlfSLWc",
+            "nickname": "圆儿圈圈",
+            "sex":"1",
+            "province":"PROVINCE",
+            "city":"CITY",
+            "country":"COUNTRY",
+            "headimgurl":    "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
+            "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
+        }
+
         $scope.roomName = room;
-
-        socket.emit('userInit',{"room":room,"token":tokenBox[index]});
-
-        //socket.emit('userInit',{room:$scope.roomName});
+        if(namespace == 'live'){
+            socket.emit('userInit',{"room":room,"token":tokenBox[index]});
+        }else{
+            socket.emit('userInit',{"room":room,"openid":wxInfo.openid,'nickName':wxInfo.nickname,'posterURL':wxInfo.headimgurl});
+        }
     });
 
 
@@ -77,25 +91,15 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }
     });
 
+    socket.on('historyData',function(msgs){
+/*      msgs.forEach(function(msg){
+        console.log(msg);
+      });*/
+      console.log(msgs);
+    });
+
     socket.on('message.add',function(msg){
-        console.log('message.add',msg);
-        if($.inArray(msg.time, $scope.times)>-1){
-            msg.time = false;
-        }else{
-            $scope.times.push(msg.time);
-        }
-        if(msg.nickName == $scope.line){
-            msg.flag = 'me message-reply';
-        }else{
-            msg.flag = 'other message-receive';
-        }
-        $scope.messages.push(msg);
-        var timer = $timeout(function() {
-            $('.content').mCustomScrollbar("scrollTo","bottom",{
-                scrollInertia:100
-            });
-            $timeout.cancel(timer);
-        }, 0);
+        $scope.messageAdd(msg);
     });
 
     socket.on('message.error',function(msg){
@@ -144,6 +148,26 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }
     }
 
+    $scope.messageAdd = function(msg){
+      console.log('message.add',msg);
+      if($.inArray(msg.time, $scope.times)>-1){
+          msg.time = false;
+      }else{
+          $scope.times.push(msg.time);
+      }
+      if(msg.nickName == $scope.line){
+          msg.flag = 'me message-reply';
+      }else{
+          msg.flag = 'other message-receive';
+      }
+      $scope.messages.push(msg);
+      var timer = $timeout(function() {
+          $('.content').mCustomScrollbar("scrollTo","bottom",{
+              scrollInertia:100
+          });
+          $timeout.cancel(timer);
+      }, 0);
+    }
 });
 
 function getTime(){
@@ -154,4 +178,3 @@ function getTime(){
     var hour = t.getHours(),min = t.getMinutes(),sec=t.getSeconds();
     return hour+':'+min
 }
-

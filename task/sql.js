@@ -10,10 +10,10 @@ var pool = mysql.createPool({
     acquireTimeout: 30000 // 30s
 });
 
+var config = require('../task/config');
+var client = config.client;
 
-var client = require("redis").createClient(6379, "knews-redis2.nrm01e.ng.0001.cnn1.cache.amazonaws.com.cn");
-
-client.keys('*', function (err, obj) {
+/*client.keys('*', function (err, obj) {
     if(err){
         console.log(err);
     }else{
@@ -23,7 +23,21 @@ client.keys('*', function (err, obj) {
             }
         }
     }
+});*/
+
+
+
+client.HGETALL('RoomPeopleDetaillive1',function(err, obj){
+    if(err){
+        console.log(err);
+    }else{
+        console.log(obj);
+    }
 });
-
-
-
+client.LRANGE('messageKKDM1',0,10,function(err, obj){
+    if(err){
+        console.log(err);
+    }else{
+        console.log(obj);
+    }
+});

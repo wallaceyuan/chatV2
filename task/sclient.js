@@ -2,6 +2,7 @@
 var io = require('socket.io-client');
 var async = require('async');
 var moment = require('moment');
+var redis = require('redis');
 
 var user = require('../task/user');
 var config = require('../task/config');
@@ -96,7 +97,7 @@ function popLogs(){
                 },
                 function(res,done){
                     //console.log('suser');
-                    user.userValidateSql({token:result.token,uid:result.uid},function(err,res){
+                    user.userValidateSql({token:result.token,uid:result.uid,openid:result.openid},function(err,res){
                         //console.log('user done'/*,res*/);
                         done(err,res);
                     });
@@ -122,7 +123,7 @@ function popLogs(){
                     console.log('err!!!!',err);
                     err.room = room;
                     err.socketid = result.socketid;
-                    if(parseInt(err.status) == 702){
+                    if(parseInt(err.status) == 702){//´æÔÚÃô¸Ð´Ê
                         result.violate = 1;
                         user.messageToKu(result,function(error,data){
                             if(error){
@@ -148,6 +149,20 @@ function popLogs(){
                     }
                 }else{
                     if(namBox[nsp]){
+                        client.lpush('messageKKDM'+room,JSON.stringify(result),redis.print);
+                        client.llen('messageKKDM'+room, function(error, count){
+                            if(error){
+                                console.log(error);
+                            }else{
+                                if(count >10){
+                                    client.rpop('messageKKDM'+room,function(err,result){
+                                        if(err){
+                                            console.log(err);
+                                        }
+                                    });
+                                }
+                            }
+                        });
                         var messageSave = result.message;
                         user.messageToKu(result, function (error,data) {
                             if(error){

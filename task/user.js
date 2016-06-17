@@ -30,6 +30,25 @@ exports.userViolatorRedis = function(data,callback){
     });
 }
 
+exports.userViolatorWechatRedis = function(data,callback){
+    //console.log('kkUserBlack'+data.token);
+    client.hgetall('kkUserBlack'+data.openid, function (err, obj) {
+        if(err){
+            callback({"code":706,"msg":'查询错误'},null);
+            console.log(err);
+        }else{
+            if(obj){
+                //console.log('getViolator-you');
+                callback({"code":700,"msg":'被禁言用户'},null);
+            }else {
+                //console.log('getViolator-wu');
+                callback(null,0);
+            }
+        }
+    });
+}
+
+
 exports.userAllowedRedis  = function(data,callback){
     client.hgetall(data.token, function (err, obj) {
         if(err){
@@ -111,11 +130,15 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
 }
 
 exports.userValidateSql   = function(data,callback){
+
+    var voliteToken,sqlStr,queryData;
+
     if(data.openid){
-        var voliteToken = data.openid;
+        voliteToken = data.openid;
     }else{
-        var voliteToken = data.token;
+        voliteToken = data.token;
     }
+
     client.hgetall('kkUserBlack'+voliteToken, function (err, obj) {
         if(err){
             callback({"status":706,"msg":'查询错误'},null);
@@ -124,13 +147,20 @@ exports.userValidateSql   = function(data,callback){
             if(obj){//console.log('kkUserBlack-you');
                 callback({"status":700,"msg":'被禁言用户'},null);
             }else {//console.log('kkUserBlack-wu');
-                pool.query('select id from kk_danmaku_violators where uid = ? and free = 0',[data.uid],function(err,rows){
+                if(data.openid){
+                    sqlStr = 'select id from kk_danmaku_violators where openid = ? and free = 0';
+                    queryData = data.openid;
+                }else{
+                    sqlStr = 'select id from kk_danmaku_violators where uid = ? and free = 0';
+                    queryData = data.uid;
+                }
+                pool.query(sqlStr,[queryData],function(err,rows){
                     if(err){
                         callback({"status":706,"msg":'查询错误'},null);
                         console.log(err);
                     }else{
                         if(rows.length>0){
-                            client.multi().HMSET('kkUserBlack'+voliteToken, {free:0}).expire('kkUserBlack'+voliteToken,600).exec(function (err, replies) {
+                            client.multi().HMSET('kkUserBlack'+voliteToken, {free:0}).expire('kkUserBlack'+voliteToken,300).exec(function (err, replies) {
                                 console.log("MULTI got " + replies.length + " replies");
                             });
                             callback({"status":700,"msg":'被禁言用户'},null);
@@ -145,7 +175,7 @@ exports.userValidateSql   = function(data,callback){
 }
 
 exports.messageValidate   = function(data,callback){
-    var res = data.result;
+    var token,sqlStr,queryData,res = data.result;
     if(res.openid){
         token = res.openid;
     }else{
@@ -161,7 +191,7 @@ exports.messageValidate   = function(data,callback){
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);
         if(parseInt(body.size) > 0){
-            client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,600).exec(function (err, replies) {
+            client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,300).exec(function (err, replies) {
                 if(err){
                     callback({"status":706,"msg":'查询错误'},null);
                     console.log(err);
@@ -169,16 +199,23 @@ exports.messageValidate   = function(data,callback){
                     //console.log("kkUserBlack set");
                 }
             });
-            //.log('validate',res.uid);
-            pool.query("update kk_danmaku_violators set free=0 where uid=?",[res.uid],function(err,result){
+            //console.log('validate',res.uid);
+            if(res.openid){
+                sqlStr = 'update kk_danmaku_violators set free=0 where openid=?';
+                queryData = res.openid;
+            }else{
+                sqlStr = 'update kk_danmaku_violators set free=0 where uid=?';
+                queryData = res.uid;
+            }
+            pool.query(sqlStr,[queryData],function(err,result){
                 if(err){
                     callback({"status":706,"msg":'查询错误'},null);
                     console.log(err);
                 }else{
                     if(result.changedRows == 0){
-                        pool.query('insert into kk_danmaku_violators(uid,openid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?,?)',[res.uid,'',res.tel,res.nickName,res.posterURL,res.createTime,0],function(err,result){
+                        pool.query('insert into kk_danmaku_violators(uid,openid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?,?)',[res.uid,res.openid,res.tel,res.nickName,res.posterURL,res.createTime,0],function(err,result){
                             if(err){
-                                callback({"status":706,"msg":'查询错误'},null);
+                                //callback({"status":706,"msg":'查询错误'},null);
                                 console.log(err);
                             }else{
                                 //console.log(result);
@@ -206,9 +243,15 @@ exports.messageDirty      = function(message,callback){
 }
 
 exports.messageToKu       = function(data,callback){
-
     data.message = escape(xss(emoji.unifiedToText(data.message)));
-    pool.query('select id from kk_danmaku_chatrooms where infoid = ?',[data.cid],function(err,rows){
+    var place = data.place.split(':');
+    var nsp = place[0];
+
+    var sid  = 'infoid';
+    if(nsp == 'wechat')
+        sid = 'id';
+
+    pool.query('select id from kk_danmaku_chatrooms where '+sid+' = ?',[data.cid],function(err,rows){
         if(err){
             callback({"status":706,"msg":'查询错误'},null);
             console.log(err);

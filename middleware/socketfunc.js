@@ -6,15 +6,16 @@ var moment = require('moment');
 var domain = require('domain');
 var user = require('../task/user');
 var config = require('../task/config');
+var asy = require('../task/asyncTask.js');
+
 
 var onlinesum = 0;
 var usersRedis = [];
 var users = [];//在线users
 var clients = [];//在线socket
-
-
-
 var client  = config.client;
+
+
 
 exports.socketHallFuc = function(nsp,client) {
     socketMain(nsp,client);
@@ -27,7 +28,7 @@ function socketMain(nsp,client){
         }
         var userCode;//userCode-key for redis room people
         var black = false,roomName = '',userData,userName,
-            NSP = nsp.name == '/'?'rootuuj': nsp.name.replace(/\//g, "");
+            NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
         var keyPrim     = "KKDanMaKuOnlineUser";
         var key = '';//在线人数key
         var keyRoom = '';//房间人数key
@@ -35,11 +36,12 @@ function socketMain(nsp,client){
         socket.on('userInit',function(data){//监听 客户端的消息
             console.log('socketid-----------------------'+socket.id);
             console.log('token-----------------------'+data.token);
+            console.log('openid-----------------------'+data.openid);
             console.log('nsp-------------------------'+nsp.name);
             console.log('room------------------------'+data.room);
 
-            if(nsp == null || data.token == null || data.room == null){
-                socket.emit('message.error',{status: 705, msg: "参数传入错误"});
+            if(nsp == null || data.room == null){
+                socket.emit('message.error',{status: 705, msg: "参数传入错误1"});
                 return;
             }
             key = keyPrim+NSP+data.room;
@@ -72,28 +74,39 @@ function socketMain(nsp,client){
                 }
             });
 
+            if(data.room!=''){
+                socket.join(data.room);
+            }
+            client.LRANGE('messageKKDM'+data.room,0,10,function(err, objs){
+                if(err){
+                    console.log(err);
+                }else{
+                    objs = objs.map(function(obj){
+                        try{
+                            var rObj = JSON.parse(obj);
+                            return rObj;
+                        }catch(e){
+                            console.log(e);
+                        }
+
+                    });
+                    socket.emit('historyData',{history:objs});
+                }
+            });
+
             async.waterfall([
                 function(done){//用code查询是否被禁言(redis)
                     console.log('-------------svolidate-------------');
-                    user.userViolatorRedis({token:data.token},function(err,res){
-                        console.log('evolidate');
-                        done(err,res);
-                    });
+                    asy.Violator(done,data);
                 },
                 function(arg,done){//用code检测时候是allow用户（redis/sso）
                     console.log('sallow');
-                    user.userAllowedRedis({token:data.token},function(err,res){
-                        console.log('eallow');
-                        done(err,res);
-                    });
+                    asy.Allowed(arg,done,data);
                 },
             ],function(err,res){
                 if(err){
                     console.log('-------------',err,'-------------');
                     black = true,roomName = data.room,clients[socket.id] = socket;
-                    if(roomName!=''){
-                        socket.join(roomName);
-                    }
                     socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
                     socket.emit('userStatus',{status:err.code,msg:err.msg});
                 }else{
@@ -102,7 +115,7 @@ function socketMain(nsp,client){
                     try{
                         uif = JSON.parse(res.data);
                     }catch(e){
-                        socket.emit('userStatus',{status: 705, msg: "参数传入错误"});
+                        socket.emit('userStatus',{status: 705, msg: "参数传入错误2"});
                         return;
                     }
                     roomName = data.room, userName = uif.nickName,clients[socket.id] = socket;
@@ -110,9 +123,6 @@ function socketMain(nsp,client){
                         openid = data.openid,token = '';
                     }else{
                         openid = '',token = data.token;
-                    }
-                    if(roomName!=''){
-                        socket.join(roomName);
                     }
 
                     /*判断重复用户*/
@@ -130,14 +140,15 @@ function socketMain(nsp,client){
                         });
                         users.push(userData);
                         if(judge.length == 0){
-                            userCode = uif.uid;
+                            userCode = openid?openid:uif.uid;
                             if(roomName!=''){
                                 socket.broadcast.in(roomName).emit('joinChat',userData);
                             }else{
                                 socket.broadcast.emit('joinChat',userData);
                             }
                         }else{
-                            userCode = uif.uid+'time'+moment().unix();
+                            var uifD = openid?openid:uif.uid;
+                            userCode = uifD+'time'+moment().unix();
                             if(roomName!=''){
                                 socket.broadcast.in(roomName).emit('joinChat',{onlinesum:val});
                             }else{

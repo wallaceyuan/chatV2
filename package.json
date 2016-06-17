@@ -19,6 +19,7 @@
     "express": "~4.13.1",
     "express-domain-middleware": "^0.1.0",
     "express-session": "^1.13.0",
+    "iconv-lite": "^0.4.13",
     "moment": "^2.13.0",
     "morgan": "~1.6.1",
     "mysql": "^2.10.2",
