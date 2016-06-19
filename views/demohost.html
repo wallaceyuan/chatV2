@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+</head>
+<body>
+
+<pre></pre>
+
+<input type="text" placeholder="text" class="text" id="input1">
+
+<button class="button">发送消息（test）</button>
+
+<div class="message"></div>
+
+<script src="http://127.0.0.1:3000/socket.io/socket.io.js"></script>
+<script src="../public/lib/danmaku.js"></script>
+
+
+
+<div id="myContainer" style="width:640px;height:360px;"></div>
+
+<script>
+    var danmaku = new Danmaku();
+
+    danmaku.init({
+        video: document.getElementById('video'),
+        container: document.getElementById('myContainer')
+    });
+
+    var token   = 'oeaNrRAtC5MDV7XdB4W0NJGb6UmDgUZXp19wKC8wZr2kPevqFyR6g//TFCE31bcIdbxJHE/1bPoOMkHWdf76cksf8K6JcAPweEjHMdeVVAn9WRuB0XWZj9hCc9DxccE+oyDGX6fXh4KNQttziiOS6V262mZ5RE+0FlPWtU8a9LMNhWnpOlbZb4fGS0n0bg3LoUX+DIAVYgb9MLOB5syZVHl/eqz8BP1+BzYMA9NAoLNR4K8PwLfz6oJDtPDXCLi3BLiQGWGkz4ZeR1YWHGsHva5OTHKVgb/IeNtFfw+Tm4lyJB4tU0CP2yX7C847Ebp1HjT3mMQM7Ywi16WxENiQCBu8NDqE9yUzHNh60NHdUZ8RZLzYuh2IHgWuR2RtHLiGmsOu+X3o5ECuEIn/wJvF00M3xNoswmkrVoil9WqkfGpDInjsCzQLJLo5iDYCv6qjvWhgz79S1Zpjlr/VZ6WkUe8lHRILDKZimzJI3Tptm6Um0ZPDIksReI9QJSXEo4JHyjRldyrUNdMwIWRzXq4tOpUnASQE3+E6Hv1CHW+Zd+8t9NQ7SBjOtuRVMAkkiNUq6AshXAjv9CZwmMQXmQ5sbXdnmihPY4uq8ZGzTTCZL4A1rROeVq84Vu2RZlvjj6rzqHCmKGD/inocJwPVFT5XIOMzAl3N4K8cMXdABHzslVg=';
+
+    var socket = io.connect('http://127.0.0.1:3000/live');
+
+    socket.on('connect', function(){
+        socket.emit('userInit',{room:1, token:token });
+    });
+
+    socket.on('userStatus',function(data){
+        console.log(data);
+        document.getElementsByTagName('pre')[0].innerHTML = JSON.stringify(data);
+    });
+
+    document.querySelector('.button').addEventListener('click',function(){
+        var vv = document.getElementById("input1").value;
+        socket.emit('createMessage', {
+            message:vv,
+            type:0,up:0,down:0,
+            perform:{
+                color:'red',fontSize:'16px'
+            }
+        });
+    });
+
+    socket.on('message.add',function(msg){
+        console.log(msg);
+        var textnode=document.createTextNode(JSON.stringify(msg));
+        document.querySelector('.message').appendChild(textnode);
+    });
+
+    socket.on('message.error',function(msg){
+        console.log('messageError',msg);
+    });
+
+
+</script>
+</body>
+</html>

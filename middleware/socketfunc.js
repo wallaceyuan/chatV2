@@ -45,15 +45,6 @@ function socketMain(nsp,client){
             key = keyPrim+NSP+data.room;
             keyRoom = 'RoomPeopleDetail'+NSP+data.room;
 
-            client.get(key, function(error, val){
-                if(parseInt(val) < 1){
-                    client.set(key, 0);
-                    onlinesum = 0;
-                }else{
-                    onlinesum = parseInt(val);
-                }
-            });
-
             client.HGETALL(keyRoom,function(err, obj){
                 if(err){
                     console.log(err);
@@ -88,10 +79,18 @@ function socketMain(nsp,client){
             ],function(err,res){
                 if(err){
                     console.log('-------------',err,'-------------');
-                    black = true,roomName = data.room,clients[socket.id] = socket;
-                    socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
-                    socket.emit('userStatus',{status:err.code,msg:err.msg});
-                    asy.historyData(NSP+roomName,socket);
+                    client.get(key, function(error, val){
+                        if(parseInt(val) < 1){
+                            client.set(key, 0);
+                            onlinesum = 0;
+                        }else{
+                            onlinesum = parseInt(val);
+                        }
+                        black = true,roomName = data.room,clients[socket.id] = socket;
+                        socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
+                        socket.emit('userStatus',{status:err.code,msg:err.msg});
+                        asy.historyData(NSP+roomName,socket);
+                    });
                 }else{
                     black = false;var uif;/*将数组封装成用户信息*/
                     var openid,token;
@@ -122,15 +121,16 @@ function socketMain(nsp,client){
                             return user.uid != uif.uid
                         });
                         users.push(userData);
+
+                        var uifD = openid?openid:uif.uid;
                         if(judge.length == 0){
-                            userCode = openid?openid:uif.uid;
+                            userCode = uifD;
                             if(roomName!=''){
                                 socket.broadcast.in(roomName).emit('joinChat',userData);
                             }else{
                                 socket.broadcast.emit('joinChat',userData);
                             }
                         }else{
-                            var uifD = openid?openid:uif.uid;
                             userCode = uifD+'time'+moment().unix();
                             if(roomName!=''){
                                 socket.broadcast.in(roomName).emit('joinChat',{onlinesum:val});
