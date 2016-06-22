@@ -25,6 +25,7 @@ exports.Allowed = function(arg,done,data){
 		var data = {
 			"uid":1,
 			"tel":1,
+			"openid":data.openid,
 			"posterURL":data.posterURL,
 			"nickName":data.nickName
 		};
@@ -53,9 +54,8 @@ exports.historyData = function(room,socket){
 				}catch(e){
 					console.log(e);
 				}
-
 			});
-			socket.emit('historyData',{history:objs});
+			socket.emit('historyData',{history:objs.reverse()});
 		}
 	});
 }

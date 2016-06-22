@@ -14,7 +14,6 @@ var clients = [];//在线socket
 var client  = config.client;
 
 
-
 exports.socketHallFuc = function(nsp,client) {
     socketMain(nsp,client);
 }
@@ -109,17 +108,30 @@ function socketMain(nsp,client){
 
                     /*判断重复用户*/
                     var judge = users.filter(function(user){
-                        if(user)
-                            return roomName == user.room && uif.uid == user.uid;
+                        if(user){
+                            if(parseInt(uif.uid) == 1){
+                                return roomName == user.room && uif.openid == user.openid;
+                            }else{
+                                return roomName == user.room && uif.uid == user.uid;
+                            }
+                        }
                     });
 
+                    console.log(judge.length);
                     client.incr(key, function(error, val){
                         onlinesum = val;
                         userData = {"token":token,"openid":openid,"id": socket.id,"room":roomName,"posterURL":uif.posterURL,
                             "tel":uif.tel,"uid":uif.uid,"nickName":userName,"onlinesum":onlinesum};
-                        users = users.filter(function (user) {
-                            return user.uid != uif.uid
-                        });
+                        if(data.token){
+                            users = users.filter(function (user) {
+                                return user.uid != uif.uid
+                            });
+                        }else{
+                            users = users.filter(function (user) {
+                                return user.openid != openid
+                            });
+                        }
+
                         users.push(userData);
 
                         var uifD = openid?openid:uif.uid;

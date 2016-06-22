@@ -154,8 +154,8 @@ function popLogs(){
                             if(error){
                                 console.log(error);
                             }else{
-                                if(count >10){
-                                    client.rpop('messageKKDM'+room,function(err,result){
+                                if(count >5){
+                                    client.rpop('messageKKDM'+nsp+room,function(err,result){
                                         if(err){
                                             console.log(err);
                                         }

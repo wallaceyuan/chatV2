@@ -41,7 +41,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
 
         var wxInfo = {
             "openid":"o81pDuLcFI2sNfOuLFYk9RlfSLWc",
-            "nickname": "圆儿圈圈",
+            "nickname": "yyffww",
             "sex":"1",
             "province":"PROVINCE",
             "city":"CITY",
