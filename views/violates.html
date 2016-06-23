@@ -8,6 +8,9 @@
         .controller{
             margin-top: 100px;
         }
+        .mt50{
+            margin-top: 50px;
+        }
     </style>
 </head>
 <body>
@@ -29,8 +32,20 @@
         <input type="text" class="form-control" ng-model="vm.user.tel" required/>
     </div>
     <button class="btn btn-default" ng-click="vm.drToken()" >确认删除</button>
+
+
+    <div class="form-group mt50">
+        <label>微信用户 openid</label>
+        <input type="text" class="form-control" ng-model="vm.user.openid" required/>
+    </div>
+    <button class="btn btn-default" ng-click="vm.drOpenid()" >确认删除</button>
+
     <user-tip tip="vm.tip" ng-show="vm.show"></user-tip>
 </div>
+
+
+
+
 
 <script src="/lib/jquery/dist/jquery.js"></script>
 <script src="/lib/angular/angular.js"></script>
@@ -40,7 +55,7 @@
 
     angular.module('usersModule', ['ngResource']);
 
-    angular.module('usersModule').factory('usersService', function ($http) {
+/*    angular.module('usersModule').factory('usersService', function ($http) {
         return {
             post: function (token) {
                 return $http.post('/violates/token', token);
@@ -62,7 +77,7 @@
                 },2000);
             });
         }
-    });
+    });*/
 
     angular.module('usersModule').factory('userRService', function ($resource) {
         /**
@@ -80,6 +95,17 @@
         vm.user = {};
         vm.tip = '';
         vm.show = false;
+        vm.drOpenid = function(){
+            userRService.delete(vm.user).$promise.then(function(data){
+                vm.tip = data.code;
+                vm.show = true;
+                var timeoutId = $interval(function(){
+                    vm.show = false;
+                    $interval.cancel(timeoutId);
+                },2000);
+            });
+        }
+
         vm.drToken = function () {
             userRService.save(vm.user).$promise.then(function(data){
                 vm.tip = data.code;

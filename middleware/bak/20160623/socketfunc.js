@@ -13,9 +13,7 @@ var users = [];//在线users
 var clients = [];//在线socket
 
 
-var keyPrim     = "KKDanMaKuOnlineUser";
-var key = '';//在线人数key
-var keyRoom = '';//房间人数key
+
 var client  = config.client;
 
 exports.socketHallFuc = function(nsp,client) {
@@ -30,11 +28,15 @@ function socketMain(nsp,client){
         var userCode;//userCode-key for redis room people
         var black = false,roomName = '',userData,userName,
             NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
+        var keyPrim     = "KKDanMaKuOnlineUser";
+        var key = '';//在线人数key
+        var keyRoom = '';//房间人数key
 
         socket.on('userInit',function(data){//监听 客户端的消息
-/*            console.log('token-----------------------'+data.token);
+            console.log('socketid-----------------------'+socket.id);
+            console.log('token-----------------------'+data.token);
             console.log('nsp-------------------------'+nsp.name);
-            console.log('room------------------------'+data.room);*/
+            console.log('room------------------------'+data.room);
 
             if(nsp == null || data.token == null || data.room == null){
                 socket.emit('message.error',{status: 705, msg: "参数传入错误"});
@@ -45,8 +47,8 @@ function socketMain(nsp,client){
 
             client.get(key, function(error, val){
                 if(parseInt(val) < 1){
-                    client.set(key, 1);
-                    onlinesum = 1;
+                    client.set(key, 0);
+                    onlinesum = 0;
                 }else{
                     onlinesum = parseInt(val);
                 }
@@ -96,6 +98,7 @@ function socketMain(nsp,client){
                     socket.emit('userStatus',{status:err.code,msg:err.msg});
                 }else{
                     black = false;var uif;/*将数组封装成用户信息*/
+                    var openid,token;
                     try{
                         uif = JSON.parse(res.data);
                     }catch(e){
@@ -104,9 +107,9 @@ function socketMain(nsp,client){
                     }
                     roomName = data.room, userName = uif.nickName,clients[socket.id] = socket;
                     if(data.openid){
-                        var openid = data.openid,token = '';
+                        openid = data.openid,token = '';
                     }else{
-                        var openid = '',token = data.token;
+                        openid = '',token = data.token;
                     }
                     if(roomName!=''){
                         socket.join(roomName);
@@ -117,31 +120,42 @@ function socketMain(nsp,client){
                         if(user)
                             return roomName == user.room && uif.uid == user.uid;
                     });
-                    if(judge.length > 0){
-                        userCode = uif.uid+'time'+moment().unix();
-/*                        users = users.filter(function(user){
-                            if(user)
-                                return roomName == user.room && uif.uid != user.uid;
-                         });*/
-                        userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
-                            tel:uif.tel,uid:uif.uid,nickName:userName,onlinesum:onlinesum};
-                        emitUserInit(userData,userCode,userName,uif,socket);
-                        return;
-                    }else{
-                        client.incr(key, function(error, val){
+
+                    client.incr(key, function(error, val){
+                        onlinesum = val;
+                        userData = {"token":token,"openid":openid,"id": socket.id,"room":roomName,"posterURL":uif.posterURL,
+                            "tel":uif.tel,"uid":uif.uid,"nickName":userName,"onlinesum":onlinesum};
+                        users = users.filter(function (user) {
+                            return user.uid != uif.uid
+                        });
+                        users.push(userData);
+                        if(judge.length == 0){
                             userCode = uif.uid;
-                            onlinesum = val;
-                            userData = {token:token,opneid:openid,id: socket.id,room:roomName,posterURL:uif.posterURL,
-                                tel:uif.tel,uid:uif.uid,nickName:userName,onlinesum:onlinesum};
-                            users.push(userData);
                             if(roomName!=''){
                                 socket.broadcast.in(roomName).emit('joinChat',userData);
                             }else{
                                 socket.broadcast.emit('joinChat',userData);
                             }
-                            emitUserInit(userData,userCode,userName,uif,socket);
+                        }else{
+                            userCode = uif.uid+'time'+moment().unix();
+                            if(roomName!=''){
+                                socket.broadcast.in(roomName).emit('joinChat',{onlinesum:val});
+                            }else{
+                                socket.broadcast.emit('joinChat',{onlinesum:val});
+                            }
+                        }
+
+                        client.HMSET(keyRoom,userCode,JSON.stringify(userData),function(err, replies){
+                            if(err){
+                                console.log(err);
+                            }else{
+                                console.log(replies);
+                            }
                         });
-                    }
+                        socket.emit('userStatus',{status:0,msg:'用户验证成功',userData:{nickName:userName,posterURL:uif.posterURL}});
+                        socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
+
+                    });
                 }
                 console.log('-------------asy success-------------'/*,res*/);
                 //debug('所有的任务完成了',res);
@@ -212,17 +226,19 @@ function socketMain(nsp,client){
             if(black){
                 return
             }else{
-                var data2 = {
-                    openid:userData.openid, token:userData.token, cid: roomName, uid: userData.uid,
-                    nickName:userData.nickName,posterURL:userData.posterURL,tel:userData.tel,
-                    openid: '',checked:0,violate:0,createTime:moment().unix(),socketid:userData.id,
-                    place:NSP+':'+roomName
-                };
-                for(var item in data2){
-                    data[item]=data2[item];
+                try{
+                    var data2 = {socketid:userData.id,cid: roomName, openid: '',checked:0,violate:0,createTime:moment().unix(), place:NSP+':'+roomName};
+                    for(var item in userData){
+                        data2[item]=userData[item];
+                    }
+                    for(var item in data2){
+                        data[item]=data2[item];
+                    }
+                }catch(e){
+                    console.log('client create message err');
+                    return;
                 }
-
-                data.message = String(data.message).replace(/\s/g,"");
+                data.message = String(data.message).trim();
                 console.log('socketid',data.socketid,'message',data.message);
                 if(data.perform){
                     try{
@@ -247,7 +263,7 @@ function socketMain(nsp,client){
                 if(err){
                     console.log(err);
                 }else{
-                    console.log('userCode',userCode,replies);
+                    //console.log('userCode',userCode,replies);
                 }
             });
 
@@ -272,33 +288,41 @@ function socketMain(nsp,client){
                         }
                     }
                 }
-                if(quweyFlag){
-                    client.decr(key, function(error, val){
-                        if(parseInt(val) < 1) client.set(key, 1);
-                        onlinesum = val;
+
+                client.decr(key, function(error, val){
+                    if(parseInt(val) < 1) client.set(key, 0);
+                    onlinesum = val;
+                    if(quweyFlag){
                         if(roomName!=''){
                             socket.broadcast.in(roomName).emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
                         }else{
                             socket.broadcast.emit('people.del', {id:socket.id,user:userName,content:'下线了',onlinesum:onlinesum});
                         }
-                    });
-                }
+                    }else{
+                        if(roomName!=''){
+                            socket.broadcast.in(roomName).emit('people.del', {onlinesum:onlinesum});
+                        }else{
+                            socket.broadcast.emit('people.del', {onlinesum:onlinesum});
+                        }
+                    }
+                });
             });
         });
 
+
+        socket.on('onlineRequest',function(data){
+            var key = data.key;
+            client.get(key, function(error, val){
+                if(parseInt(val) < 1){
+                    client.set(key, 0);
+                    onlinesum = 0;
+                }else{
+                    onlinesum = parseInt(val);
+                }
+            });
+            socket.emit('giveOnline',{onlinesum:onlinesum});
+        });
+
     });
+
 }
-
-
-function emitUserInit(userData,userCode,userName,uif,socket){
-    client.HMSET(keyRoom,userCode,JSON.stringify(userData),function(err, replies){
-        if(err){
-            console.log(err);
-        }else{
-            console.log(replies);
-        }
-    });
-    socket.emit('userStatus',{status:0,msg:'用户验证成功',userData:{nickName:userName,posterURL:uif.posterURL}});
-    socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
-}
-

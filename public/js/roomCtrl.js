@@ -51,6 +51,8 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }
 
         $scope.roomName = room;
+
+        console.log(room);
         if(namespace == 'live'){
             socket.emit('userInit',{"room":room,"token":tokenBox[index]});
         }else{

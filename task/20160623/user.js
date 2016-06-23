@@ -30,30 +30,11 @@ exports.userViolatorRedis = function(data,callback){
     });
 }
 
-exports.userViolatorWechatRedis = function(data,callback){
-    //console.log('kkUserBlack'+data.token);
-    client.hgetall('kkUserBlack'+data.openid, function (err, obj) {
-        if(err){
-            callback({"code":706,"msg":'查询错误'},null);
-            console.log(2,err);
-        }else{
-            if(obj){
-                //console.log('getViolator-you');
-                callback({"code":700,"msg":'被禁言用户'},null);
-            }else {
-                //console.log('getViolator-wu');
-                callback(null,0);
-            }
-        }
-    });
-}
-
-
 exports.userAllowedRedis  = function(data,callback){
     client.hgetall(data.token, function (err, obj) {
         if(err){
             callback({"code":706,"msg":'查询错误'},null);
-            console.log(3,err);
+            console.log(err);
         }else{
             if(obj){
                 //console.log('getAllowed-you');
@@ -72,7 +53,7 @@ exports.userAllowedRedis  = function(data,callback){
                         client.multi().HMSET(data.token, body).expire(data.token,3600).exec(function (err, replies) {
                             if(err){
                                 callback({"code":706,"msg":'查询错误'},null);
-                                console.log(4,err);
+                                console.log(err);
                             }else{
                                 console.log("MULTI got " + replies.length + " replies");
                             }
@@ -118,7 +99,7 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
     pool.query('select t1.id from kk_danmaku_chatrooms as t1,kk_danmaku_namespace as t2 where t2.id = t1.type and namespace = ? and '+sid+' = ? and open = ? ',[nsp,infoid,1],function(err,rows){
         if(err){
             callback({"status":706,"msg":'查询错误'},null);
-            console.log(5,err);
+            console.log(err);
         }else{
             if(rows.length>0){
                 callback(null,rows[0]);
@@ -130,34 +111,23 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
 }
 
 exports.userValidateSql   = function(data,callback){
-
-    var voliteToken,sqlStr,queryData;
-
     if(data.openid){
-        voliteToken = data.openid;
+        var voliteToken = data.openid;
     }else{
-        voliteToken = data.token;
+        var voliteToken = data.token;
     }
-
     client.hgetall('kkUserBlack'+voliteToken, function (err, obj) {
         if(err){
             callback({"status":706,"msg":'查询错误'},null);
-            console.log(6,err);
+            console.log(err);
         }else{
             if(obj){//console.log('kkUserBlack-you');
                 callback({"status":700,"msg":'被禁言用户'},null);
             }else {//console.log('kkUserBlack-wu');
-                if(data.openid){
-                    sqlStr = 'select id from kk_danmaku_violators where openid = ? and free = 0';
-                    queryData = data.openid;
-                }else{
-                    sqlStr = 'select id from kk_danmaku_violators where uid = ? and free = 0';
-                    queryData = data.uid;
-                }
-                pool.query(sqlStr,[queryData],function(err,rows){
+                pool.query('select id from kk_danmaku_violators where uid = ? and free = 0',[data.uid],function(err,rows){
                     if(err){
                         callback({"status":706,"msg":'查询错误'},null);
-                        console.log(7,err);
+                        console.log(err);
                     }else{
                         if(rows.length>0){
                             client.multi().HMSET('kkUserBlack'+voliteToken, {free:0}).expire('kkUserBlack'+voliteToken,300).exec(function (err, replies) {
@@ -175,7 +145,7 @@ exports.userValidateSql   = function(data,callback){
 }
 
 exports.messageValidate   = function(data,callback){
-    var token,sqlStr,queryData,res = data.result,nickName = res.nickName;
+    var res = data.result;
     if(res.openid){
         token = res.openid;
     }else{
@@ -194,30 +164,22 @@ exports.messageValidate   = function(data,callback){
             client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,300).exec(function (err, replies) {
                 if(err){
                     callback({"status":706,"msg":'查询错误'},null);
-                    console.log(8,err);
+                    console.log(err);
                 }else{
                     //console.log("kkUserBlack set");
                 }
             });
-            //console.log('validate',res.uid);
-            if(res.openid){
-                sqlStr = 'update kk_danmaku_violators set free=0 where openid=?';
-                queryData = res.openid;
-                nickName = nickName+'('+res.openid+')'
-            }else{
-                sqlStr = 'update kk_danmaku_violators set free=0 where uid=?';
-                queryData = res.uid;
-            }
-            pool.query(sqlStr,[queryData],function(err,result){
+            //.log('validate',res.uid);
+            pool.query("update kk_danmaku_violators set free=0 where uid=?",[res.uid],function(err,result){
                 if(err){
                     callback({"status":706,"msg":'查询错误'},null);
                     console.log(err);
                 }else{
                     if(result.changedRows == 0){
-                        pool.query('insert into kk_danmaku_violators(uid,openid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?,?)',[res.uid,res.openid,res.tel,nickName,res.posterURL,res.createTime,0],function(err,result){
+                        pool.query('insert into kk_danmaku_violators(uid,openid,tel,nickName,posterURL,createTime,free) values(?,?,?,?,?,?,?)',[res.uid,'',res.tel,res.nickName,res.posterURL,res.createTime,0],function(err,result){
                             if(err){
                                 callback({"status":706,"msg":'查询错误'},null);
-                                console.log(9,err);
+                                console.log(err);
                             }else{
                                 //console.log(result);
                             }
@@ -244,23 +206,17 @@ exports.messageDirty      = function(message,callback){
 }
 
 exports.messageToKu       = function(data,callback){
+
     data.message = escape(xss(emoji.unifiedToText(data.message)));
-    var place = data.place.split(':');
-    var nsp = place[0];
-
-    var sid  = 'infoid';
-    if(nsp == 'wechat')
-        sid = 'id';
-
-    pool.query('select id from kk_danmaku_chatrooms where '+sid+' = ?',[data.cid],function(err,rows){
+    pool.query('select id from kk_danmaku_chatrooms where infoid = ?',[data.cid],function(err,rows){
         if(err){
             callback({"status":706,"msg":'查询错误'},null);
-            console.log(10,err);
+            console.log(err);
         }else{
             pool.query('insert into kk_danmaku_message(cid,uid,openid,checked,violate,createTime,up,down,type,perform,message,nickName,posterURL) values(?,?,?,?,?,?,?,?,?,?,?,?,?)',[rows[0].id,data.uid,data.openid,0,data.violate,data.createTime,data.up,data.down,data.type,data.perform,data.message,data.nickName,data.posterURL],function(err,result){
                 if(err){
                     callback({"status":706,"msg":'查询错误'},null);
-                    console.log(11,err);
+                    console.log(err);
                 }else{
                     console.log('insert success');
                     callback(null,200);

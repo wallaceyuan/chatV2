@@ -117,7 +117,6 @@ function socketMain(nsp,client){
                         }
                     });
 
-                    console.log(judge.length);
                     client.incr(key, function(error, val){
                         onlinesum = val;
                         userData = {"token":token,"openid":openid,"id": socket.id,"room":roomName,"posterURL":uif.posterURL,

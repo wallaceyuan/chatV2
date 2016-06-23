@@ -2,7 +2,6 @@
 var io = require('socket.io-client');
 var async = require('async');
 var moment = require('moment');
-var redis = require('redis');
 
 var user = require('../task/user');
 var config = require('../task/config');
@@ -97,7 +96,7 @@ function popLogs(){
                 },
                 function(res,done){
                     //console.log('suser');
-                    user.userValidateSql({token:result.token,uid:result.uid,openid:result.openid},function(err,res){
+                    user.userValidateSql({token:result.token,uid:result.uid},function(err,res){
                         //console.log('user done'/*,res*/);
                         done(err,res);
                     });
@@ -123,7 +122,7 @@ function popLogs(){
                     console.log('err!!!!',err);
                     err.room = room;
                     err.socketid = result.socketid;
-                    if(parseInt(err.status) == 702){//´æÔÚÃô¸Ð´Ê
+                    if(parseInt(err.status) == 702){
                         result.violate = 1;
                         user.messageToKu(result,function(error,data){
                             if(error){
@@ -149,27 +148,6 @@ function popLogs(){
                     }
                 }else{
                     if(namBox[nsp]){
-                        client.multi().lpush('messageKKDM'+nsp+room,JSON.stringify(result),redis.print).expire('messageKKDM'+nsp+room,600).exec(function (err, replies) {
-                            if(err){
-                                callback({"status":706,"msg":'²éÑ¯´íÎó'},null);
-                                console.log(8,err);
-                            }else{
-                                //console.log("kkUserBlack set");
-                            }
-                        });
-                        client.llen('messageKKDM'+nsp+room, function(error, count){
-                            if(error){
-                                console.log(error);
-                            }else{
-                                if(count >5){
-                                    client.rpop('messageKKDM'+nsp+room,function(err,result){
-                                        if(err){
-                                            console.log(err);
-                                        }
-                                    });
-                                }
-                            }
-                        });
                         var messageSave = result.message;
                         user.messageToKu(result, function (error,data) {
                             if(error){
