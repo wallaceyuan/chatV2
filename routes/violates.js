@@ -59,6 +59,11 @@ router.route('/tokenR')
     });
 
 
+router.route('/check')
+    .post(function (req,res) {
+        res.send({status:200});
+    })
+
 
 function delOpenid(req,res){
     var openid = req.query.openid;
@@ -74,9 +79,6 @@ function delOpenid(req,res){
         }
     });
 }
-
-
-
 
 
 function logical(req,res){

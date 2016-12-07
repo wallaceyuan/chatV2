@@ -24,10 +24,10 @@
 /*
     var socket = io.connect('http://54.222.215.248:80/live');
 */
-    var socket = io.connect('http://danmaku.kankanews.com/live');
+    var socket = io.connect('http://danmaku.kankanews.com/livetest');
 
     socket.on('connect', function(){
-        socket.emit('userInit',{room:144, token:token });
+        socket.emit('userInit',{room:1, token:token });
     });
 
     socket.on('userStatus',function(data){

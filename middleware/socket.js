@@ -12,7 +12,7 @@ exports.socketio = function(server) {
 
     io.adapter(redis({host: host, port: 6379}));
 
-    var nameBox = ['/chatroom','/live','/vod','/wechat','/broadcast'];
+    var nameBox = ['/chatroom','/live','/vod','/wechat','/broadcast','/livetest','/service'];
 
     for(var item in nameBox){
 

@@ -48,6 +48,7 @@ exports.userViolatorWechatRedis = function(data,callback){
     });
 }
 
+
 exports.userAllowedRedis  = function(data,callback){
     client.hgetall(data.token, function (err, obj) {
         if(err){
@@ -189,9 +190,10 @@ exports.messageValidate   = function(data,callback){
         body:"words="+res.message*/
     };
 
+    var str = res.message;
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);
-        if(parseInt(body.size) > 0 ){
+        if(parseInt(body.size) > 0 || str.indexOf("封城")!=-1){
             client.multi().HMSET('kkUserBlack'+token, {free:0}).expire('kkUserBlack'+token,300).exec(function (err, replies) {
                 if(err){
                     callback({"status":706,"msg":'user 196  查询错误'},null);

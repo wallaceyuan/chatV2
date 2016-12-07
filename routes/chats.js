@@ -24,7 +24,14 @@ router.get('/broadcast/:room',function(req, res, next) {
     var room = req.params.room;
     res.render('chat',{namespance:'broadcast',room:room});
 });
-
+router.get('/livetest/:room',function(req, res, next) {
+    var room = req.params.room;
+    res.render('chat',{namespance:'livetest',room:room});
+});
+router.get('/service/:room',function(req, res, next) {
+    var room = req.params.room;
+    res.render('chat',{namespance:'service',room:room});
+});
 
 router.route('/user/get').post(function(req,res){
     console.log('post-code',req.body.code);
@@ -62,4 +69,5 @@ router.route('/message/valide').post(function(req,res){
         }
     });
 });
+
 module.exports = router;

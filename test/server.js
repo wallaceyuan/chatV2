@@ -7,13 +7,27 @@ var mysql = require('mysql');
 var moment = require('moment');
 var emoji = require('emoji');
 
+var token = 'FOggzNQPHlA0s5asJgG1jDNlfEGmsPMSaiPUrWdo1jvKok1MYdB1i692M93b5/UcdYn/Ceo0xpiWshQqo7aSGcUgatNpvg/lh62ERKQr8PWVsDPM3ihkpvL5b93EySXsrCM8/8Y3PZWvVf/Y90OhQFEuOIwkoBPPEzVYzMcRT8WOUEmovzSIikiw95AMyIMXGwVlLImPWF/g8CmALRdZcqkNtw3q7rDfhSLszuov7/GtZB7CFCVcbUDGSzqBt7qm/XHBrW8OzdThkF+LVNg8oagmA9ZfankiGN9uHlg6SltDRmE3OzABRPTQv13xf8YhmHomxBMMIWHcx3IlBzhEf8aev0UnP68jfnn5yC6rXszTdfiA/tn0lTsbHQ98+larnJvHmQUiIqxyvy6Aqca7RypcIaE9eMw7psn6dTpNxcWOebRbqDJ5tDZ5HNVSSFms7qpCVt3gAPCvX5YbAeUdyUD0285gG/Vab5LAkBZDHK6p5z8lAkcTxm85yzMuy1B8Ac1b9n0bKRW8pAF6T68LSIX0mqPGmlGT4EquFQDPTj9W+hLyBwKmwv3znZ+JHPMbkrw4Xvqs6pFlv5yekChsutvYx92NUylzXSMGi0TM6mxznfF5td+tMGgoCLfrvYioquDD/JPRMD6XgsKDcNuzn9p5I3/JZV6kI0TA1oMnzTY='
 
+
+var codeOpt = {
+    uri: 'http://ums.kankanews.com/t/tokenValidate.do',
+    method: 'POST',
+    body : token,
+    headers: {'Content-Type': 'text/xml'}
+};
+
+request(codeOpt,function(err,res,body) {
+    console.log(body)
+});
+
+/*
 var client = require("redis").createClient();
 
 var sss = '   21212      dsdsds             ';
 var aasss = String(sss).trim();
 
-console.log(aasss);
+console.log(aasss);*/
 /*client.keys('*', function (err, obj) {
     if(err){
         console.log(err);

@@ -29,7 +29,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
             var index = 0;
         }
 
-        var tone   = 'oeaNrRAtC5MDV7XdB4W0NJGb6UmDgUZXp19wKC8wZr2kPevqFyR6g//TFCE31bcIdbxJHE/1bPoOMkHWdf76cksf8K6JcAPweEjHMdeVVAn9WRuB0XWZj9hCc9DxccE+oyDGX6fXh4KNQttziiOS6V262mZ5RE+0FlPWtU8a9LMNhWnpOlbZb4fGS0n0bg3LoUX+DIAVYgb9MLOB5syZVHl/eqz8BP1+BzYMA9NAoLNR4K8PwLfz6oJDtPDXCLi3BLiQGWGkz4ZeR1YWHGsHva5OTHKVgb/IeNtFfw+Tm4lyJB4tU0CP2yX7C847Ebp1HjT3mMQM7Ywi16WxENiQCBu8NDqE9yUzHNh60NHdUZ8RZLzYuh2IHgWuR2RtHLiGmsOu+X3o5ECuEIn/wJvF00M3xNoswmkrVoil9WqkfGpDInjsCzQLJLo5iDYCv6qjvWhgz79S1Zpjlr/VZ6WkUe8lHRILDKZimzJI3Tptm6Um0ZPDIksReI9QJSXEo4JHyjRldyrUNdMwIWRzXq4tOpUnASQE3+E6Hv1CHW+Zd+8t9NQ7SBjOtuRVMAkkiNUq6AshXAjv9CZwmMQXmQ5sbXdnmihPY4uq8ZGzTTCZL4A1rROeVq84Vu2RZlvjj6rzqHCmKGD/inocJwPVFT5XIOMzAl3N4K8cMXdABHzslVg=';
+        var tone   = 'FOggzNQPHlA0s5asJgG1jDNlfEGmsPMSaiPUrWdo1jvKok1MYdB1i692M93b5/UcdYn/Ceo0xpiWshQqo7aSGcUgatNpvg/lh62ERKQr8PWVsDPM3ihkpvL5b93EySXsrCM8/8Y3PZWvVf/Y90OhQFEuOIwkoBPPEzVYzMcRT8WOUEmovzSIikiw95AMyIMXGwVlLImPWF/g8CmALRdZcqkNtw3q7rDfhSLszuov7/GtZB7CFCVcbUDGSzqBt7qm/XHBrW8OzdThkF+LVNg8oagmA9ZfankiGN9uHlg6SltDRmE3OzABRPTQv13xf8YhmHomxBMMIWHcx3IlBzhEf8aev0UnP68jfnn5yC6rXszTdfiA/tn0lTsbHQ98+larnJvHmQUiIqxyvy6Aqca7RypcIaE9eMw7psn6dTpNxcWOebRbqDJ5tDZ5HNVSSFms7qpCVt3gAPCvX5YbAeUdyUD0285gG/Vab5LAkBZDHK6p5z8lAkcTxm85yzMuy1B8Ac1b9n0bKRW8pAF6T68LSIX0mqPGmlGT4EquFQDPTj9W+hLyBwKmwv3znZ+JHPMbkrw4Xvqs6pFlv5yekChsutvYx92NUylzXSMGi0TM6mxznfF5td+tMGgoCLfrvYioquDD/JPRMD6XgsKDcNuzn9p5I3/JZV6kI0TA1oMnzTY=';
 
         var ttwo   = 'rcc4XdLDliJW/13Tapw3YJHk1IsCg/0Mg+LctcjeER//xeC/9BNNoVH0lDzTKnPeopFJTj+MRcnAsKosUiHrRiAXH//KbnHUwDqn3AtGrhiNGWj2BuzGwklneeymtcd4RTmFBfYPW8JlGjG4CjCcU2iX8bcfAQuP3wQD/U41T9KlWh8y8MWjGSNsXrXwy/L9cAkXd4NOYrUSpKQs+xhIk4K4HlVRasYvBLzKxBruSra7SaFbDJhCVEf80jxlgQJW0wLlDCgLKHFbbBOClGhM45Pl5MTM028S19KEgjalI5tE3C4PF7r9L29KpHjtB56iccHvCzbX6F2qTxrmnzTmdkNB6+bySVyBXYe3AYhJVp7pCy21O8BomouBzfG1dPr22YHgRLa2mrgbQaU9DEyP9RQjCoOQGQrtDu7s3HNvydFnuBKN4Q8CNU4B51+LMEVpzYFHMHaQQXmBkd7/sQjaJmYoGXj2KG1o5pi3EQUPsmCPRzw2mYYHaql0QKS23cKfjrufQ08YVJh8UbgKp7YjO6M+dA27OPmlzTPPNWE1TGVA8LxMzRFjJDfyD7WJj6CxgCp5ZH3iMHD44HicqMqUPWmlKis9G/Ok1j/zAd6itKsi5bDjC/z/fNdBwsPOEi9lS54nqE1MWJ0QaU+DpUbLgV27v/Wk1yV7JFtS+Ow5CVg=';
 
@@ -50,16 +50,23 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
             "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
         }
 
+        var cooper = {
+            'id':100,
+            'roomId':163045,
+            'name':'wallace',
+            "headimgurl":"http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46"
+        }
+
         $scope.roomName = room;
 
-        console.log(room);
         if(namespace == 'live'){
             socket.emit('userInit',{"room":room,"token":tokenBox[index]});
-        }else{
+        }else if(namespace == 'wechat'){
             socket.emit('userInit',{"room":room,"openid":wxInfo.openid,'nickName':wxInfo.nickname,'posterURL':wxInfo.headimgurl});
+        }else if(namespace == 'service'){
+            socket.emit('userEnter',{"room":room});
         }
     });
-
 
     socket.on('userWebStatus',function(data){
         if(parseInt(data.status) == 0){
@@ -85,7 +92,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }
     });
 
-
     /*4.用户加入世界通知*/
     socket.on('joinChat',function(msg){
         console.log('joinChat',msg);
@@ -106,6 +112,7 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
 
 
     socket.on('message.add',function(msg){
+        console.log(msg)
         $scope.messageAdd(msg);
     });
 
@@ -133,17 +140,34 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         //alert('disconnect');
     });
 
-
     $scope.createMessage = function(){
-        if($scope.message){
-            socket.emit('createMessage',{
-                message:$scope.message,
-                type:0,up:0,down:0,
-                perform:{
-                    color:'red',fontSize:'16px'
-                }
-            });
-            $scope.message = '';
+        var namespace = $rootScope.param.namespace;
+        if(namespace == 'service') {
+            if ($scope.message) {
+                socket.emit('sendMessage', {
+                    message: $scope.message,
+                    type: 0, up: 0, down: 0,
+                    perform: {
+                        color: 'red', fontSize: '16px'
+                    },
+                    'id': 100,
+                    'roomId': 163045,
+                    'name': 'wallace',
+                    "headimgurl": "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46"
+                });
+                $scope.message = '';
+            }
+        } else {
+            if ($scope.message) {
+                socket.emit('createMessage', {
+                    message: $scope.message,
+                    type: 0, up: 0, down: 0,
+                    perform: {
+                        color: 'red', fontSize: '16px'
+                    }
+                });
+                $scope.message = '';
+            }
         }
     }
 

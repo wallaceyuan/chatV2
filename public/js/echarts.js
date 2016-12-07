@@ -3913,7 +3913,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * Create font string from fontStyle, fontWeight, fontSize, fontFamily
+	         * Create fonts string from fontStyle, fontWeight, fontSize, fontFamily
 	         * @return {string}
 	         */
 	        getFont: function () {
@@ -31334,7 +31334,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _resetController: function (api) {
 	            var controller = this._controller;
 
-	            // Init controller.
+	            // Init controllers.
 	            if (!controller) {
 	                controller = this._controller = new RoamController(api.getZr());
 	                controller.enable(this.seriesModel.get('roam'));
@@ -42881,7 +42881,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        color && cssText.push('color:' + color);
 
-	        cssText.push('font:' + textStyleModel.getFont());
+	        cssText.push('fonts:' + textStyleModel.getFont());
 
 	        fontSize &&
 	            cssText.push('line-height:' + Math.round(fontSize * 3 / 2) + 'px');
@@ -46476,12 +46476,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * @file Roam controller manager.
+	 * @file Roam controllers manager.
 	 */
 
 
-	    // Only create one roam controller for each coordinate system.
-	    // one roam controller might be refered by two inside data zoom
+	    // Only create one roam controllers for each coordinate system.
+	    // one roam controllers might be refered by two inside data zoom
 	    // components (for example, one for x and one for y). When user
 	    // pan or zoom, only dispatch one action for those data zoom
 	    // components.
@@ -46586,7 +46586,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    /**
-	     * Key: coordId, value: {dataZoomInfos: [], count, controller}
+	     * Key: coordId, value: {dataZoomInfos: [], count, controllers}
 	     * @type {Array.<Object>}
 	     */
 	    function giveStore(api) {
@@ -47477,7 +47477,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var itemSize = this.itemSize;
 	                    var visuals = controller[state];
 
-	                    // Set inactive color for controller if no other color attr (like colorAlpha) specified.
+	                    // Set inactive color for controllers if no other color attr (like colorAlpha) specified.
 	                    if (!visuals) {
 	                        visuals = controller[state] = {
 	                            color: isCategory ? inactiveColor : [inactiveColor]
@@ -52070,7 +52070,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        var textarea = document.createElement('textarea');
 	        // Textarea style
-	        textarea.style.cssText = 'display:block;width:100%;font-size:14px;line-height:1.6rem;font-family:Monaco,Consolas,Courier new,monospace';
+	        textarea.style.cssText = 'display:block;width:100%;fonts-size:14px;line-height:1.6rem;fonts-family:Monaco,Consolas,Courier new,monospace';
 	        textarea.readOnly = model.get('readOnly');
 	        textarea.style.color = model.get('textColor');
 	        textarea.style.borderColor = model.get('textareaBorderColor');
@@ -52084,7 +52084,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        buttonContainer.style.cssText = 'position:absolute;bottom:0;left:0;right:0;';
 
 	        var buttonStyle = 'float:right;margin-right:20px;border:none;'
-	            + 'cursor:pointer;padding:2px 5px;font-size:12px;border-radius:3px';
+	            + 'cursor:pointer;padding:2px 5px;fonts-size:12px;border-radius:3px';
 	        var closeButton = document.createElement('div');
 	        var refreshButton = document.createElement('div');
 
@@ -53567,7 +53567,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        try {
 	            textMeasureEl.style.font = textFont;
 	        } catch (ex) {
-	            // Ignore failures to set to invalid font.
+	            // Ignore failures to set to invalid fonts.
 	        }
 	        textMeasureEl.innerHTML = '';
 	        // Don't use innerHTML or innerText because they allow markup/whitespace.
@@ -53752,7 +53752,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        try {
 	            textPathEl.style.font = font;
 	        }
-	        // Error font format
+	        // Error fonts format
 	        catch (e) {}
 
 	        updateFillAndStroke(textVmlEl, 'fill', {

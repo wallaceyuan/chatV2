@@ -24,11 +24,11 @@
 <script src="../public/js/echarts.js"></script>
 
 <script>
-    var socket = io.connect('http://danmaku.kankanews.com/live');
+    var socket = io.connect('http://danmaku.kankanews.com/wechat');
     var keyPrim     = "KKDanMaKuOnlineUser";
     var liveid = GetQueryString('liveid');
     if(liveid == null){
-        liveid = 144;
+        liveid = 	6;
     }
     var key = keyPrim+'live'+liveid;
     socket.on('connect', function(){

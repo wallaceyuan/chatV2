@@ -16,7 +16,7 @@
 <body>
 
 <!--
-<div class="controller col-md-5 col-md-offset-2" ng-controller="usersCtrl">
+<div class="controllers col-md-5 col-md-offset-2" ng-controllers="usersCtrl">
     <div class="form-group">
         <label>用户 手机号</label>
         <input type="text" class="form-control" ng-model="token" required/>
@@ -63,7 +63,7 @@
         }
     });
 
-    angular.module('usersModule').controller('usersCtrl', function ($scope,$interval,usersService) {
+    angular.module('usersModule').controllers('usersCtrl', function ($scope,$interval,usersService) {
         $scope.token = '';
         $scope.tip = '';
         $scope.show = false;

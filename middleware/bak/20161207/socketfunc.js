@@ -6,8 +6,7 @@ var moment = require('moment');
 var user = require('../task/user');
 var config = require('../task/config');
 var asy = require('../task/asyncTask.js');
-var timeWrong = '10s内发过言了'
-var checkTime = 10
+
 
 var onlinesum = 0;
 var users = [];//在线users
@@ -168,13 +167,6 @@ function socketMain(nsp,client){
             });
         });
 
-        socket.on('userEnter',function (data) {
-            var room = data.room
-            console.log('userEnter',room)
-            if(room!=''){
-                socket.join(room);
-            }
-        })
         /*订阅房间*/
         socket.on('subscribe', function(data) {
             roomID = data.room;
@@ -198,7 +190,7 @@ function socketMain(nsp,client){
 
         /*接收redis发来的消息*/
         socket.on('redisCome',function (data) {
-            console.log('-------------redisCome',data.message,data);
+            console.log('-------------redisCome',data.message);
             try{
                 var msgInfo = {"message":data.message,"createTime":data.createTime,
                     "type":data.type,"up":data.up,
@@ -234,40 +226,8 @@ function socketMain(nsp,client){
             }
         });
 
-        socket.on('sendMessage',data=>{
-            try{
-                var data2 = {socketid:socket.id,cid: data.roomId, openid: '',checked:0,violate:0,createTime:moment().unix(), place:NSP+':'+data.roomId};
-                for(var item in data2){
-                    data[item]=data2[item];
-                }
-            }catch(e){
-                console.log('client create message err');
-                return;
-            }
-            data.message = String(data.message).trim();
-            console.log('socketid',data.socketid,'message',data.message);
-            if(data.perform){
-                try{
-                    data.perform = JSON.stringify(data.perform);
-                }catch(e){
-                    data.perform = '';
-                }
-            }
-            client.lpush('message',JSON.stringify(data),redis.print);
-        })
-
         /*用户发送消息*/
         socket.on('createMessage',function(data){
-            var sendTime = userData.sendTime
-            console.log(moment().unix() ,sendTime)
-/*            if(sendTime && moment().unix() - sendTime < checkTime){
-                console.log(timeWrong)
-                var errSocket = clients[userData.id];
-                errSocket.emit('message.error',{status:707,msg:timeWrong});
-                return
-            }else{
-                userData.sendTime = moment().unix()
-            }*/
             if(black){
                 return
             }else{
@@ -353,6 +313,7 @@ function socketMain(nsp,client){
                 });
             });
         });
+
 
         socket.on('onlineRequest',function(data){
             var key = data.key;
