@@ -6,12 +6,9 @@ var moment = require('moment');
 var redis = require('redis');
 var _ = require('lodash')
 
-
 var user = require('./user');
 var service = require('./service');
-
 var client  = config.client;
-
 
 exports.Violator = function(done,data){
 	if(data.token){
@@ -96,8 +93,9 @@ exports.selogic = function (result,namBox) {
 			});
 		},
 		function (arg,done) {
-			service.postServer({data:arg},function (err,res) {
-				var res = _.assignIn(res,arg);
+            var data = _.assignIn({},{'message':result.message},arg);
+            console.log('postServer',data)
+            service.postServer(data,function (err,res) {
 				done(err,arg);
 			})
 		}
@@ -105,39 +103,19 @@ exports.selogic = function (result,namBox) {
 		console.log('-------------result.message:'+result.message+'-------------');
 		console.log('result.socketid:',result.socketid);
 		if(err){
-/*			console.log('err!!!!',err);
+			console.log('err!!!!',err);
 			err.room = room;
 			err.socketid = result.socketid;
-			if(parseInt(err.status) == 702){//存在敏感词
-				result.violate = 1;
-				user.messageToKu(result,function(error,data){
-					if(error){
-						error.room = room;
-						error.socketid = result.socketid;
-						namBox[nsp].emit('messageError',error);
-						return
-					}
-					if(namBox[nsp]){
-						namBox[nsp].emit('messageError',err);
-						console.log('-------------messageError, nexttick-------------');
-					}else{
-						console.log('-------------error namespace-------------');
-					}
-				});
-			}else{
-				if(namBox[nsp]){
-					namBox[nsp].emit('messageError',err);
-					console.log('-------------messageError, nexttick-------------');
-				}else{
-					console.log('-------------error namespace-------------');
-				}
-			}*/
+            if(namBox[nsp]){
+                namBox[nsp].emit('messageError',err);
+                console.log('-------------messageError, nexttick-------------');
+            }else{
+                console.log('-------------error namespace-------------');
+            }
 		}else{
-			var data = _.assignIn(result,res);
-			console.log('data',data)
 			if(namBox[nsp]){
-				namBox[nsp].emit('redisCome',result);
-				console.log('-------------redisEmit all done-------------',data);
+				namBox[nsp].emit('seRedisCome',result);
+				console.log('-------------redisEmit all done-------------');
 			}else{
 				console.log('error namespace');
 			}
@@ -147,7 +125,6 @@ exports.selogic = function (result,namBox) {
 
 exports.kklogic = function (result,namBox) {
 	var time = moment().unix();
-	var result = JSON.parse(result);
 	try{
 		var place = result.place.split(':');
 		//console.log('place',result.place);

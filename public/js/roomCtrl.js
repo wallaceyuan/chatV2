@@ -1,4 +1,3 @@
-
 angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$timeout,socket,$location){
     $scope.status = false;$scope.dialog = false;$scope.ptop;
     $scope.world = [],$scope.times= [];
@@ -9,6 +8,37 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
 
     $scope.messages = [],$scope.message = '',$scope.onlines = [];
     $scope.onlinesum = 0;
+
+
+    var tone   = 'FOggzNQPHlA0s5asJgG1jDNlfEGmsPMSaiPUrWdo1jvKok1MYdB1i692M93b5/UcdYn/Ceo0xpiWshQqo7aSGcUgatNpvg/lh62ERKQr8PWVsDPM3ihkpvL5b93EySXsrCM8/8Y3PZWvVf/Y90OhQFEuOIwkoBPPEzVYzMcRT8WOUEmovzSIikiw95AMyIMXGwVlLImPWF/g8CmALRdZcqkNtw3q7rDfhSLszuov7/GtZB7CFCVcbUDGSzqBt7qm/XHBrW8OzdThkF+LVNg8oagmA9ZfankiGN9uHlg6SltDRmE3OzABRPTQv13xf8YhmHomxBMMIWHcx3IlBzhEf8aev0UnP68jfnn5yC6rXszTdfiA/tn0lTsbHQ98+larnJvHmQUiIqxyvy6Aqca7RypcIaE9eMw7psn6dTpNxcWOebRbqDJ5tDZ5HNVSSFms7qpCVt3gAPCvX5YbAeUdyUD0285gG/Vab5LAkBZDHK6p5z8lAkcTxm85yzMuy1B8Ac1b9n0bKRW8pAF6T68LSIX0mqPGmlGT4EquFQDPTj9W+hLyBwKmwv3znZ+JHPMbkrw4Xvqs6pFlv5yekChsutvYx92NUylzXSMGi0TM6mxznfF5td+tMGgoCLfrvYioquDD/JPRMD6XgsKDcNuzn9p5I3/JZV6kI0TA1oMnzTY=';
+
+    var ttwo   = 'rcc4XdLDliJW/13Tapw3YJHk1IsCg/0Mg+LctcjeER//xeC/9BNNoVH0lDzTKnPeopFJTj+MRcnAsKosUiHrRiAXH//KbnHUwDqn3AtGrhiNGWj2BuzGwklneeymtcd4RTmFBfYPW8JlGjG4CjCcU2iX8bcfAQuP3wQD/U41T9KlWh8y8MWjGSNsXrXwy/L9cAkXd4NOYrUSpKQs+xhIk4K4HlVRasYvBLzKxBruSra7SaFbDJhCVEf80jxlgQJW0wLlDCgLKHFbbBOClGhM45Pl5MTM028S19KEgjalI5tE3C4PF7r9L29KpHjtB56iccHvCzbX6F2qTxrmnzTmdkNB6+bySVyBXYe3AYhJVp7pCy21O8BomouBzfG1dPr22YHgRLa2mrgbQaU9DEyP9RQjCoOQGQrtDu7s3HNvydFnuBKN4Q8CNU4B51+LMEVpzYFHMHaQQXmBkd7/sQjaJmYoGXj2KG1o5pi3EQUPsmCPRzw2mYYHaql0QKS23cKfjrufQ08YVJh8UbgKp7YjO6M+dA27OPmlzTPPNWE1TGVA8LxMzRFjJDfyD7WJj6CxgCp5ZH3iMHD44HicqMqUPWmlKis9G/Ok1j/zAd6itKsi5bDjC/z/fNdBwsPOEi9lS54nqE1MWJ0QaU+DpUbLgV27v/Wk1yV7JFtS+Ow5CVg=';
+
+    var tthree = "opV5fwXDlHdvHRdJGJ8WD2Am6z7lkyryo0BO8wJ0ViqVs+wUox3ppMQMb49dLI6tbwi24nML7DClJVNH2I53SsdRc7X0TxB33INM/Hzl1xrGXgcZbIgQo028WtgYwFlNf5RggnqJMvj/YtIzxLOr1CJ/iUw5b5df028QJ6TISVFJjKYItasMLsyitLIA9V1TP3vWawTdju1eKiu/8z6E6/SV8y9V6GN4BH4ObcG69o7LLD+yfpv/mXXNK17UeoqP4p/+4Cp++ZAxdW/2ZtMdbwOpPyxZu4Ux4cAm5ZTSQLJbWqpVbdKgrKfuMbeMWu8d8mw4MEe/HHCZeHzH/PHsf/5hU8ZbagTuxYSvqk3W0OJuyEpKhrbQDqP/gA7VrZXQujzUCMAXWT3JPYLs6D1hEdoPpNGsQKAxdqScAkLfGDbm9gzph7PjgdHOeojZf9+JlZWSkmG0Id15grtH2keH3T8HNVg7ywTIQRkq87lnvUqGrHCG2S3fKTLIgPxsvaC5JL/GPkvA3kPRqu5Xjj45RSUc7pPR+mOlAVujuRHnJqpQfxK1EZ0DdI88XjUaLFO7pIpyU8aADT17exnhLDXP1PVmD2a5WojV0nZ5Hv7DjSWPEvfcNI0+dxkd1po1AJCl+XNmdHOY1arbF1ol2sbKCbuxZS3530RjHbGuKitgA2E=";
+
+    var tokenBox = [tone,ttwo,tthree];
+
+    var namespace = $rootScope.param.namespace;
+
+    var wxInfo = {
+        "openid":"o81pDuLcFI2sNfOuLFYk9RlfSLWc",
+        "nickname": "yyffww",
+        "sex":"1",
+        "province":"PROVINCE",
+        "city":"CITY",
+        "country":"COUNTRY",
+        "headimgurl":"http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
+        "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
+    }
+
+    var cooper = {
+        type: 0, up: 0, down: 0,
+        perform: {
+            color: 'red', fontSize: '16px'
+        },
+        'id': 100,
+        "posterURL": "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46"
+    }
 
     /*1 测试连接事件*/
     socket.on('connect', function(){
@@ -27,34 +57,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
             var index = $location.search().index;
         }else{
             var index = 0;
-        }
-
-        var tone   = 'FOggzNQPHlA0s5asJgG1jDNlfEGmsPMSaiPUrWdo1jvKok1MYdB1i692M93b5/UcdYn/Ceo0xpiWshQqo7aSGcUgatNpvg/lh62ERKQr8PWVsDPM3ihkpvL5b93EySXsrCM8/8Y3PZWvVf/Y90OhQFEuOIwkoBPPEzVYzMcRT8WOUEmovzSIikiw95AMyIMXGwVlLImPWF/g8CmALRdZcqkNtw3q7rDfhSLszuov7/GtZB7CFCVcbUDGSzqBt7qm/XHBrW8OzdThkF+LVNg8oagmA9ZfankiGN9uHlg6SltDRmE3OzABRPTQv13xf8YhmHomxBMMIWHcx3IlBzhEf8aev0UnP68jfnn5yC6rXszTdfiA/tn0lTsbHQ98+larnJvHmQUiIqxyvy6Aqca7RypcIaE9eMw7psn6dTpNxcWOebRbqDJ5tDZ5HNVSSFms7qpCVt3gAPCvX5YbAeUdyUD0285gG/Vab5LAkBZDHK6p5z8lAkcTxm85yzMuy1B8Ac1b9n0bKRW8pAF6T68LSIX0mqPGmlGT4EquFQDPTj9W+hLyBwKmwv3znZ+JHPMbkrw4Xvqs6pFlv5yekChsutvYx92NUylzXSMGi0TM6mxznfF5td+tMGgoCLfrvYioquDD/JPRMD6XgsKDcNuzn9p5I3/JZV6kI0TA1oMnzTY=';
-
-        var ttwo   = 'rcc4XdLDliJW/13Tapw3YJHk1IsCg/0Mg+LctcjeER//xeC/9BNNoVH0lDzTKnPeopFJTj+MRcnAsKosUiHrRiAXH//KbnHUwDqn3AtGrhiNGWj2BuzGwklneeymtcd4RTmFBfYPW8JlGjG4CjCcU2iX8bcfAQuP3wQD/U41T9KlWh8y8MWjGSNsXrXwy/L9cAkXd4NOYrUSpKQs+xhIk4K4HlVRasYvBLzKxBruSra7SaFbDJhCVEf80jxlgQJW0wLlDCgLKHFbbBOClGhM45Pl5MTM028S19KEgjalI5tE3C4PF7r9L29KpHjtB56iccHvCzbX6F2qTxrmnzTmdkNB6+bySVyBXYe3AYhJVp7pCy21O8BomouBzfG1dPr22YHgRLa2mrgbQaU9DEyP9RQjCoOQGQrtDu7s3HNvydFnuBKN4Q8CNU4B51+LMEVpzYFHMHaQQXmBkd7/sQjaJmYoGXj2KG1o5pi3EQUPsmCPRzw2mYYHaql0QKS23cKfjrufQ08YVJh8UbgKp7YjO6M+dA27OPmlzTPPNWE1TGVA8LxMzRFjJDfyD7WJj6CxgCp5ZH3iMHD44HicqMqUPWmlKis9G/Ok1j/zAd6itKsi5bDjC/z/fNdBwsPOEi9lS54nqE1MWJ0QaU+DpUbLgV27v/Wk1yV7JFtS+Ow5CVg=';
-
-        var tthree = "opV5fwXDlHdvHRdJGJ8WD2Am6z7lkyryo0BO8wJ0ViqVs+wUox3ppMQMb49dLI6tbwi24nML7DClJVNH2I53SsdRc7X0TxB33INM/Hzl1xrGXgcZbIgQo028WtgYwFlNf5RggnqJMvj/YtIzxLOr1CJ/iUw5b5df028QJ6TISVFJjKYItasMLsyitLIA9V1TP3vWawTdju1eKiu/8z6E6/SV8y9V6GN4BH4ObcG69o7LLD+yfpv/mXXNK17UeoqP4p/+4Cp++ZAxdW/2ZtMdbwOpPyxZu4Ux4cAm5ZTSQLJbWqpVbdKgrKfuMbeMWu8d8mw4MEe/HHCZeHzH/PHsf/5hU8ZbagTuxYSvqk3W0OJuyEpKhrbQDqP/gA7VrZXQujzUCMAXWT3JPYLs6D1hEdoPpNGsQKAxdqScAkLfGDbm9gzph7PjgdHOeojZf9+JlZWSkmG0Id15grtH2keH3T8HNVg7ywTIQRkq87lnvUqGrHCG2S3fKTLIgPxsvaC5JL/GPkvA3kPRqu5Xjj45RSUc7pPR+mOlAVujuRHnJqpQfxK1EZ0DdI88XjUaLFO7pIpyU8aADT17exnhLDXP1PVmD2a5WojV0nZ5Hv7DjSWPEvfcNI0+dxkd1po1AJCl+XNmdHOY1arbF1ol2sbKCbuxZS3530RjHbGuKitgA2E=";
-
-        var tokenBox = [tone,ttwo,tthree];
-
-        var namespace = $rootScope.param.namespace;
-
-        var wxInfo = {
-            "openid":"o81pDuLcFI2sNfOuLFYk9RlfSLWc",
-            "nickname": "yyffww",
-            "sex":"1",
-            "province":"PROVINCE",
-            "city":"CITY",
-            "country":"COUNTRY",
-            "headimgurl":    "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
-            "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
-        }
-
-        var cooper = {
-            'id':100,
-            'roomId':163045,
-            'name':'wallace',
-            "headimgurl":"http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46"
         }
 
         $scope.roomName = room;
@@ -109,8 +111,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         }
     });
 
-
-
     socket.on('message.add',function(msg){
         console.log(msg)
         $scope.messageAdd(msg);
@@ -144,20 +144,12 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
         var namespace = $rootScope.param.namespace;
         if(namespace == 'service') {
             if ($scope.message) {
-                socket.emit('sendMessage', {
-                    message: $scope.message,
-                    type: 0, up: 0, down: 0,
-                    perform: {
-                        color: 'red', fontSize: '16px'
-                    },
-                    'id': 100,
-                    'roomId': 163045,
-                    'name': 'wallace',
-                    "headimgurl": "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46"
-                });
+                cooper.message = $scope.message
+                cooper.name = Math.random().toString(36).substr(2)
+                socket.emit('sendMessage', cooper);
                 $scope.message = '';
             }
-        } else {
+        }else{
             if ($scope.message) {
                 socket.emit('createMessage', {
                     message: $scope.message,
@@ -180,7 +172,6 @@ angular.module('chatModule').controller('roomCtrl',function($rootScope,$scope,$t
     }
 
     $scope.messageAdd = function(msg){
-      console.log('message.add',msg);
       if($.inArray(msg.time, $scope.times)>-1){
           msg.time = false;
       }else{

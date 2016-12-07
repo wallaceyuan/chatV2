@@ -18,9 +18,9 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
             console.log(5,err);
         }else{
             if(rows.length>0){
-                callback(null,{"liveroom":'on'});
+                callback(null,'');
             }else{
-                callback(null,{"liveroom":'off'});
+                callback({"status":302,"msg":'liveroom off'},null);
             }
         }
     });
@@ -45,7 +45,7 @@ exports.postServer = function (data,callback) {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         url: 'http://127.0.0.1:3000/violates/check',
         method: 'POST',
-        body:"data="+data
+        body:"data="+JSON.stringify(data)
     };
     request(codeOpt,function(err,result,body){
         var body = JSON.parse(body);

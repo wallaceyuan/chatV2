@@ -15,35 +15,42 @@
 
 <div class="message"></div>
 
+<!--
 <script type="text/javascript" src="http://danmaku.kankanews.com/socket.io/socket.io.js"></script>
+-->
+<script type="text/javascript" src="http://127.0.0.1:3000/socket.io/socket.io.js"></script>
 
 <script>
 
     var token   = 'FOggzNQPHlA0s5asJgG1jDNlfEGmsPMSaiPUrWdo1jvKok1MYdB1i692M93b5/UcdYn/Ceo0xpiWshQqo7aSGcUgatNpvg/lh62ERKQr8PWVsDPM3ihkpvL5b93EySXsrCM8/8Y3PZWvVf/Y90OhQFEuOIwkoBPPEzVYzMcRT8WOUEmovzSIikiw95AMyIMXGwVlLImPWF/g8CmALRdZcqkNtw3q7rDfhSLszuov7/GtZB7CFCVcbUDGSzqBt7qm/XHBrW8OzdThkF+LVNg8oagmA9ZfankiGN9uHlg6SltDRmE3OzABRPTQv13xf8YhmHomxBMMIWHcx3IlBzhEf8aev0UnP68jfnn5yC6rXszTdfiA/tn0lTsbHQ98+larnJvHmQUiIqxyvy6Aqca7RypcIaE9eMw7psn6dTpNxcWOebRbqDJ5tDZ5HNVSSFms7qpCVt3gAPCvX5YbAeUdyUD0285gG/Vab5LAkBZDHK6p5z8lAkcTxm85yzMuy1B8Ac1b9n0bKRW8pAF6T68LSIX0mqPGmlGT4EquFQDPTj9W+hLyBwKmwv3znZ+JHPMbkrw4Xvqs6pFlv5yekChsutvYx92NUylzXSMGi0TM6mxznfF5td+tMGgoCLfrvYioquDD/JPRMD6XgsKDcNuzn9p5I3/JZV6kI0TA1oMnzTY=';
 
+    /*
+     var socket = io.connect('http://54.222.215.248:80/live');
+     */
 /*
-    var socket = io.connect('http://54.222.215.248:80/live');
-*/
     var socket = io.connect('http://danmaku.kankanews.com/livetest');
+*/
+
+    var socket = io.connect('http://127.0.0.1:3000/service');
+
+    var cooper = {
+        type: 0, up: 0, down: 0,
+        perform: {
+            color: 'red', fontSize: '16px'
+        },
+        'id': 100,
+        "posterURL": "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46"
+    }
 
     socket.on('connect', function(){
-        socket.emit('userInit',{room:1, token:token });
-    });
-
-    socket.on('userStatus',function(data){
-        console.log(data);
-        document.getElementsByTagName('pre')[0].innerHTML = JSON.stringify(data);
+        socket.emit('userEnter',{room:163045});
     });
 
     document.querySelector('.button').addEventListener('click',function(){
         var vv = document.getElementById("input1").value;
-        socket.emit('createMessage', {
-            message:vv,
-            type:'',up:0,down:0,
-            perform:{
-                color:'red',fontSize:'16px'
-            }
-        });
+        cooper.message = vv
+        cooper.name = Math.random().toString(36).substr(2)
+        socket.emit('sendMessage',cooper);
     });
 
     socket.on('message.add',function(msg){

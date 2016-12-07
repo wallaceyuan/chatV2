@@ -61,6 +61,9 @@ router.route('/tokenR')
 
 router.route('/check')
     .post(function (req,res) {
+        var data = req.body.data
+        /*JSON.parse(data).message*/
+        console.log('check',data)
         res.send({status:200});
     })
 
@@ -79,7 +82,6 @@ function delOpenid(req,res){
         }
     });
 }
-
 
 function logical(req,res){
     var telreceive = req.body.tel;
