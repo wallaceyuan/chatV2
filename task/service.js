@@ -45,14 +45,23 @@ exports.postServer = function (data,callback) {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         url: 'http://127.0.0.1:3000/violates/check',
         method: 'POST',
-        body:"data="+JSON.stringify(data)
+        body:"data="+JSON.stringify(data),
+        timeout: 2000
     };
     request(codeOpt,function(err,result,body){
-        var body = JSON.parse(body);
-        if(body.status == 200){
-            callback(null,body);
+        if(err){
+            if(err.code === 'ETIMEDOUT'){
+                callback({"status":710,"msg":'timeout'}, null);
+            }else{
+                callback({"status":711,"msg":'other'}, null);
+            }
         }else{
-            callback({"status":709,"msg":'stop send'}, null);
+            var body = JSON.parse(body);
+            if(body.status == 200){
+                callback(null,body);
+            }else{
+                callback({"status":709,"msg":'stop send'}, null);
+            }
         }
     });
 }

@@ -222,13 +222,15 @@ function socketMain(nsp,client){
 
         /*接收redis发来的消息*/
         socket.on('seRedisCome',function (data) {
-            console.log('-------------redisCome',data.message,'-------------');
-            if(data.room!=''){
-                var delBox = ['socketid','cid','place']
-                delBox.map((item)=>{
-                    delete data[item]
-                })
-                nsp.in(data.room).emit('message.add',data);
+            var room = data.room
+            console.log('-------------redisCome',data.message+'-------------');
+            var delBox = ['socketid','cid','place','room']
+            delBox.map((item)=>{
+                delete data[item]
+            })
+            if(room!=''){
+                console.log('-------------redisCome',JSON.stringify(data)+'-------------');
+                nsp.in(room).emit('message.add',data);
             }else{
                 nsp.emit('message.add',data);
             }

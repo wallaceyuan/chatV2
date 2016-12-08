@@ -11,8 +11,10 @@ if(str.indexOf("封城")!=-1){
 }
 */
 var obj = {socketid:111,cid:111,place:124,name:'wallace'}
+var oo = JSON.stringify(obj)
 var delBox = ['socketid','cid','place']
 delBox.map((item,index)=>{
     delete  obj[item]
 })
-console.log(obj)
+console.log('obj',obj)
+console.log('oo',JSON.parse(oo))

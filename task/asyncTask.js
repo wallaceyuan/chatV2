@@ -79,6 +79,8 @@ exports.selogic = function (result,namBox) {
 		return;
 	}
 	var nsp = place[0],room = place[1];
+	var middle = JSON.stringify(result)
+
 	result.room = room;
 	console.log('selogic start '+' nsp: '+nsp +" room "+room + ' time: '+time);
 	async.waterfall([
@@ -94,6 +96,10 @@ exports.selogic = function (result,namBox) {
 			});
 		},
 		function (arg,done) {
+			var delBox = ['socketid','cid','place','room']
+			delBox.map((item)=>{
+				delete result[item]
+			})
             var data = _.assignIn({},result,arg);
             //console.log('postServer',data)
             service.postServer(data,function (err,res) {
@@ -101,6 +107,7 @@ exports.selogic = function (result,namBox) {
 			})
 		}
 	],function(err,res){
+		var result = JSON.parse(middle)
 		console.log('-------------result.message:'+result.message+'-------------');
 		console.log('result.socketid:',result.socketid);
 		if(err){
