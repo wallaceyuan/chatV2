@@ -203,7 +203,7 @@ function socketMain(nsp,client){
 
         /*接收redis发来的消息*/
         socket.on('redisCome',function (data) {
-            console.log('-------------redisCome',data.message,data);
+            console.log('-------------redisCome',data.message);
             try{
                 var msgInfo = {"message":data.message,"createTime":data.createTime,
                     "type":data.type,"up":data.up,
@@ -229,7 +229,7 @@ function socketMain(nsp,client){
                 delete data[item]
             })
             if(room!=''){
-                console.log('-------------redisCome',JSON.stringify(data)+'-------------');
+                //console.log('-------------redisCome',JSON.stringify(data)+'-------------');
                 nsp.in(room).emit('message.add',data);
             }else{
                 nsp.emit('message.add',data);
@@ -264,7 +264,7 @@ function socketMain(nsp,client){
                 return;
             }
             data.message = String(data.message).trim();
-            console.log('socketid',data.socketid,'message',data.message);
+            console.log(267,'socketid',data.socketid,'message',data.message);
             if(data.perform){
                 try{
                     data.perform = JSON.stringify(data.perform);
@@ -277,9 +277,9 @@ function socketMain(nsp,client){
 
         /*用户发送消息*/
         socket.on('createMessage',function(data){
-            var sendTime = userData.sendTime
-            console.log(moment().unix() ,sendTime)
-/*            if(sendTime && moment().unix() - sendTime < checkTime){
+/*            var sendTime = userData.sendTime
+            console.log(281,moment().unix() ,sendTime)
+            if(sendTime && moment().unix() - sendTime < checkTime){
                 console.log(timeWrong)
                 var errSocket = clients[userData.id];
                 errSocket.emit('message.error',{status:707,msg:timeWrong});

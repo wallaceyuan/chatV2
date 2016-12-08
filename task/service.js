@@ -11,7 +11,7 @@ var pool  = config.pool;
 
 
 exports.roomValidateSql   = function(nsp,infoid,callback){
-    var sid  = 'infoid';
+    var sid = 't1.id';
     pool.query('select t1.id from kk_danmaku_chatrooms as t1,kk_danmaku_namespace as t2 where t2.id = t1.type and namespace = ? and '+sid+' = ? and t1.open = ? and t2.open = ? ',[nsp,infoid,1,1],function(err,rows){
         if(err){
             callback({"status":706,"msg":'room 查询错误'+err},null);

@@ -63,7 +63,7 @@ router.route('/check')
     .post(function (req,res) {
         var data = req.body.data
         /*JSON.parse(data).message*/
-        console.log('check',data)
+        //console.log('check',data)
         res.send({status:200});
     })
 
