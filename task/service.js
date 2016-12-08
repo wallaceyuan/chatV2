@@ -20,7 +20,7 @@ exports.roomValidateSql   = function(nsp,infoid,callback){
             if(rows.length>0){
                 callback(null,'');
             }else{
-                callback({"status":302,"msg":'liveroom off'},null);
+                callback({"status":708,"msg":'liveroom off'},null);
             }
         }
     });
@@ -52,7 +52,7 @@ exports.postServer = function (data,callback) {
         if(body.status == 200){
             callback(null,body);
         }else{
-            callback({"status":302,"msg":'stop send'}, null);
+            callback({"status":709,"msg":'stop send'}, null);
         }
     });
 }

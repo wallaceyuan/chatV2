@@ -3,13 +3,10 @@ var request = require('request');
 var async = require('async');
 var debug = require('debug')('socketfunc:save');
 var moment = require('moment');
-var _ = require('lodash')
-
 var user = require('../task/user');
 var config = require('../task/config');
 var asy = require('../task/asyncTask.js');
-var timeWrong = '10s内发过言了'
-var checkTime = 10
+
 
 var onlinesum = 0;
 var users = [];//在线users
@@ -170,16 +167,6 @@ function socketMain(nsp,client){
             });
         });
 
-        /*service进入房间*/
-        socket.on('userEnter',function (data) {
-            roomName = data.room
-            clients[socket.id] = socket;
-            console.log('userEnter',roomName)
-            if(roomName!=''){
-                socket.join(roomName);
-            }
-        })
-
         /*订阅房间*/
         socket.on('subscribe', function(data) {
             roomID = data.room;
@@ -203,7 +190,7 @@ function socketMain(nsp,client){
 
         /*接收redis发来的消息*/
         socket.on('redisCome',function (data) {
-            console.log('-------------redisCome',data.message,data);
+            console.log('-------------redisCome',data.message);
             try{
                 var msgInfo = {"message":data.message,"createTime":data.createTime,
                     "type":data.type,"up":data.up,
@@ -217,20 +204,6 @@ function socketMain(nsp,client){
                 nsp.in(data.room).emit('message.add',msgInfo);
             }else{
                 nsp.emit('message.add',msgInfo);
-            }
-        });
-
-        /*接收redis发来的消息*/
-        socket.on('seRedisCome',function (data) {
-            console.log('-------------redisCome',data.message,'-------------');
-            if(data.room!=''){
-                var delBox = ['socketid','cid','place']
-                delBox.map((item)=>{
-                    delete data[item]
-                })
-                nsp.in(data.room).emit('message.add',data);
-            }else{
-                nsp.emit('message.add',data);
             }
         });
 
@@ -253,38 +226,8 @@ function socketMain(nsp,client){
             }
         });
 
-        socket.on('sendMessage',data =>{
-            try{
-                var data2 = {socketid:socket.id,cid: roomName,createTime:moment().unix(), place:NSP+':'+roomName};
-                data = _.assignIn(data,data2);
-            }catch(e){
-                console.log('client create message err');
-                return;
-            }
-            data.message = String(data.message).trim();
-            console.log('socketid',data.socketid,'message',data.message);
-            if(data.perform){
-                try{
-                    data.perform = JSON.stringify(data.perform);
-                }catch(e){
-                    data.perform = '';
-                }
-            }
-            client.lpush('message',JSON.stringify(data),redis.print);
-        })
-
         /*用户发送消息*/
         socket.on('createMessage',function(data){
-            var sendTime = userData.sendTime
-            console.log(moment().unix() ,sendTime)
-/*            if(sendTime && moment().unix() - sendTime < checkTime){
-                console.log(timeWrong)
-                var errSocket = clients[userData.id];
-                errSocket.emit('message.error',{status:707,msg:timeWrong});
-                return
-            }else{
-                userData.sendTime = moment().unix()
-            }*/
             if(black){
                 return
             }else{
@@ -370,6 +313,7 @@ function socketMain(nsp,client){
                 });
             });
         });
+
 
         socket.on('onlineRequest',function(data){
             var key = data.key;

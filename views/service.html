@@ -33,14 +33,7 @@
 
     var socket = io.connect('http://127.0.0.1:3000/service');
 
-    var cooper = {
-        type: 0, up: 0, down: 0,
-        perform: {
-            color: 'red', fontSize: '16px'
-        },
-        'id': 100,
-        "posterURL": "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46"
-    }
+    var cooper = {type: 0, up: 0, down: 0, perform: {color: 'red', fontSize: '16px'}, 'id': 100, "posterURL": "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46"}
 
     socket.on('connect', function(){
         socket.emit('userEnter',{room:163045});

@@ -24,6 +24,7 @@ exports.Violator = function(done,data){
 		});
 	}
 }
+
 exports.timeCheck = function (done) {
 	console.log(arguments)
 	done(null,1);
@@ -93,8 +94,8 @@ exports.selogic = function (result,namBox) {
 			});
 		},
 		function (arg,done) {
-            var data = _.assignIn({},{'message':result.message},arg);
-            console.log('postServer',data)
+            var data = _.assignIn({},result,arg);
+            //console.log('postServer',data)
             service.postServer(data,function (err,res) {
 				done(err,arg);
 			})
