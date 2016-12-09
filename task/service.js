@@ -43,7 +43,7 @@ exports.messageValidate   = function(data,callback){
 exports.postServer = function (data,callback) {
     var codeOpt = {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        url: 'http://127.0.0.1:3000/violates/check',
+        url: 'http://gdjs.xun-ao.com/api/barrageStorage.php',
         method: 'POST',
         body:"data="+JSON.stringify(data),
         timeout: 2000
