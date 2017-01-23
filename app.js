@@ -7,7 +7,7 @@ var debug = require('debug')('yuanchat:server');
 var http = require('http');
 var fs = require('fs');
 //var port = normalizePort(process.env.PORT || '1000');
-var port = normalizePort(process.argv[2] || '3000');
+var port = normalizePort(process.argv[2] || '1000');
 var socket = require('./middleware/socket');
 
 var routes = require('./routes/index');
@@ -25,7 +25,7 @@ app.engine('html',require('ejs').__express);
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 

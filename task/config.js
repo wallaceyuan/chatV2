@@ -13,7 +13,7 @@ var pool = mysql.createPool({
 });*/
 
 var client   = require("redis").createClient();
-var ip = 'http://127.0.0.1:3000';
+var ip = 'http://127.0.0.1:1000';
 var host = 'localhost';
 var pool = mysql.createPool({
     host:'127.0.0.1',

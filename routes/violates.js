@@ -1,6 +1,7 @@
 
 var express = require('express');
 var router = express.Router();
+var formidable = require('formidable');
 
 var mysql = require('mysql');
 var config = require('../task/config');
@@ -61,12 +62,26 @@ router.route('/tokenR')
 
 router.route('/check')
     .post(function (req,res) {
-        var data = req.body.data
+        var parser = new formidable.IncomingForm();
+        parser.parse(req,function(err,fields,files) {
+            console.log('fields',fields,'files',files);
+            res.end('hello');
+        });
+/*        var data = req.body.data
+        console.log(data)
+        /!*JSON.parse(data).message*!/
+        //console.log('check',data)
+        res.send({status:200});*/
+    })
+
+router.route('/check')
+    .get(function (req,res) {
+        var data = req.body
+        console.log(data)
         /*JSON.parse(data).message*/
         //console.log('check',data)
         res.send({status:200});
     })
-
 
 function delOpenid(req,res){
     var openid = req.query.openid;

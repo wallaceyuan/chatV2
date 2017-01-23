@@ -19,6 +19,7 @@
     "express": "~4.13.1",
     "express-domain-middleware": "^0.1.0",
     "express-session": "^1.13.0",
+    "formidable": "^1.0.17",
     "iconv-lite": "^0.4.13",
     "lodash": "^4.17.2",
     "moment": "^2.13.0",

@@ -28,7 +28,14 @@
     var socket = io.connect('http://127.0.0.1:3000/service');
 */
 
-    var cooper = {type: 0, up: 0, down: 0, perform: {color: 'red', fontSize: '16px'}, 'id': 100, "posterURL": "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46"}
+    var cooper =   {
+        avatar : "http://pudong.xun-ao.com/d/file/imageapi/2016-12/585a12be43ff0.png",
+        "live_id" : 58,
+        message : "\U5168\U6587",
+        name : '1212',
+        "user_id" : 25,
+    }
+
 
     socket.on('connect', function(){
         socket.emit('userEnter',{room:163045});

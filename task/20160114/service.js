@@ -41,10 +41,9 @@ exports.messageValidate   = function(data,callback){
 }
 
 exports.postServer = function (data,callback) {
-    console.log('postServer json',JSON.stringify(data))
     var codeOpt = {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        url:'http://jsapi-gdjs.pudongtv.cn/barrageStorage.php',
+        url: 'http://gdjs.xun-ao.com/api/barrageStorage.php',
         method: 'POST',
         body:"data="+JSON.stringify(data),
         timeout: 2000
