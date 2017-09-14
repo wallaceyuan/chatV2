@@ -245,7 +245,8 @@ exports.messageDirty      = function(message,callback){
 }
 
 exports.messageToKu       = function(data,callback){
-    data.message = escape(xss(emoji.unifiedToText(data.message)));
+    var unicode2 = decToHex(escape(xss(data.message)));
+    data.message = '"' + unicode2 + '"';
     var place = data.place.split(':');
     var nsp = place[0];
 
@@ -270,6 +271,18 @@ exports.messageToKu       = function(data,callback){
         }
     });
 
+}
+
+var decToHex = function(str) { //unicode编码
+    var res=[];
+    for(var i=0;i < str.length;i++)
+        res[i]=("00"+str.charCodeAt(i).toString(16)).slice(-4);
+    return "\\u"+res.join("\\u");
+}
+
+var hexToDec = function(str) { //unicode解码
+    str=str.replace(/\\/g,"%");
+    return unescape(str);
 }
 
 function escape(html) {
