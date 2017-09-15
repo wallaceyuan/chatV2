@@ -20,6 +20,8 @@ $ npm run app
 
 # 运行服务端
 $ npm run sclient
+
+浏览器打开http://127.0.0.1:3000/ 查看效果
 ```
 
 ##### 依赖redis和mysql
