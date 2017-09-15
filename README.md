@@ -9,7 +9,6 @@
 ```
 $ git clone https://github.com/wallaceyuan/chatV2.git
 $ npm install
-
 ```
 
 
@@ -21,7 +20,6 @@ $ npm run app
 
 # 运行服务端
 $ npm run sclient
-
 ```
 
 ##### 依赖redis和mysql
@@ -34,7 +32,6 @@ $ redis-server redis.conf
 $ redis-server
 或者将redis启动到后台
 $ launchctl load ~/Library/LaunchAgents/homebrew.mxcl.redis.plist
-
 ```
 
 ##### 安装下载项目js
