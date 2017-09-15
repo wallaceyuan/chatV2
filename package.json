@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "app":"node app.js",
+    "sclient": "node ./task/sclient.js",
     "start": "node ./bin/www"
   },
   "dependencies": {
