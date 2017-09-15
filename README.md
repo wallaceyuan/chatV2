@@ -44,6 +44,30 @@ $ npm install -g bower
 $ bower install
 ```
 
+##### 前端模板
+
+```
+var app = express();
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'html');
+app.engine('html',require('ejs').__express);
+```
+
+##### 测试页面
+
+```
+./views/online.html
+
+```
+
+##### 在线人数查看
+
+```
+./views/online.html?liveid=xxx
+
+```
+
 ##### 服务器部署
 
 ###### PM2
