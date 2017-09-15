@@ -4,7 +4,6 @@ var async = require('async');
 var moment = require('moment');
 var redis = require('redis');
 
-var user = require('../task/user');
 var config = require('../task/config');
 var asy = require('../task/asyncTask.js');
 
@@ -26,6 +25,7 @@ var service = io.connect(ip+'/service', {reconnect: true});
 
 var namBox = {'root':origin,'chatroom':chatroom,'live':live,'vod':vod,'wechat':wechat,'broadcast':broadcast,'livetest':livetest,'service':service};
 
+//错误捕获
 var reqDomain = domain.create();
 reqDomain.on('error', function (err) {
     console.log(err);

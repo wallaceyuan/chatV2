@@ -7,7 +7,6 @@ var xss = require('xss');
 var emoji = require('emoji');
 var debug = require('debug')('mysql:save');
 
-
 var config = require('../task/config');
 var client  = config.client;
 var pool  = config.pool;

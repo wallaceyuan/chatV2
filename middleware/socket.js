@@ -12,6 +12,7 @@ exports.socketio = function(server) {
 
     io.adapter(redis({host: host, port: 6379}));
 
+    /*定义命名空间*/
     var nameBox = ['/chatroom','/live','/vod','/wechat','/broadcast','/livetest','/service'];
 
     for(var item in nameBox){

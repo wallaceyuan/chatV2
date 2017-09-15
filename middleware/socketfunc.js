@@ -5,7 +5,6 @@ var debug = require('debug')('socketfunc:save');
 var moment = require('moment');
 var _ = require('lodash')
 
-var user = require('../task/user');
 var config = require('../task/config');
 var asy = require('../task/asyncTask.js');
 var timeWrong = '10s内发过言了'
@@ -14,7 +13,7 @@ var checkTime = 10
 var onlinesum = 0;
 var users = [];//在线users
 var clients = [];//在线socket
-var client  = config.client;
+var client  = config.client;//redis 服务器
 
 
 exports.socketHallFuc = function(nsp,client) {
@@ -30,8 +29,8 @@ function socketMain(nsp,client){
         var black = false,roomName = '',userData,userName,
             NSP = nsp.name == '/'?'root': nsp.name.replace(/\//g, "");
         var keyPrim     = "KKDanMaKuOnlineUser";
-        var key = '';//在线人数key
-        var keyRoom = '';//房间人数key
+        var key = '';//在线人数key 没用的在线用户功能
+        var keyRoom = '';//房间人数key 没用的在线用户功能
 
         socket.on('userInit',function(data){//监听 客户端的消息
             console.log('socketid-----------------------'+socket.id);
@@ -47,6 +46,7 @@ function socketMain(nsp,client){
             key = keyPrim+NSP+data.room;
             keyRoom = 'RoomPeopleDetail'+NSP+data.room;
 
+            /*计算当前room在线人数 没用的在线用户功能*/
             client.HGETALL(keyRoom,function(err, obj){
                 if(err){
                     console.log(err);
@@ -65,16 +65,18 @@ function socketMain(nsp,client){
                 }
             });
 
+            /*加入命名空间下的房间*/
             if(data.room!=''){
                 socket.join(data.room);
             }
 
+            /*async 验证用户身份*/
             async.waterfall([
                 function(done){//用code查询是否被禁言(redis)
                     console.log('-------------svolidate-------------');
                     asy.Violator(done,data);
                 },
-                function(arg,done){//用code检测时候是allow用户（redis/sso）
+                function(arg,done){//用code检测时候是allow用户（redis/sso）返回用户信息
                     console.log('sallow');
                     asy.Allowed(arg,done,data);
                 },
@@ -89,8 +91,12 @@ function socketMain(nsp,client){
                             onlinesum = parseInt(val);
                         }
                         black = true,roomName = data.room,clients[socket.id] = socket;
+
                         socket.emit('userWebStatus',{status:err.code,msg:err.msg,users:users,onlinesum:onlinesum});
+
                         socket.emit('userStatus',{status:err.code,msg:err.msg});
+
+                        /*拿取历史10条*/
                         asy.historyData(NSP+roomName,socket);
                     });
                 }else{
@@ -109,7 +115,7 @@ function socketMain(nsp,client){
                         openid = '',token = data.token;
                     }
 
-                    /*判断重复用户*/
+                    /*判断重复用户 没用的在线用户功能*/
                     var judge = users.filter(function(user){
                         if(user){
                             if(parseInt(uif.uid) == 1){
@@ -121,6 +127,7 @@ function socketMain(nsp,client){
                     });
 
                     client.incr(key, function(error, val){
+                        //----没用的用户在线人数功能start----
                         onlinesum = val;
                         userData = {"token":token,"openid":openid,"id": socket.id,"room":roomName,"posterURL":uif.posterURL,
                             "tel":uif.tel,"uid":uif.uid,"nickName":userName,"onlinesum":onlinesum};
@@ -137,6 +144,7 @@ function socketMain(nsp,client){
                         users.push(userData);
 
                         var uifD = openid?openid:uif.uid;
+
                         if(judge.length == 0){
                             userCode = uifD;
                             if(roomName!=''){
@@ -160,9 +168,15 @@ function socketMain(nsp,client){
                                 console.log(replies);
                             }
                         });
+                        //----没用的用户在线人数功能end----
+
                         socket.emit('userStatus',{status:0,msg:'用户验证成功',userData:{nickName:userName,posterURL:uif.posterURL}});
+
+                        //----没用的用户在线人数功能----
                         socket.emit('userWebStatus',{status:0,msg:'用户验证成功',userData:userData,users:users,onlinesum:onlinesum});
+
                         asy.historyData(NSP+roomName,socket);
+
                     });
                 }
                 console.log('-------------asy success-------------'/*,res*/);
@@ -220,7 +234,7 @@ function socketMain(nsp,client){
             }
         });
 
-        /*接收redis发来的消息*/
+        /*接收redis发来的消息 service命名空间需求*/
         socket.on('seRedisCome',function (data) {
             var room = data.room
             console.log('-------------redisCome',data.message+'-------------');
@@ -255,6 +269,7 @@ function socketMain(nsp,client){
             }
         });
 
+        /*接受用户发来的信息  service命名空间需求*/
         socket.on('sendMessage',data =>{
             try{
                 var data2 = {socketid:socket.id,cid: roomName,createTime:moment().unix(), place:NSP+':'+roomName};
@@ -373,6 +388,7 @@ function socketMain(nsp,client){
             });
         });
 
+        /*查询在线人数请求*/
         socket.on('onlineRequest',function(data){
             var key = data.key;
             client.get(key, function(error, val){

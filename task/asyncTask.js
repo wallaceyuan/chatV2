@@ -180,7 +180,7 @@ exports.kklogic = function (result,namBox) {
 			console.log('err!!!!',err);
 			err.room = room;
 			err.socketid = result.socketid;
-			if(parseInt(err.status) == 702){//�������д�
+			if(parseInt(err.status) == 702){//存在敏感词
 				result.violate = 1;
 				user.messageToKu(result,function(error,data){
 					if(error){
@@ -206,6 +206,7 @@ exports.kklogic = function (result,namBox) {
 			}
 		}else{
 			if(namBox[nsp]){
+				/*历史数据功能*/
 				client.multi().lpush('messageKKDM'+nsp+room,JSON.stringify(result),redis.print).expire('messageKKDM'+nsp+room,600).exec(function (err, replies) {
 					if(err){
 						callback({"status":706,"msg":'sclient 154 ��ѯ����'},null);
@@ -214,6 +215,7 @@ exports.kklogic = function (result,namBox) {
 						//console.log("kkUserBlack set");
 					}
 				});
+				/*历史数据功能*/
 				client.llen('messageKKDM'+nsp+room, function(error, count){
 					if(error){
 						console.log(error);

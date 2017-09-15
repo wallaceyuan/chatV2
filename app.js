@@ -8,8 +8,8 @@ var http = require('http');
 var fs = require('fs');
 //var port = normalizePort(process.env.PORT || '1000');
 var port = normalizePort(process.argv[2] || '3000');
-var socket = require('./middleware/socket');
 
+//路由
 var routes = require('./routes/index');
 var chats = require('./routes/chats');
 var violates = require('./routes/violates');
@@ -71,6 +71,8 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+var socket = require('./middleware/socket');
+
 socket.socketio(server);
 
 server.listen(port);
@@ -96,7 +98,6 @@ function normalizePort(val) {
   return false;
 }
 
-
 function onError(error) {
   if (error.syscall !== 'listen') {
     throw error;
@@ -120,7 +121,6 @@ function onError(error) {
       throw error;
   }
 }
-
 
 function onListening() {
   var addr = server.address();
